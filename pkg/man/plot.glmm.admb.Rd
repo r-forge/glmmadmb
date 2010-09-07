@@ -6,7 +6,7 @@
 the residuals. 
 }
 \usage{
-plot.glmm.admb(x, ...)
+\method{plot}{glmm.admb}(x, \dots)
 }
 \arguments{
   \item{x}{An object (a fit) returned from \code{glmm.admb}}
@@ -16,5 +16,5 @@ plot.glmm.admb(x, ...)
 Anders Nielsen andersn@hawaii.edu}
 
 \seealso{\code{\link{glmm.admb}}}
-\keyword{models}% at least one, from doc/KEYWORDS
+\keyword{models}
 

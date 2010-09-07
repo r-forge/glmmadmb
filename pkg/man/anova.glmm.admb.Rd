@@ -6,7 +6,7 @@
   Calculate an anova table from a series of model fits 
 }
 \usage{
-anova.glmm.admb(object, ...)
+\method{anova}{glmm.admb}(object, \dots)
 }
 \arguments{
   \item{object}{A model fit returned from \code{glmm.admb}}
@@ -26,6 +26,6 @@ anova.glmm.admb(object, ...)
   f2<-glmm.admb(y~Base*trt+Age,random=~Visit,group="subject",data=epil2,family="nbinom")
   anova(f2,f1)
 }
-\keyword{models}% at least one, from doc/KEYWORDS
+\keyword{models}
 
 

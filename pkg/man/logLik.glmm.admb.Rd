@@ -5,7 +5,7 @@
   Compute the log likelihood value 
 }
 \usage{
-logLik.glmm.admb(object, ...)
+\method{logLik}{glmm.admb}(object, \dots)
 }
 \arguments{
   \item{object}{An object (a fit) returned from \code{glmm.admb}}
@@ -20,4 +20,4 @@ Anders Nielsen andersn@hawaii.edu}
 
 \seealso{\code{\link{glmm.admb}}}
 
-\keyword{models}% at least one, from doc/KEYWORDS
+\keyword{models}

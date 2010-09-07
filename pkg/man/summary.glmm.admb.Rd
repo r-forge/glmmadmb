@@ -3,10 +3,10 @@
 
 \title{summary.glmm.admb}
 \description{
-  Default summart method for an 'glmm.admb' object
+  Default summary method for an 'glmm.admb' object
 }
 \usage{
-summary.glmm.admb(object, ...)
+\method{summary}{glmm.admb}(object, \dots)
 }
 
 \arguments{
@@ -17,5 +17,5 @@ summary.glmm.admb(object, ...)
 Anders Nielsen andersn@hawaii.edu}
 
 \seealso{\code{\link{glmm.admb}}}
-\keyword{models}% at least one, from doc/KEYWORDS
+\keyword{models}
 

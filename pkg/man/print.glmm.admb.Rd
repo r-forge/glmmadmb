@@ -3,10 +3,10 @@
 
 \title{Print glmm.admb objects}
 \description{
-
+  Print glmm.admb objects
 }
 \usage{
-print.glmm.admb(x,...)
+\method{print}{glmm.admb}(x,\dots)
 	}
 
 \arguments{
@@ -20,5 +20,5 @@ Anders Nielsen andersn@hawaii.edu}
 
 \seealso{\code{\link{glmm.admb}}}
 
-\keyword{models}% at least one, from doc/KEYWORDS
+\keyword{models}
 
