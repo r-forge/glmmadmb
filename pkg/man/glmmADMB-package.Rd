@@ -3,38 +3,41 @@
 \alias{glmmADMB}
 \docType{package}
 \title{
-What the package does (short line)
-~~ package title ~~
+Generalized Linear Mixed Models using AD Model Builder
 }
 \description{
-More about what it does (maybe more than one line)
-~~ A concise (1-5 lines) description of the package ~~
+     Fits mixed-effects models to count data using Binomial, Poisson or
+     negative binomial response distributions. Zero-inflated versions of 
+     Poisson and negative binomial distributions are available.
 }
 \details{
 \tabular{ll}{
 Package: \tab glmmADMB\cr
-Type: \tab Package\cr
-Version: \tab 1.0\cr
-Date: \tab 2006-10-13\cr
-License: \tab What license is it under?\cr
+Version: \tab 0.2\cr
+License: \tab BSD\cr
+Packaged: \tab Thu Dec 1 07:02:40 2005; andersn\cr
+Built: \tab R 2.2.0; ; 2005-12-01 07:13:48; unix\cr
 }
-~~ An overview of how to use the package, including the most important functions ~~
+
+Index:
+\preformatted{
+anova.glmm.admb         Anova for glmm.admb objects
+epil2                   Seizure Counts for Epileptics
+glmm.admb               Generalized Linear Mixed Models using AD Model Builder
+glmmADMB-package        What the package does (this help file)
+logLik.glmm.admb        logLik.glmm.admb
+plot.glmm.admb          plot.glmm.admb
+print.glmm.admb         Print glmm.admb objects
+ranef.glmm.admb         Extract Random Effects
+summary.glmm.admb       summary.glmm.admb
+}
+
 }
 \author{
-Who wrote it
+Hans Skaug <Hans.Skaug@mi.uib.no>, Dave Fournier
+<otter@otter-rsch.com>, Anders Nielsen <andersn@hawaii.edu>
 
-Maintainer: Who to complain to <yourfault@somewhere.net>
-~~ The author and/or maintainer of the package ~~
+Maintainer: Hans Skaug <Hans.Skaug@mi.uib.no>
+
 }
-\references{
-~~ Literature or other references for background information ~~
-}
-\keyword{ package }
-~~ Optionally other keywords from doc/KEYWORDS, one per line
-\seealso{
-~~ Optional links to other man pages, e.g. ~~
-~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
-}
-\examples{
-~~ simple examples of the most important functions ~~
-}
+\keyword{models}

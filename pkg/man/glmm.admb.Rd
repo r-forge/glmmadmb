@@ -8,7 +8,9 @@
      Poisson and negative binomial distributions are available.
 }
 \usage{ glmm.admb(fixed, random, group, data, family = "poisson", link, corStruct = "diag", 
-		impSamp = 0, easyFlag = TRUE, zeroInflation = FALSE, imaxfn = 10, save.dir= NULL)
+		impSamp = 0, easyFlag = TRUE, zeroInflation = FALSE,
+imaxfn = 10, save.dir= NULL,
+offset)
 }
 \arguments{
   \item{fixed}{a two-sided linear formula object describing the
@@ -30,7 +32,9 @@
   \item{easyFlag}{logical.  If 'TRUE', a faster but less robust optimization algorithm is employed (only "poisson" and "nbinom").}
   \item{zeroInflation}{logical.  If 'TRUE', a zero-inflated model is fitted (only "poisson" and "nbinom")}
   \item{imaxfn}{integer. Number of function evaluations used in intermediate optimization steps.}
-  \item{save.dir}{If a quoted directory name is specified all the ADMB output files are saved there.}
+  \item{save.dir}{If a quoted directory name is specified all the ADMB
+    output files are saved there.}
+  \item{offset}{optional offset for the model (see \code{\link{offset}})}
 }
 \details{
 
