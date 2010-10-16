@@ -3,17 +3,17 @@
 \docType{data}
 \title{Seizure Counts for Epileptics}
 \description{
-Extended version of the 'epil' dataset of the MASS library. 
-The three transformed variables \code{Visit}, \code{Base} and \code{Age} used
-by Booth et al. (2003) have been added to 'epil'.
-
+  Extended version of the 'epil' dataset of the MASS library. The three
+  transformed variables \code{Visit}, \code{Base} and \code{Age} used by
+  Booth et al. (2003) have been added to 'epil'.
 }
 \usage{data(epil2)}
 \format{
   A data frame with 236 observations on the following 12 variables.
   \describe{
     \item{\code{y}}{a numeric vector}
-    \item{\code{trt}}{a factor with levels \code{placebo} \code{progabide}}
+    \item{\code{trt}}{a factor with levels \code{placebo}
+      \code{progabide}}
     \item{\code{base}}{a numeric vector}
     \item{\code{age}}{a numeric vector}
     \item{\code{V4}}{a numeric vector}
@@ -27,7 +27,7 @@ by Booth et al. (2003) have been added to 'epil'.
   }
 }
 \references{
-  Booth et al. (2003) Negative binomial loglinear mixed models 
+  Booth et al. (2003) Negative binomial loglinear mixed models
   STATISTICAL MODELLING 3 (3): 179-191
 }
 \examples{
