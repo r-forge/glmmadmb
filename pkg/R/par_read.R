@@ -1,20 +1,26 @@
-"par_read" <-
-function (name)
+"par_read" <- function(name)
 {
-    n = nchar(name)
-    if (substring(name, n - 3, n) == ".par")
-        file_name = name
-    else file_name = paste(name, ".par", sep = "")
-    tmp = scan(file_name, what = "", quiet = TRUE)
-    tmp2 = split(tmp, cumsum(tmp == "#"))
-    x = tmp2[-1]
-    for (i in 1:length(x)) {
-        y = x[[i]]
-        n = nchar(y[2])
-        x[[i]] = as.numeric(y[-(1:2)])
-        names(x)[i] = substring(y[2], 1, n - 1)
-    }
-    x$loglik = -as.numeric(tmp2[[1]][11])
-    x$gradient = -as.numeric(tmp2[[1]][16])
-    x
+  n = nchar(name)
+
+  if(substring(name,n-3,n) == ".par")
+    file_name = name
+  else
+    file_name = paste(name, ".par", sep="")
+
+  tmp = scan(file_name, what="", quiet=TRUE)
+  tmp2 = split(tmp, cumsum(tmp=="#"))
+  x = tmp2[-1]
+
+  for(i in 1:length(x))
+  {
+    y = x[[i]]
+    n = nchar(y[2])
+    x[[i]] = as.numeric(y[-(1:2)])
+    names(x)[i] = substring(y[2], 1, n-1)
+  }
+
+  x$loglik = -as.numeric(tmp2[[1]][11])
+  x$gradient = -as.numeric(tmp2[[1]][16])
+
+  x
 }

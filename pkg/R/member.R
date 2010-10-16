@@ -1,3 +1,2 @@
-"member" <-
-function (x, y)
-!is.na(match(x, y))
+"member" <- function(x, y)
+  !is.na(match(x, y))
