@@ -123,7 +123,9 @@ glmm.admb <- function(fixed, random, group, data, family="poisson", link, corStr
                        dimnames=list(data[,group][group_d[-1]-1],colnames(Z)))
   }
   else
+  {
     U <- matrix(rep(0,q), ncol=1, byrow=TRUE)
+  }
 
   mu <- as.numeric(X %*% out$b)
   lambda <- 0
