@@ -1,22 +1,30 @@
 \name{anova.glmm.admb}
 \alias{anova.glmm.admb}
-\title{Anova for glmm.admb objects}
-\description{Calculate an anova table from a series of model fits}
+\title{Anova Table}
+\description{Compute an anova table for a series of fitted models.}
 \usage{
 \method{anova}{glmm.admb}(object, \dots)
 }
 \arguments{
-  \item{object}{A model fit returned from \code{glmm.admb}}
-  \item{\dots}{One or more model fits with same random effects}
+  \item{object}{a fitted \code{glmm.admb} model.}
+  \item{\dots}{more fitted models, with the same random effects.}
 }
 \details{
   Basic anova table for testing the fixed effects (may be extended
-  later)
+  later).
 }
-\value{An anova table}
+\value{
+  An object of class \code{"anova"}, inheriting from class
+  \code{"data.frame"}.
+}
 \author{
-  H. Skaug skaug@mi.uib.no, David Fournier otter@otter-rsch.com and
-  Anders Nielsen andersn@hawaii.edu}
+  Hans Skaug, David Fournier, and Anders Nielsen.
+}
+\seealso{
+  \code{\link{glmm.admb}}.
+
+  \code{\link{glmmADMB-package}}.
+}
 \examples{
   data(epil2)
   f1<-glmm.admb(y~Base*trt+Age+Visit, random=~Visit, group="subject",

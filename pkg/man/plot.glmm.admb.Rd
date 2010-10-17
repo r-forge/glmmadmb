@@ -1,20 +1,21 @@
 \name{plot.glmm.admb}
 \alias{plot.glmm.admb}
-\title{plot.glmm.admb}
+\title{Plot Model Fit}
 \description{
-  Default plotting method for a 'glmm.admb' object. Currently it only
-  plots the residuals.
+  Default plotting method for a fitted \code{glmm.admb} model.
+  Currently, it only plots the residuals.
 }
 \usage{
 \method{plot}{glmm.admb}(x, \dots)
 }
 \arguments{
-  \item{x}{An object (a fit) returned from \code{glmm.admb}}
-  \item{\dots}{Further arguments passed to \code{plot}}
+  \item{x}{a fitted \code{glmm.admb} model.}
+  \item{\dots}{further arguments passed to \code{plot}.}
 }
-\author{
-  H. Skaug skaug@mi.uib.no, David Fournier otter@otter-rsch.com and
-  Anders Nielsen andersn@hawaii.edu
+\author{Hans Skaug, David Fournier, and Anders Nielsen.}
+\seealso{
+  \code{\link{glmm.admb}}.
+
+  \code{\link{glmmADMB-package}}.
 }
-\seealso{\code{\link{glmm.admb}}}
 \keyword{models}

@@ -1,95 +1,101 @@
 \name{glmm.admb}
 \alias{glmm.admb}
-\title{Generalized Linear Mixed Models using AD Model Builder}
+\title{Generalized Linear Mixed Models Using AD Model Builder}
 \description{
-  Fits mixed-effects models to count data using Binomial, Poisson or
+  Fits mixed-effects models to count data using binomial, Poisson, or
   negative binomial response distributions. Zero-inflated versions of
-  Poisson and negative binomial distributions are available.
+  Poisson and negative binomial distributions are supported.
 }
-\usage{glmm.admb(fixed, random, group, data, family="poisson", link,
-       corStruct="diag", impSamp=0, easyFlag=TRUE, zeroInflation=FALSE,
-       imaxfn=10, save.dir=NULL, offset)
+\usage{
+glmm.admb(fixed, random, group, data, family="poisson", link,
+          corStruct="diag", impSamp=0, easyFlag=TRUE,
+          zeroInflation=FALSE, imaxfn=10, save.dir=NULL, offset)
 }
 \arguments{
-  \item{fixed}{a two-sided linear formula object describing the
-    fixed-effects part of the model, with the response on the left of a
-    '~' operator and the terms, separated by '+' operators, on the
+  \item{fixed}{a two-sided linear formula describing the fixed-effects
+    part of the model. The response is on the left of a \code{~}
+    operator and the terms, separated by \code{+} operators, are on the
     right.}
-  \item{random}{optionally, a one-sided formula object describing the
-    random-effects part of the model. When 'random' is missing an
+  \item{random}{optionally, a one-sided formula describing the
+    random-effects part of the model. When \code{random} is missing, an
     ordinary GLM without random effects is fitted.}
-  \item{group}{a character string naming the main nesting variable.}
-  \item{data}{a data frame containing the variables named in 'fixed',
-    'random' and 'group'.}
-  \item{family}{a character string determining the response
-    distribution: "poisson" or "nbinom".}
-  \item{link}{a character string specifying the shape of the link
-    function ("logit" or "probit") used for the "binomial" family.}
-  \item{corStruct}{a character string specifying the covariance
-    structure of the random effects vector. Two types of covariance
-    matrices are are currently implemented: "diag" (diagonal matrix) and
-    "full" (positive definite matrix with all elements being
+  \item{group}{a string naming the main nesting variable.}
+  \item{data}{a data frame containing the variables named in
+    \code{fixed}, \code{random}, and \code{group}.}
+  \item{family}{a string determining the response distribution:
+    \code{"poisson"} or \code{"nbinom"}.}
+  \item{link}{a string specifying the shape of the link function
+    (\code{"logit"} or \code{"probit"}) used for the \code{"binomial"}
+    family.}
+  \item{corStruct}{a string specifying the covariance structure of the
+    random effects vector. Two types of covariance matrices are
+    currently implemented: \code{"diag"} (diagonal matrix) and
+    \code{"full"} (positive definite matrix with all elements being
     estimated).}
-  \item{impSamp}{integer. The sample size in the importance sampling
-    correction of the Laplace approximation (impSamp=0 yields a plain
+  \item{impSamp}{the sample size in the importance sampling correction
+    of the Laplace approximation (\code{impSamp=0} yields a plain
     Laplace approximation).}
-  \item{easyFlag}{logical. If 'TRUE', a faster but less robust
-    optimization algorithm is employed (only "poisson" and "nbinom").}
-  \item{zeroInflation}{logical. If 'TRUE', a zero-inflated model is
-    fitted (only "poisson" and "nbinom")}
-  \item{imaxfn}{integer. Number of function evaluations used in
-    intermediate optimization steps.}
-  \item{save.dir}{If a quoted directory name is specified all the ADMB
-    output files are saved there.}
+  \item{easyFlag}{whether a faster but less robust optimization
+    algorithm should be employed (only \code{"poisson"} and
+    \code{"nbinom"} families).}
+  \item{zeroInflation}{whether a zero-inflated model should be fitted
+    (only \code{"poisson"} and \code{"nbinom"} families).}
+  \item{imaxfn}{number of function evaluations used in intermediate
+    optimization steps.}
+  \item{save.dir}{optionally, a directory name where all ADMB output
+    files are saved.}
   \item{offset}{optional offset for the model (see
-    \code{\link{offset}})}
+    \code{\link{offset}}).}
 }
 \details{
-  Currently, the "binomial" familiy only accepts Bernoully responce (0
-  or 1).
+  Currently, the \code{"binomial"} family only accepts Bernoulli
+  response (0 or 1).
 
-  Parameterization of the negative binomial distribution: Var(Y) =
-  E(Y)*(1+E(Y)/alpha).
+  Parameterization of the negative binomial distribution:
 
-  Zero-inflation: With probability '1-pz' Y comes from a Poisson (or
-  negative binomial) distribution, and with probability 'pz' Y is zero
-  (Bohning et al., 1999). Only available with "poisson" and "nbinom"
-  response.
+  \deqn{\mathrm{Var}(Y) = E(Y) \left[1 +
+  \frac{E(Y)}{\alpha}\right]}{Var(Y) = E(Y) * (1 + E(Y)/alpha)}
 
-  Parameters are estimated by maximum likelihood using the Laplace
-  approximation to evaluate the marginal likelihood. When 'impSamp > 0'
-  importance sampling is used to improve the Laplace approximation
-  (Skaug and Fournier, 2005).
+  Zero-inflation: With probability \eqn{1-pz}, \eqn{Y} comes from a
+  Poisson (or negative binomial) distribution, and with probability
+  \eqn{pz}, \eqn{Y} is zero (Bohning et al. 1999). Only available with
+  "poisson" and "nbinom" response.
 
-  If the message 'Proper convergence could not be reached' occurs, try
-  to increase the parameter 'imaxfn' and to set 'easyFlag = FALSE'.
+  Parameters are estimated by maximum likelihood, using the Laplace
+  approximation to evaluate the marginal likelihood. When \code{impSamp
+  > 0}, importance sampling is used to improve the Laplace approximation
+  (Skaug and Fournier 2006).
+
+  If the message \code{'Proper convergence could not be reached'}
+  occurs, try to increase the parameter \code{imaxfn} and to set
+  \code{easyFlag=FALSE}.
 }
 \value{
-  An object of class 'glmm.admb' representing the model fit. The generic
-  function 'print' has a method to show the results of the fit.
-  \item{b}{vector of fixed effects}
-  \item{S}{covariance matrix of random effects}
+  An object of class \code{"glmm.admb"} representing the model fit:
+  \item{b}{vector of fixed effects.}
+  \item{S}{covariance matrix of random effects.}
   \item{alpha}{parameter in negative binomial distribution (only when
-    'family = "poisson"')}
-  \item{pz}{Zero-inflation parameter (only when 'zeroInflation = TRUE')}
+  \code{family="poisson"}).}
+  \item{pz}{Zero-inflation parameter (only when
+  \code{zeroInflation=TRUE}).}
 }
+\author{Hans Skaug, David Fournier, and Anders Nielsen.}
 \references{
-  Bohning, D. et al (1999). The Zero-Inflated Poisson Model and the
-  Decayed, Missing and Filled Teeth Index in Dental Epidemiology.
-  Journal of the Royal Statistical Society. Series A (Statistics in
-  Society) Vol. 162, No. 2 (1999), pp. 195-209.
+  Bohning, D., E. Dietz, and P. Schlattmann. 1999. The zero-inflated
+  Poisson model and the decayed, missing and filled teeth index in
+  dental epidemiology. Journal of the Royal Statistical Society. Series
+  A (Statistics in Society) 162:195--209.
 
-  Skaug and Fournier (2005). Automatic Evaluation of the Marginal
-  Likelihood in Nonlinear Hierarchical Models. Unpublished available
-  from: http://bemata.imr.no/laplace.pdf
+  Skaug, H.J. and D.A. Fournier. 2006. Automatic approximation of the
+  marginal likelihood in non-Gaussian hierarchical models. Computational
+  Statistics & Data Analysis 51:699--709.
 }
-\author{
-  H. Skaug skaug@mi.uib.no, David Fournier otter@otter-rsch.com and
-  Anders Nielsen andersn@hawaii.edu
+\seealso{
+  \code{\link{glmmADMB-package}}.
 }
 \examples{
-  data(epil2)
-  glmm.admb(y~Base*trt+Age+Visit, random=~Visit, group="subject",
-            data=epil2, family="nbinom")
+  fm <- glmm.admb(y~Base*trt+Age+Visit, random=~Visit, group="subject",
+                  data=epil2, family="nbinom")
+  fm
 }
-\keyword{models}% at least one, from doc/KEYWORDS
+\keyword{models}

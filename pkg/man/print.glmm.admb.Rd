@@ -1,20 +1,20 @@
 \name{print.glmm.admb}
 \alias{print.glmm.admb}
-\title{Print glmm.admb objects}
-\description{Print glmm.admb objects}
+\title{Print Model}
+\description{Print \code{glmm.admb} object.}
 \usage{
 \method{print}{glmm.admb}(x,\dots)
 }
 \arguments{
-  \item{x}{as returned from \code{glmm.admb} }
-  \item{...}{Additional arguments here an argument
-    \code{sd_S_print=FALSE}, if set \code{TRUE} the covariance matrix of
-    random effects vector and corresponding standard deviations are
-    obtained}
+  \item{x}{a fitted \code{glmm.admb} model.}
+  \item{\dots}{further arguments. If \code{sd_S_print=TRUE}, the
+    covariance matrix of random effects vector and corresponding
+    standard deviations are obtained.}
 }
-\author{
-  H. Skaug skaug@mi.uib.no, David Fournier otter@otter-rsch.com and
-  Anders Nielsen andersn@hawaii.edu
+\author{Hans Skaug, David Fournier, and Anders Nielsen.}
+\seealso{
+  \code{\link{glmm.admb}}.
+
+  \code{\link{glmmADMB-package}}.
 }
-\seealso{\code{\link{glmm.admb}}}
 \keyword{models}

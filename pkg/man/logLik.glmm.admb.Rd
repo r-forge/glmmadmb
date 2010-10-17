@@ -1,18 +1,21 @@
 \name{logLik.glmm.admb}
 \alias{logLik.glmm.admb}
-\title{logLik.glmm.admb}
-\description{Compute the log likelihood value}
+\title{Extract Log Likelihood}
+\description{
+  Extract the log likelihood of a fitted \code{glmm.admb} model.
+}
 \usage{
 \method{logLik}{glmm.admb}(object, \dots)
 }
 \arguments{
-  \item{object}{An object (a fit) returned from \code{glmm.admb}}
-  \item{\dots}{Further arguments passed on}
+  \item{object}{a fitted \code{glmm.admb} model.}
+  \item{\dots}{further arguments (currently ignored).}
 }
-\value{An object of class 'logLik'}
-\author{
-  H. Skaug skaug@mi.uib.no, David Fournier otter@otter-rsch.com and
-  Anders Nielsen andersn@hawaii.edu
+\value{An object of class \code{"logLik"}.}
+\author{Hans Skaug, David Fournier, and Anders Nielsen.}
+\seealso{
+  \code{\link{glmm.admb}}.
+
+  \code{\link{glmmADMB-package}}.
 }
-\seealso{\code{\link{glmm.admb}}}
 \keyword{models}

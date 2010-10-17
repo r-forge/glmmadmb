@@ -1,20 +1,17 @@
-"print.glmm.admb" <- function(x, ...)
+print.glmm.admb <- function(x, ...)
 {
   object <- x
+
   if(is.null(list(...)$sd_S_print))
-  {
-    sd_S_print = FALSE
-  }
+    sd_S_print <- FALSE
   else
-  {
-    sd_S_print = list(...)$sd_S_print
-  }
+    sd_S_print <- list(...)$sd_S_print
 
   cat("\nGLMM's in R powered by AD Model Builder:\n\n")
   cat("  Family:", object$family, "\n")
   if(object$family == "nbinom")
     cat("  alpha =", object$alpha, "\n")
-  if(!is.null(object$link) & object$family=="nbinom")
+  if(!is.null(object$link) && object$family=="nbinom")
     cat("  link =", object$link, "\n")
   if(object$zeroInflation)
     cat("  Zero inflaction: p =", object$pz, "\n")
@@ -31,10 +28,10 @@
     if(object$corStruct == "full")
     {
       cat("Structure: General positive-definite\n")
-      tmp = cov2cor(object$S)
-      tmp[t(below(nrow(tmp)))] = NA
-      tmp = cbind(sqrt(diag(object$S)), tmp)
-      dimnames(tmp) = list(rownames(object$S), c("StdDev","Corr",rep("",nrow(tmp)-1)))
+      tmp <- cov2cor(object$S)
+      tmp[t(below(nrow(tmp)))] <- NA
+      tmp <- cbind(sqrt(diag(object$S)), tmp)
+      dimnames(tmp) <- list(rownames(object$S), c("StdDev","Corr",rep("",nrow(tmp)-1)))
       print(tmp, na.print="")
     }
     else
@@ -57,5 +54,5 @@
   if(abs(object$gradloglik) >= 0.001)
     warning("Object has a large gradient component")
 
-  invisible()
+  invisible(NULL)
 }
