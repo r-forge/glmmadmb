@@ -3,34 +3,41 @@
 \docType{data}
 \title{Seizure Counts for Epileptics}
 \description{
-  Extended version of the 'epil' dataset of the MASS library. The three
-  transformed variables \code{Visit}, \code{Base} and \code{Age} used by
-  Booth et al. (2003) have been added to 'epil'.
+  Extended version of the \code{epil} dataset of the \pkg{MASS} package.
+  The three transformed variables \code{Visit}, \code{Base}, and
+  \code{Age} used by Booth et al. (2003) have been added to \code{epil}.
 }
-\usage{data(epil2)}
+\usage{epil2}
 \format{
-  A data frame with 236 observations on the following 12 variables.
+  A data frame with 236 observations on the following 12 variables:
   \describe{
-    \item{\code{y}}{a numeric vector}
-    \item{\code{trt}}{a factor with levels \code{placebo}
-      \code{progabide}}
-    \item{\code{base}}{a numeric vector}
-    \item{\code{age}}{a numeric vector}
-    \item{\code{V4}}{a numeric vector}
-    \item{\code{subject}}{a numeric vector}
-    \item{\code{period}}{a numeric vector}
-    \item{\code{lbase}}{a numeric vector}
-    \item{\code{lage}}{a numeric vector}
-    \item{Visit}{(rep(1:4,59)-2.5)/5}
-    \item{Base}{log(base/4)}
-    \item{Age}{log(age)}
+    \item{\code{y}}{an integer vector.}
+    \item{\code{trt}}{a factor with levels \code{"placebo"} and
+      \code{"progabide"}.}
+    \item{\code{base}}{an integer vector.}
+    \item{\code{age}}{an integer vector.}
+    \item{\code{V4}}{an integer vector.}
+    \item{\code{subject}}{an integer vector.}
+    \item{\code{period}}{an integer vector.}
+    \item{\code{lbase}}{a numeric vector.}
+    \item{\code{lage}}{a numeric vector.}
+    \item{Visit}{\code{(rep(1:4,59) - 2.5) / 5}.}
+    \item{Base}{\code{log(base/4)}.}
+    \item{Age}{\code{log(age)}.}
   }
 }
 \references{
-  Booth et al. (2003) Negative binomial loglinear mixed models
-  STATISTICAL MODELLING 3 (3): 179-191
+  Booth, J.G., G. Casella, H. Friedl, and J.P. Hobert. 2003. Negative
+  binomial loglinear mixed models. Statistical Modelling 3:179--191.
+}
+\seealso{
+  \code{\link{glmm.admb}}.
+
+  \code{\link{glmmADMB-package}}.
 }
 \examples{
-data(epil2)
+fm <- glmm.admb(y~Base*trt+Age+Visit, random=~Visit, group="subject",
+                data=epil2, family="nbinom")
+fm
 }
 \keyword{datasets}
