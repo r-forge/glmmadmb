@@ -11,7 +11,6 @@
     covariance matrix of random effects vector and corresponding
     standard deviations are obtained.}
 }
-\author{Hans Skaug, David Fournier, and Anders Nielsen.}
 \seealso{
   \code{\link{glmm.admb}}.
 

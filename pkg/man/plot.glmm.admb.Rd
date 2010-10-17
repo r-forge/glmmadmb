@@ -12,7 +12,6 @@
   \item{x}{a fitted \code{glmm.admb} model.}
   \item{\dots}{further arguments passed to \code{plot}.}
 }
-\author{Hans Skaug, David Fournier, and Anders Nielsen.}
 \seealso{
   \code{\link{glmm.admb}}.
 

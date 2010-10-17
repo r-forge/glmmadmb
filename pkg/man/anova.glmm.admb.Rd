@@ -17,9 +17,6 @@
   An object of class \code{"anova"}, inheriting from class
   \code{"data.frame"}.
 }
-\author{
-  Hans Skaug, David Fournier, and Anders Nielsen.
-}
 \seealso{
   \code{\link{glmm.admb}}.
 

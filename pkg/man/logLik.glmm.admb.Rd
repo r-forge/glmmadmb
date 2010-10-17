@@ -12,7 +12,6 @@
   \item{\dots}{further arguments (currently ignored).}
 }
 \value{An object of class \code{"logLik"}.}
-\author{Hans Skaug, David Fournier, and Anders Nielsen.}
 \seealso{
   \code{\link{glmm.admb}}.
 

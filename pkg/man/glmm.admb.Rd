@@ -79,7 +79,6 @@ glmm.admb(fixed, random, group, data, family="poisson", link,
   \item{pz}{Zero-inflation parameter (only when
   \code{zeroInflation=TRUE}).}
 }
-\author{Hans Skaug, David Fournier, and Anders Nielsen.}
 \references{
   Bohning, D., E. Dietz, and P. Schlattmann. 1999. The zero-inflated
   Poisson model and the decayed, missing and filled teeth index in

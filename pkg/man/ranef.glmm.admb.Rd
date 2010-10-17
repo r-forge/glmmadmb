@@ -25,7 +25,6 @@ ranef.glmm.admb(object, sd=FALSE, \dots)
 \value{
   A matrix of estimated random effects (or standard deviations).
 }
-\author{Hans Skaug, David Fournier, and Anders Nielsen.}
 \seealso{
   \code{\link{glmm.admb}}.
 

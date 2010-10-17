@@ -9,7 +9,6 @@
   \item{object}{a fitted \code{glmm.admb} model.}
   \item{\dots}{further arguments passed to \code{print.glmm.admb}.}
 }
-\author{Hans Skaug, David Fournier, and Anders Nielsen.}
 \seealso{
   \code{\link{glmm.admb}}.
 
