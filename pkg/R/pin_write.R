@@ -1,6 +1,7 @@
 pin_write <- function(name, L)
 {
-  filename <- if(tools::file_ext(name)=="pin") name else paste(name,".pin",sep="")
+  filename <- if(substring(name,nchar(name)-3)==".pin") name else paste(name,".pin",sep="")
+  ## filename <- if(tools::file_ext(name)=="pin") name else paste(name,".pin",sep="") # R 2.11 and later
 
   cat("# \"", name, ".pin\" produced by pin_write() from ADMButils; ", date(), "\n", file=filename, sep="")
 

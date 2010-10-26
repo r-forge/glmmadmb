@@ -1,6 +1,7 @@
 par_read <- function(name)
 {
-  filename <- if(tools::file_ext(name)=="par") name else paste(name,".par",sep="")
+  filename <- if(substring(name,nchar(name)-3)==".par") name else paste(name,".par",sep="")
+  ## filename <- if(tools::file_ext(name)=="par") name else paste(name,".par",sep="") # R 2.11 and later
 
   tmp <- scan(filename, what="", quiet=TRUE)
   tmp2 <- split(tmp, cumsum(tmp=="#"))
