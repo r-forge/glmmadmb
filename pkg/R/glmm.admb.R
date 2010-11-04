@@ -71,13 +71,19 @@ glmm.admb <- function(fixed, random, group, data, family="poisson", link, corStr
 
   if(.Platform$OS.type == "windows")
   {
-    cmd <- paste(.path.package("glmmADMB"), "/admb/", file_name, ".exe", " ", cmdoptions, sep="")
+    cmd <- paste(system.file("admb","windows",file_name,package="glmmADMB"), ".exe", " ", cmdoptions, sep="")
     shell(cmd, invisible=TRUE)
-  }
-  else
-  {
-    cmd1 <- paste("cp ", .path.package("glmmADMB"), "/admb/", file_name, " .", sep="")
-    system(cmd1)
+  } else  {
+    if (substr(R.version$os,1,6)=="darwin") {
+      ## MacOS detection OK?
+      ## http://tolstoy.newcastle.edu.au/R/e2/help/07/01/8497.html
+      ## do we really need to copy the binaries over to the temp directory, or can we
+      ##   run them in situ?
+      file.copy(system.file("admb","macos",file_name,package="glmmADMB"),".")
+    } else if (R.version$os=="linux-gnu") {
+      file.copy(system.file("admb","linux",file_name,package="glmmADMB"),".")
+    } else stop("unknown OS detected")
+    Sys.chmod(file_name,mode="0755") ## file.copy strips executable permissions????
     cmd2 <- paste("./", file_name, " ", cmdoptions, sep="")
     system(cmd2)
     unlink(file_name)

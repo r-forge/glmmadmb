@@ -1,7 +1,9 @@
-inst/admb/bvprobit
-inst/admb/bvprobit.exe
-inst/admb/nbmm
-inst/admb/nbmm.exe
+inst/admb/linux/bvprobit
+inst/admb/macos/bvprobit
+inst/admb/windows/bvprobit.exe
+inst/admb/linux/nbmm
+inst/admb/macos/nbmm
+inst/admb/windows/nbmm.exe
 inst/admb/.svn/text-base/bvprobit.exe.svn-base
 inst/admb/.svn/text-base/bvprobit.svn-base
 inst/admb/.svn/text-base/nbmm.exe.svn-base
