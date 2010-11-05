@@ -1,0 +1,6 @@
+2010-11-05  Ben Bolker  <bolker@mcmaster.ca>
+
+	* added this ChangeLog (parallel to SVN log?)
+	* added 'verbose' flag to glmm.admb (default FALSE), to suppress interim output from ADMB
+
+

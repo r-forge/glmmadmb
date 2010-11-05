@@ -1,5 +1,5 @@
 glmm.admb <- function(fixed, random, group, data, family="poisson", link, corStruct="diag", impSamp=0, easyFlag=TRUE,
-                      zeroInflation=FALSE, imaxfn=10, save.dir=NULL, offset)
+                      zeroInflation=FALSE, imaxfn=10, save.dir=NULL, offset, verbose=FALSE)
 {
   dirname <- if(is.null(save.dir)) "_glmm_ADMB_temp_dir_" else save.dir
   if(!file_test("-d",dirname))
@@ -85,7 +85,7 @@ glmm.admb <- function(fixed, random, group, data, family="poisson", link, corStr
     } else stop("unknown OS detected")
     Sys.chmod(file_name,mode="0755") ## file.copy strips executable permissions????
     cmd2 <- paste("./", file_name, " ", cmdoptions, sep="")
-    system(cmd2)
+    sys.result <- system(cmd2,intern=!verbose)
     unlink(file_name)
   }
 
