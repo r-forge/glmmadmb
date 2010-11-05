@@ -4,7 +4,10 @@ inst/admb/windows/bvprobit.exe
 inst/admb/linux/nbmm
 inst/admb/macos/nbmm
 inst/admb/windows/nbmm.exe
-inst/admb/.svn/text-base/bvprobit.exe.svn-base
-inst/admb/.svn/text-base/bvprobit.svn-base
-inst/admb/.svn/text-base/nbmm.exe.svn-base
-inst/admb/.svn/text-base/nbmm.svn-base
+inst/admb/linux/.svn/text-base/bvprobit.svn-base
+inst/admb/linux/.svn/text-base/nbmm.svn-base
+inst/admb/macos/.svn/text-base/bvprobit.svn-base
+inst/admb/macos/.svn/text-base/nbmm.svn-base
+inst/admb/windows/.svn/text-base/bvprobit.exe.svn-base
+inst/admb/windows/.svn/text-base/nbmm.exe.svn-base
+
