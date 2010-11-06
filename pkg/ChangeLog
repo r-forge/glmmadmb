@@ -1,3 +1,7 @@
+2010-11-06  Ben Bolker  <bolker@mcmaster.ca>
+
+	* added coef, fitted, residuals accessors, TODO list
+
 2010-11-05  Ben Bolker  <bolker@mcmaster.ca>
 
 	* added this ChangeLog (parallel to SVN log?)
