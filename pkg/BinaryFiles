@@ -1,13 +1,13 @@
-inst/admb/linux/bvprobit
-inst/admb/macos/bvprobit
-inst/admb/windows/bvprobit.exe
-inst/admb/linux/nbmm
-inst/admb/macos/nbmm
-inst/admb/windows/nbmm.exe
-inst/admb/linux/.svn/text-base/bvprobit.svn-base
-inst/admb/linux/.svn/text-base/nbmm.svn-base
-inst/admb/macos/.svn/text-base/bvprobit.svn-base
-inst/admb/macos/.svn/text-base/nbmm.svn-base
-inst/admb/windows/.svn/text-base/bvprobit.exe.svn-base
-inst/admb/windows/.svn/text-base/nbmm.exe.svn-base
+inst/bin/linux/bvprobit
+inst/bin/macos/bvprobit
+inst/bin/windows/bvprobit.exe
+inst/bin/linux/nbmm
+inst/bin/macos/nbmm
+inst/bin/windows/nbmm.exe
+inst/bin/linux/.svn/text-base/bvprobit.svn-base
+inst/bin/linux/.svn/text-base/nbmm.svn-base
+inst/bin/macos/.svn/text-base/bvprobit.svn-base
+inst/bin/macos/.svn/text-base/nbmm.svn-base
+inst/bin/windows/.svn/text-base/bvprobit.exe.svn-base
+inst/bin/windows/.svn/text-base/nbmm.exe.svn-base
 

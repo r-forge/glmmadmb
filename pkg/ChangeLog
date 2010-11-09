@@ -1,3 +1,7 @@
+2010-11-09  Ben Bolker  <bolker@mcmaster.ca>
+
+	* moved inst/admb to inst/bin; added inst/tpl directory
+
 2010-11-06  Ben Bolker  <bolker@mcmaster.ca>
 
 	* added coef, fitted, residuals accessors, TODO list
