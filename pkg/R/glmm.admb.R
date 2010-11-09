@@ -20,7 +20,7 @@ glmm.admb <- function(fixed, random, group, data, family="poisson", link, corStr
   if(missing(link) && family=="binomial")
     stop("Argument \"link\" must be provided for the \"binomial\" family)")
   if(!missing(offset) && (!is.character(offset) || length(offset)!=1 || !(offset %in% names(data))))
-    stop("An error occured in relatation to the argument \"offset\". It must be a character string specifying of the variable holding the offset")
+    stop("\"offset\" must be a character string specifying the variable holding the offset")
   Offset <- if(missing(offset)) rep(0,nrow(data)) else data[[offset]]
 
   tmpu <- table(data[[group]])
@@ -71,7 +71,7 @@ glmm.admb <- function(fixed, random, group, data, family="poisson", link, corStr
 
   if(.Platform$OS.type == "windows")
   {
-    cmd <- paste(system.file("admb","windows",file_name,package="glmmADMB"), ".exe", " ", cmdoptions, sep="")
+    cmd <- paste("\"",system.file("bin","windows",file_name,package="glmmADMB"), ".exe", "\"", " ", cmdoptions, sep="")
     shell(cmd, invisible=TRUE)
   } else  {
     if (substr(R.version$os,1,6)=="darwin") {
@@ -79,9 +79,9 @@ glmm.admb <- function(fixed, random, group, data, family="poisson", link, corStr
       ## http://tolstoy.newcastle.edu.au/R/e2/help/07/01/8497.html
       ## do we really need to copy the binaries over to the temp directory, or can we
       ##   run them in situ?
-      file.copy(system.file("admb","macos",file_name,package="glmmADMB"),".")
+      file.copy(system.file("bin","macos",file_name,package="glmmADMB"),".")
     } else if (R.version$os=="linux-gnu") {
-      file.copy(system.file("admb","linux",file_name,package="glmmADMB"),".")
+      file.copy(system.file("bin","linux",file_name,package="glmmADMB"),".")
     } else stop("unknown OS detected")
     Sys.chmod(file_name,mode="0755") ## file.copy strips executable permissions????
     cmd2 <- paste("./", file_name, " ", cmdoptions, sep="")
