@@ -45,8 +45,10 @@ glmm.admb(fixed, random, group, data, family="poisson", link,
     optimization steps.}
   \item{save.dir}{optionally, a directory name where all ADMB output
     files are saved.}
-  \item{offset}{optional offset for the model (see
-    \code{\link{offset}}).}
+  \item{offset}{optional offset for the model: should
+be specified as the name of the offset variable (which should
+be on the scale of the linear predictor, and included in the
+data frame: see example below).}
   \item{verbose}{(logical) Print interim output from AD Model Builder run?}
 }
 \details{
@@ -95,8 +97,14 @@ glmm.admb(fixed, random, group, data, family="poisson", link,
   \code{\link{glmmADMB-package}}.
 }
 \examples{
-  fm <- glmm.admb(y~Base*trt+Age+Visit, random=~Visit, group="subject",
-                  data=epil2, family="nbinom")
-  fm
+  (fm <- glmm.admb(y~Base*trt+Age+Visit, random=~Visit, group="subject",
+                  data=epil2, family="nbinom"))
+data(Owls)
+Owls$offset <- log(Owls$BroodSize) 
+ om <- glmm.admb(SiblingNegotiation~FoodTreatment*SexParent,random=~1,group="Nest",
+              family="nbinom",data=Owls,offset="offset")
+
+
+
 }
 \keyword{models}

@@ -1,3 +1,7 @@
+2010-11-10  Ben Bolker  <bolker@mcmaster.ca>
+
+	* added Owls data and example (shows use of offset= argument)
+
 2010-11-09  Ben Bolker  <bolker@mcmaster.ca>
 
 	* moved inst/admb to inst/bin; added inst/tpl directory
