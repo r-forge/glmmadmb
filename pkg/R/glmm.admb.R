@@ -71,7 +71,7 @@ glmm.admb <- function(fixed, random, group, data, family="poisson", link, corStr
 
   if(.Platform$OS.type == "windows")
   {
-    cmd <- paste("\"",system.file("bin","windows",file_name,package="glmmADMB"), ".exe", "\"", " ", cmdoptions, sep="")
+    cmd <- paste("\"",system.file("bin","windows",paste(file_name,".exe",sep=""),package="glmmADMB"), "\"", " ", cmdoptions, sep="")
     shell(cmd, invisible=TRUE)
   } else  {
     if (substr(R.version$os,1,6)=="darwin") {
