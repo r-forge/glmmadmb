@@ -1,6 +1,6 @@
 Package: glmmADMB
-Version: 0.4-2
-Date: 2010-10-26
+Version: 0.5-0
+Date: 2011-01-17
 Title: Generalized Linear Mixed Models Using AD Model Builder
 Author: Hans Skaug <Hans.Skaug@mi.uib.no>, Dave Fournier <otter@otter-rsch.com>,
   Anders Nielsen <andersn@hawaii.edu>, Arni Magnusson <arnima@hafro.is>, and Ben
