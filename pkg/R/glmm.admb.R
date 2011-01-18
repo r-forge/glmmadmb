@@ -28,6 +28,7 @@ glmm.admb <- function(fixed, random, group, data, family="poisson", link, corStr
   tmpI <- tmpu[as.character(data[[group]])]
   data <- data[order(tmpI),]
   n <- nrow(data)
+  backwards_key = order((1:n)[order(tmpI)])
   y <- data[[as.character(fixed[2])]]
   X <- model.matrix(fixed, data)
   p <- ncol(X)
@@ -154,6 +155,10 @@ glmm.admb <- function(fixed, random, group, data, family="poisson", link, corStr
 
   if(abs(out$gradloglik) >= 0.001)
     warning("Proper convergence could not be reached")
+
+  out$fitted = out$fitted[backwards_key]
+  out$residuals = out$residuals[backwards_key]
+
   class(out) <- "glmm.admb"
 
   return(out)
