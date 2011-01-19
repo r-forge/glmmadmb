@@ -1,8 +1,8 @@
 .First.lib <- function (lib, pkg)
 {
-  cat("\n\n")
-  cat(paste(rep("=",options()$width),collapse=""), "\n\n")
-  cat("Welcome to glmmADMB\n")
+  ## cat("\n\n")
+  ## cat(paste(rep("=",options()$width),collapse=""), "\n\n")
+  ## cat("Welcome to glmmADMB\n")
 
   if(.Platform$OS.type == "windows")
   {
@@ -12,5 +12,5 @@
   }
 
   cat("\n")
-  cat(paste(rep("=",options()$width),collapse=""), "\n\n")
+  ## cat(paste(rep("=",options()$width),collapse=""), "\n\n")
 }
