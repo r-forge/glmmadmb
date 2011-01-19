@@ -1,5 +1,6 @@
 \name{Owls}
 \alias{Owls}
+\alias{OwlModel}
 \docType{data}
 \title{
 Begging by owl nestlings
@@ -9,7 +10,8 @@ Begging by owl nestlings
 }
 \usage{data(Owls)}
 \format{
-  A data frame with 599 observations on the following 7 variables.
+  The \code{Owls} data set is a data frame with
+  599 observations on the following variables:
   \describe{
     \item{\code{Nest}}{a factor describing individual nest locations}
     \item{\code{FoodTreatment}}{(factor) food treatment: \code{Deprived}
@@ -20,6 +22,10 @@ Begging by owl nestlings
     \item{\code{BroodSize}}{brood size}
     \item{\code{NegPerChick}}{number of negotations per chick}
   }
+  \code{OwlModel} is the results of fitting the model
+  \code{glmm.admb(SiblingNegotiation~FoodTreatment*SexParent,
+    random=~1,group="Nest",family="nbinom",data=Owls,offset="offset")}
+  to the data, provided for convenience in testing methods.
 }
 \source{
   Roulin, A. and L. Bersier. 2007. Nestling barn owls beg more intensely
