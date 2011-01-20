@@ -5,8 +5,22 @@ library(lme4)
 ## between lme4 and
 
 ## would like to do a simpler example (e.g. glm only, from ?glm)
-## but glmm.admb requires a random effect
+d.AD <- data.frame(counts=c(18,17,15,20,10,20,25,13,12),
+                   outcome=gl(3,1,9),
+                   treatment=gl(3,3))
+glm.D93 <- glm(counts ~ outcome + treatment, family=poisson,
+               data=d.AD)
+glm.D93.admb <- glmm.admb(counts~outcome+treatment, family="poisson",
+          data=d.AD,group="treatment")
+r1P <- residuals(glm.D93,type="pearson")
+r2P <- residuals(glm.D93.admb,type="pearson")
+stopifnot(max(abs(r1P-r2P))<2e-4)
+r1R <- residuals(glm.D93,type="response")
+r2R <- residuals(glm.D93.admb,type="response")
+stopifnot(max(abs(r1R-r2R))<5e-4)
 
+coef(glm.D93)
+coef(glm.D93.admb)
 ## zero-inflated negative binomial is probably best for fitting data:
 ## glmer can do Poisson-lognormal, not NB, and not zero-inflation
 

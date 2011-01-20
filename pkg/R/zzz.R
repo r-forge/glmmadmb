@@ -11,6 +11,6 @@
     cat("(Misc->Buffered output) to switch the delayed output off.\n")
   }
 
-  cat("\n")
+  ## cat("\n")
   ## cat(paste(rep("=",options()$width),collapse=""), "\n\n")
 }

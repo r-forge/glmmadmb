@@ -135,6 +135,7 @@ glmm.admb <- function(fixed, random, group, data, family="poisson", link, corStr
   }
 
   mu <- as.numeric(X %*% out$b)
+  ## BMB: doesn't include influence of random effects?
   lambda <- 0
   for(i in 1:n)
     lambda[i] <- exp(mu[i] + sum(Z[i,]*U[II[i],]))
@@ -142,12 +143,13 @@ glmm.admb <- function(fixed, random, group, data, family="poisson", link, corStr
     out$fitted <- lambda / (1+lambda)
   else
     out$fitted <- lambda
-
-  tmpsd <- switch(family,
+    out$sd.est <- switch(family,
                   poisson=sqrt(lambda),
                   nbinom=sqrt(lambda*(1+lambda/out$alpha)),
                   binomial=sqrt(out$fitted*(1-out$fitted)))
-  out$residuals <- as.numeric(y-lambda) / tmpsd
+
+  out$residuals <- as.numeric(y-lambda)
+  ## BMB: changed $residuals from pearson to working
   tmp <- par_read(file_name)
   out$npar <- as.numeric(scan(paste(file_name,".par",sep=""), what="", quiet=TRUE)[6])
   out$loglik <- tmp$loglik

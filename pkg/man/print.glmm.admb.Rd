@@ -9,17 +9,19 @@
 \usage{
 \method{print}{glmm.admb}(x,\dots)
 \method{coef}{glmm.admb}(object,\dots)
-\method{residuals}{glmm.admb}(object,\dots)
+\method{residuals}{glmm.admb}(object,type=c("pearson", "response"),\dots)
 \method{fitted}{glmm.admb}(object,\dots)
 }
 \arguments{
-  \item{x}{a fitted \code{glmm.admb} model.}
-  \item{object}{a fitted \code{glmm.admb} model.}
-  \item{\dots}{further arguments. If \code{sd_S_print=TRUE}, the
-    covariance matrix of the random effects vector and corresponding
-    standard deviations are obtained.}
+  \item{x}{a fitted \code{glmm.admb} model}
+  \item{object}{a fitted \code{glmm.admb} model}
+  \item{type}{type of residuals to retrieve}
+  \item{\dots}{further arguments. If \code{sd_S_print=TRUE}
+    for \code{print.glmm.admb},
+    print the covariance matrix of the random effects vector and corresponding
+    standard deviations}
 }
 \seealso{
-  \code{\link{glmm.admb}}, \code{\link{glmmADMB-package}}.
+  \code{\link{glmm.admb}}, \code{anova.glmm.admb}, \code{logLk.glmm.admb}
 }
 \keyword{models}

@@ -1,7 +1,8 @@
 Wish/to-do list for glmmADMB
 
  * (BMB,easy) provide compiled windows, macos binaries from www.math.mcmaster.ca in the absence of R-forge binaries?
- * (BMB) turn off "welcome to glmmADMB" banner
+ * (BMB) turn off "welcome to glmmADMB" banner (done)
+ * allow alternative parameterization of NB?
  * (BMB,easy,*done*): get glmmADMB to save most output from ADMB unless a
 verbose flag is set to TRUE (I think this stuff scares users)
    ?? necessary to add some sort of progress bar or "working ..." message
