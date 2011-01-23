@@ -99,9 +99,11 @@ data frame: see example below).}
 \examples{
   (fm <- glmm.admb(y~Base*trt+Age+Visit, random=~Visit, group="subject",
                   data=epil2, family="nbinom"))
-\dontrun{data(Owls)
+\dontrun{
+data(Owls)
 Owls$offset <- log(Owls$BroodSize) 
- om <- glmm.admb(SiblingNegotiation~FoodTreatment*SexParent,random=~1,group="Nest",
+ om <- glmm.admb(SiblingNegotiation~FoodTreatment*SexParent,random=~1,
+          zeroInflation=TRUE,group="Nest",
               family="nbinom",data=Owls,offset="offset")
 }
 }
