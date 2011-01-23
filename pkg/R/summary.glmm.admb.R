@@ -28,7 +28,7 @@ summary.glmm.admb <- function(object, ...)
   ans
 }
 
-print.summary.glmm.admb <- function(x, digits = max(3, getOption("digits") - 3),
+print.summary.glmm.admb <- function(x, digits = max(3, getOption("digits") - 4),
                               symbolic.cor = x$symbolic.cor,
                               signif.stars = getOption("show.signif.stars"),
                               ...)
@@ -47,16 +47,18 @@ print.summary.glmm.admb <- function(x, digits = max(3, getOption("digits") - 3),
     coefs <- x$coefficients
     printCoefmat(coefs, digits=digits, signif.stars=signif.stars,
                  na.print="NA", ...)
-    cat("\n",x$n," total observations; ",x$q,"groups (",x$group,
+    cat("\n",x$n," total observations; ",x$q," groups (",x$group,
         ")\n",sep="")
+    if (!is.null(x$S))
+      cat("Random effect variance (",x$group,"): ",x$S," (std. err.: ",x$sd_S,")\n",
+          sep="")
     if (!is.null(x$alpha))
-      cat("Negative binomial alpha: ",x$alpha," (standard error:",x$sd_alpha,")\n",
+      cat("Negative binomial alpha: ",x$alpha," (std. err.: ",x$sd_alpha,")\n",
         sep="")
-    cat("Random effect variance: ",x$S," (standard error:",x$sd_S,")\n",
-        sep="")
-    cat("Log-likelihood:",x$loglik,"\n")
-    ## zero-inflation
-    ## cat("\nZero-inflation:\n")
+    if (!is.null(om$pz))
+      cat("Zero-inflation:",x$pz,"\n")
+
+    cat("\nLog-likelihood:",x$loglik,"\n")
     ## offset
     ## cat("\nOffset:\n")
   }
