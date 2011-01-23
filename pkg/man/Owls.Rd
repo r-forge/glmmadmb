@@ -24,7 +24,8 @@ Begging by owl nestlings
   }
   \code{OwlModel} is the results of fitting the model
   \code{glmm.admb(SiblingNegotiation~FoodTreatment*SexParent,
-    random=~1,group="Nest",family="nbinom",data=Owls,offset="offset")}
+    random=~1,group="Nest",family="nbinom",
+    zeroInflation=TRUE,data=Owls,offset="offset")}
   to the data, provided for convenience in testing methods.
 }
 \source{
@@ -45,5 +46,6 @@ bwplot(reorder(Nest,NegPerChick)~NegPerChick|FoodTreatment:SexParent,
 data=Owls)
 dotplot(reorder(Nest,NegPerChick)~NegPerChick|FoodTreatment:SexParent,
 data=Owls)
+summary(OwlModel)
 }
 \keyword{datasets}
