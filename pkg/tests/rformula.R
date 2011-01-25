@@ -31,8 +31,26 @@ process_randformula <- function(f,data) {
     sapply(labs,
            function(lab) as.numeric(with(data,eval(parse(text=lab)))))
   }
-  list(mmats=lapply(lapply(splitbits,"[",1),cfun,mdata=tdat),
+  termnames <- gsub("\\|","_bar_",
+                    gsub(":","_int_",
+                         gsub("/","_nest_",
+                              gsub("\\*","_cross",
+                                   gsub(" ","",randbits)))))
+  L <- list(mmats=lapply(lapply(splitbits,"[",1),cfun,mdata=tdat),
        codes=lapply(lapply(splitbits,"[",2),rfun,rdata=tdat))
+  names(L$mmats) <- names(L$codes) <- termnames
+  L
+}
+
+## print tp file (not necessarily 
+write_randformula <- function(x,name) {
+  fn <- if(substring(name,nchar(name)-3)==".dat") {
+    name
+  } else paste(name,".dat",sep="")
+  cat("### design matrices for random effects:\n",file=fn)
+  dat_write(name,x$mmat,append=TRUE)
+  cat("### indices for random effects:\n",file=fn,append=TRUE)
+  dat_write(name,x$codes,append=TRUE)
 }
 
 tdat <- expand.grid(f1=LETTERS[1:5],f2=letters[1:5],rep=1:3)
@@ -42,3 +60,5 @@ p1 <- process_randformula(~ x + (1|f1)+(x|f2),data=tdat)
 p2 <- process_randformula(~ x + (1|f1+f2),data=tdat)
 p3 <- process_randformula(~ x + (1|f1)+(1|f2),data=tdat)
 
+
+write_randformula(p1,"test")
