@@ -149,7 +149,6 @@ glmm.admb <- function(fixed, random, group, data, family="poisson", link, corStr
                   binomial=sqrt(out$fitted*(1-out$fitted)))
 
   out$residuals <- as.numeric(y-lambda)
-  ## BMB: changed $residuals from pearson to working
   tmp <- par_read(file_name)
   out$npar <- as.numeric(scan(paste(file_name,".par",sep=""), what="", quiet=TRUE)[6])
   out$loglik <- tmp$loglik
