@@ -150,9 +150,13 @@ glmm.admb <- function(fixed, random, group, data, family="poisson", link, corStr
 
   out$residuals <- as.numeric(y-lambda)
   tmp <- par_read(file_name)
-  out$npar <- as.numeric(scan(paste(file_name,".par",sep=""), what="", quiet=TRUE)[6])
+  out$npar <- tmp$npar ## as.numeric(scan(paste(file_name,".par",sep=""), what="", quiet=TRUE)[6])
+  ## BMB: should this be total number of parameters or number of fixed parameters?
   out$loglik <- tmp$loglik
   out$gradloglik <- tmp$gradient
+  nfixpar <- length(out$b)
+  ## drop cors that don't correspond to fixed-effect parameters
+  out$corMat <- tmp$cor[1:nfixpar,1:nfixpar]
 
   if(abs(out$gradloglik) >= 0.001)
     warning("Proper convergence could not be reached")

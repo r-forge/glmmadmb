@@ -21,4 +21,16 @@ fitted.glmm.admb <- function(object, ...) {
   object$fitted
 }
 
+stdEr <- function(x, ...) {
+  UseMethod("stdEr")
+}
+
+stdEr.glmm.admb <- function(x, ...) {
+  x$stdbeta
+}
+
+vcov.glmm.admb <- function(object, ...) {
+  outer(object$stdbeta,object$stdbeta)*object$corMat
+}
+
  

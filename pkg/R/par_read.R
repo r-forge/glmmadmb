@@ -17,6 +17,21 @@ par_read <- function(name)
 
   x$loglik <- -as.numeric(tmp2[[1]][11])
   x$gradient <- -as.numeric(tmp2[[1]][16])
+  x$npar <- as.numeric(tmp2[[1]][[6]])
 
+  ## stuff stolen from R2ADMB
+  rt <- function(f,ext,...) {
+    fn <- paste(f,ext,sep=".")
+    if (file.exists(fn)) read.table(fn,...) else NA
+  }
+
+  ncorpar <- length(readLines(paste(name,"cor",sep=".")))-2
+  cor_dat <- rt(name,"cor", skip = 2, fill=TRUE, 
+                as.is=TRUE,col.names=paste("X",1:(4+ncorpar),sep=""))
+  cormat <- as.matrix(cor_dat[1:x$npar,4+(1:x$npar)])
+  cormat[upper.tri(cormat)] <- t(cormat)[upper.tri(cormat)]
+  x$cormat <- cormat
+  dimnames(x$cormat) <- list(names(x$b),names(x$b))
+  
   return(x)
 }

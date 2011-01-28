@@ -1,0 +1,6 @@
+library(glmmADMB)
+data(OwlModel)
+summary(OwlModel)
+coef(OwlModel)
+stdEr(OwlModel)
+vcov(OwlModel)
