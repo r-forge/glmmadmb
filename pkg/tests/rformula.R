@@ -44,6 +44,7 @@ process_randformula <- function(f,data) {
 
 ## print tp file (not necessarily 
 write_randformula <- function(x,name) {
+  require(glmmADMB)
   fn <- if(substring(name,nchar(name)-3)==".dat") {
     name
   } else paste(name,".dat",sep="")
