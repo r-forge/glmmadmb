@@ -17,6 +17,7 @@ print.glmm.admb <- function(x, ...)
     cat("  Zero inflation: p =", object$pz, "\n")
   cat("\nFixed effects:\n")
   cat("  Log-likelihood:", object$loglik, "\n")
+  cat("  AIC:", AIC(object), "\n")
   cat("  Formula:", deparse(object$fixed), "\n")
   print(object$b)
 
