@@ -36,8 +36,8 @@ process_randformula <- function(f,data) {
                          gsub("/","_nest_",
                               gsub("\\*","_cross",
                                    gsub(" ","",randbits)))))
-  L <- list(mmats=lapply(lapply(splitbits,"[",1),cfun,mdata=tdat),
-       codes=lapply(lapply(splitbits,"[",2),rfun,rdata=tdat))
+  L <- list(mmats=lapply(lapply(splitbits,"[",1),cfun,mdata=data),
+       codes=lapply(lapply(splitbits,"[",2),rfun,rdata=data))
   names(L$mmats) <- names(L$codes) <- termnames
   L
 }
