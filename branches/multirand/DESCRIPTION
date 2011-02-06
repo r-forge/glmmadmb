@@ -1,0 +1,14 @@
+Package: glmmADMB
+Version: 0.5-1
+Date: 2011-01-18
+Title: Generalized Linear Mixed Models Using AD Model Builder
+Author: Hans Skaug <Hans.Skaug@mi.uib.no>, Dave Fournier <otter@otter-rsch.com>,
+  Anders Nielsen <andersn@hawaii.edu>, Arni Magnusson <arnima@hafro.is>, and Ben
+  Bolker <bbolker@gmail.com>
+Maintainer: Hans Skaug <Hans.Skaug@mi.uib.no>
+LazyData: yes
+Description: Fits mixed-effects models to count data using Poisson, negative
+  binomial, or Bernoulli response distributions.
+Suggests: lattice, lme4
+License: BSD
+URL: http://glmmadmb.r-forge.r-project.org, http://admb-project.org

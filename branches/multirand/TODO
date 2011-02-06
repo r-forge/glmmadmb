@@ -1,0 +1,25 @@
+Wish/to-do list for glmmADMB
+
+ * (BMB,easy) provide compiled windows, macos binaries from www.math.mcmaster.ca in the absence of R-forge binaries?
+ * (BMB) turn off "welcome to glmmADMB" banner (done)
+ * allow alternative parameterization of NB?
+ * (BMB,easy,*done*): get glmmADMB to save most output from ADMB unless a
+verbose flag is set to TRUE (I think this stuff scares users)
+   ?? necessary to add some sort of progress bar or "working ..." message
+    in the absence of voluminous messages?
+ * (BMB, easy): implement a summary method that produces a coefficient
+table in the 'standard' R format (coefficient, estimate, Z/t statistic
+...) the big philosophical question would be whether to include a
+two-tailed p value or not
+ * (BMB, ?): add options for Pearson residuals?
+ * (BMB, medium): implement a vcov() accessor method.  This would
+require reading in an additional bit of information from the ADMB output.
+ * (BMB,medium): switch to using R2ADMB as interface layer?? Compare R2ADMB and glmmADMB interface code, take the best of both ...
+ * (BMB,?): implement binomial models with size>1 (i.e., non-Bernoulli
+models)
+ * (BMB, ?): add more examples, tests, vignettes ...
+ * (BMB, easy): save fitted models in inst/ so they can be used easily
+   in examples without doing the fits each time
+ * (BMB, ???): add predict() method that allows newdata to be specified
+ * (BMB, ????): allow more flexible random effects specifications, etc.
+
