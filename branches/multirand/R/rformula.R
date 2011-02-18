@@ -9,8 +9,17 @@
 ## where <expr1> describes the covariates affected by/interacting with
 ## the random effect and <expr2> describes the structure of the random effect
 
+get_fixedformula <- function(f) {
+  lchar <- as.character(f[2])
+  rchar <- as.character(f[3]) ## RHS
+  rchar <- gsub("\\([^)]+\\)","",rchar) ## parentheses
+  rchar <- gsub("(\\+ *\\+ *)+","+",rchar) ## duplicated +
+  rchar <- gsub(" *\\+ *$","",rchar) ## terminating +
+  as.formula(paste(lchar,"~",rchar))
+}
+
 process_randformula <- function(f,data) {
-  rchar <- as.character(f[2]) ## RHS
+  rchar <- as.character(f[3]) ## RHS
   ## drop bits before first/after last parenthesis
   rchar <- gsub("^[^()]*\\(","",
                 gsub(")[^()]*$","",rchar))
@@ -54,12 +63,3 @@ write_randformula <- function(x,name) {
   dat_write(name,x$codes,append=TRUE)
 }
 
-tdat <- expand.grid(f1=LETTERS[1:5],f2=letters[1:5],rep=1:3)
-tdat$x <- runif(nrow(tdat))
-
-p1 <- process_randformula(~ x + (1|f1)+(x|f2),data=tdat)
-p2 <- process_randformula(~ x + (1|f1+f2),data=tdat)
-p3 <- process_randformula(~ x + (1|f1)+(1|f2),data=tdat)
-
-
-write_randformula(p1,"test")

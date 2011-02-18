@@ -1,6 +1,7 @@
-glmm.admb <- function(fixed, random, group, data, family="poisson", link, corStruct="diag", impSamp=0, easyFlag=TRUE,
-                      zeroInflation=FALSE, imaxfn=10, save.dir=NULL, offset, verbose=FALSE)
+glmm.admb <- function(formula, data, family="poisson", link, corStruct="diag", impSamp=0, easyFlag=TRUE,
+                      zeroInflation=FALSE, imaxfn=10, save.dir=NULL, verbose=FALSE)
 {
+  ## BMB: make this an R temp directory? begin with a .?
   dirname <- if(is.null(save.dir)) "_glmm_ADMB_temp_dir_" else save.dir
   if(!file_test("-d",dirname))
     dir.create(dirname)
@@ -13,56 +14,102 @@ glmm.admb <- function(fixed, random, group, data, family="poisson", link, corStr
     stop("Argument \"corStruct\" must be either \"diag\" or \"full\"")
   if(!(family %in% c("poisson","nbinom","binomial")))
     stop("Argument \"family\" must be either \"poisson\", \"binomial\"  or \"nbinom\"")
-  if(missing(random) && (!missing(impSamp) || !missing(corStruct)))
-    stop("When \"random\" is missing, neither of \"impSamp\" or \"corStruct\" make sense")
-  if(missing(group) || !(is.character(group) && length(group)==1) || !(group %in% names(data)))
-    stop("Argument \"group\" must be a character string specifying the name of the grouping variable (also when \"random\" is missing)")
+
+  has_rand <- length(grep("\\|",as.character(formula)[3]))>0
+  if (!has_rand && (!missing(impSamp) || !missing(corStruct)))
+    stop("No random effects specified: neither \"impSamp\" or \"corStruct\" make sense")
   if(missing(link) && family=="binomial")
     stop("Argument \"link\" must be provided for the \"binomial\" family)")
-  if(!missing(offset) && (!is.character(offset) || length(offset)!=1 || !(offset %in% names(data))))
-    stop("\"offset\" must be a character string specifying the variable holding the offset")
-  Offset <- if(missing(offset)) rep(0,nrow(data)) else data[[offset]]
+  ## BMB: make logit link the default?
 
-  tmpu <- table(data[[group]])
-  tmpu[] <- 1:length(tmpu)
-  tmpI <- tmpu[as.character(data[[group]])]
-  data <- data[order(tmpI),]
-  n <- nrow(data)
-  backwards_key = order((1:n)[order(tmpI)])
-  y <- data[[as.character(fixed[2])]]
-  X <- model.matrix(fixed, data)
+  ## from glm()
+  ## extract x, y, etc from the model formula and frame
+  if (missing(data)) 
+    data <- environment(formula)
+  
+  mf <- match.call(expand.dots = FALSE)
+  m <- match(c("formula", "data", "subset", "na.action", 
+               "offset"), names(mf), 0L)
+  mf <- mf[c(1L, m)]
+  mf$formula <- get_fixedformula(mf$formula)
+  mf$drop.unused.levels <- TRUE
+  mf[[1L]] <- as.name("model.frame")
+  mf <- eval(mf, parent.frame())
+
+  mt <- attr(mf, "terms") # allow model.frame to have updated it
+
+  y <- model.response(mf, "any") # e.g. factors are allowed
+  if(length(dim(y)) == 1L) {
+    nm <- rownames(y)
+    dim(y) <- NULL
+    if(!is.null(nm)) names(y) <- nm
+  }
+
+  n <- if (is.matrix(y)) nrow(y) else length(y)
+
+  offset <- as.vector(model.offset(mf))
+  has_offset <- !is.null(offset)
+  if (!has_offset) offset <- rep(0,n)
+
+  X <- model.matrix(mt,mf)  ## BMB: allow contrasts?
   p <- ncol(X)
-  II <- as.numeric(tmpu[as.character(data[[group]])])
-  group_d <- c(1, (2:n)[diff(II)==1], n+1)
-  Z <- if(missing(random)) model.matrix(~1,data) else model.matrix(random,data)
-  m <- ncol(Z)
-  q <- length(unique(II))
+  
+  REmat <- process_randformula(formula,data=data)
 
-  cmdoptions <- paste("-maxfn 500", if(impSamp==0) "" else paste("-is",impSamp))
-  dat_list <- list(n=n, y=y, p=p, X=X, q=q, m=m, Z=Z, group_d=group_d, II=II, cor_flag=if(corStruct=="full") 1 else 0,
-                   like_type_flag=as.numeric(family=="poisson"||(family=="binomial"&&link=="logit")),
-                   no_rand_flag=as.numeric(missing(random)), easy_flag=as.numeric(easyFlag),
-                   zi_flag=as.numeric(zeroInflation), intermediate_maxfn=10, offset=Offset)
-  pin_list <- list(pz=if(zeroInflation) 0.02 else 0.0001, b=numeric(p), tmpL=0.25+numeric(m),
-                   tmpL1=0.0001+numeric(m*(m-1)/2), logalpha=2.0, kkludge=0, u=matrix(numeric(q*m),q,m))
+  m <- sapply(REmat$mmats, function(x) ncol(x))		 # Number of random effects within each crossed term
+  M <- length(m)					 # Number of crossed terms
+  q <- sapply(REmat$codes, function(x) length(unique(x))) # Number of levels of each crossed term
 
-  if(family == "binomial")
+  # Construct design matrix (Z) for random effects
+  for(i in 1:M)
   {
-    if(!all(y %in% 0:1))
-      stop("Only Bernoulli response (0 or 1) allowed currently")
-    file_name <- "bvprobit"
-    dat_list <- dat_list[c("n", "y", "p", "X", "q", "m", "Z", "group_d", "cor_flag", "like_type_flag", "no_rand_flag")]
-    pin_list <- pin_list[c("b", "tmpL", "tmpL1", "kkludge", "u")]
+    tmp <- REmat$mmats[[i]]
+    colnames(tmp) = paste(names(REmat$mmats)[i],colnames(tmp),sep=":")
+    if(i==1)
+      Z <- tmp
+    else
+      Z <- cbind(Z,tmp)
   }
-  else
-  {
-    file_name <- "nbmm"
-    dat_list <- dat_list[c("n", "y", "p", "X", "q", "m", "Z", "II", "cor_flag", "easy_flag", "zi_flag",
-                           "like_type_flag", "no_rand_flag", "intermediate_maxfn", "offset")]
-    pin_list <- pin_list[c("pz", "b", "tmpL", "tmpL1", "logalpha", "kkludge", "u")]
-    if(!missing(link))
-      warning("Argument \"link\" ignored for other familes than \"binomial\" (exponential link used)")
-  }
+
+  # Make matrix of pointers into ADMB vector of random effects "u".
+  # Rows in II contain pointers for a given data point 
+  # First offset the columns of II to point into different segments of u
+  II = matrix(rep(q,m),nrow=n,ncol=sum(m),byrow=T)
+  if(sum(m)>1)
+    for(i in 2:sum(m))
+      II[,i] = II[,i] + II[,i-1] 
+  II = cbind(0,II[,-ncol(II)])
+  ii = 1
+  for(i in 1:M)		# Fill in the actual random effects codes
+    for(j in 1:m[i])
+    {
+      II[,ii] = II[,ii] + REmat$codes[[i]]
+      ii = ii+1
+    }
+
+  # Splits u into "correlation blocks" (no way yet of specifying uncorrelated random effects)
+  cor_block_start = cumsum(m)-m[1]+1
+  cor_block_stop = cumsum(m)
+  numb_cor_params = max(sum(m*(m-1)/2),1)	# For technical reasons we need at least 1 parameter: see glmmadmb.tpl
+  
+  cmdoptions = paste("-maxfn 500", if(impSamp==0) "" else paste("-is",impSamp))
+  dat_list = list(n=n, y=y, p=p, X=X, M=M, q=q, m=m, ncolZ=ncol(Z),Z=Z, II=II, 
+		   	cor_flag=rep(0,M),
+			cor_block_start=cor_block_start,
+		   	cor_block_stop=cor_block_stop,
+			numb_cor_params=numb_cor_params,
+                   	like_type_flag=as.numeric(family=="poisson"||(family=="binomial"&&link=="logit")),
+                   	no_rand_flag=as.numeric(!has_rand),
+                   	zi_flag=as.numeric(zeroInflation), 
+			intermediate_maxfn=10, 
+			has_offset=as.numeric(has_offset), 
+			offset=offset)
+  ## BMB: pz=0.0001 should be clearly specified, possibly made into a control parameter
+  pin_list = list(pz=if(zeroInflation) 0.02 else 0.0001, b=numeric(p), tmpL=0.25+numeric(sum(m)),
+    tmpL1=0.0001+numeric(numb_cor_params), logalpha=2.0, u=rep(0,sum(m*q)))
+
+
+  file_name <- "glmmadmb"
 
   dat_write(file_name, dat_list)
   pin_write(file_name, pin_list)
@@ -92,24 +139,24 @@ glmm.admb <- function(fixed, random, group, data, family="poisson", link, corStr
 
   if(!file.exists(std_file))
     stop("The function maximizer failed")
-  tmp <- read.table(paste(file_name,".std",sep=""), skip=1)
-  tmpindex <- as.character(tmp[,2])
+  tmp <- read.table(paste(file_name,"std",sep="."), skip=1,as.is=TRUE)
+  ## BMB: if 'std dev' were written without a space we could use header=TRUE
+  tmpindex <- tmp[,2]
   out <- list(n=n, q=q, fixed=fixed, call=call, group=group, family=family, corStruct=corStruct, impSamp=impSamp,
               easyFlag=easyFlag, zeroInflation=zeroInflation)
   if(zeroInflation)
     out$pz <- as.numeric(tmp[tmpindex=="pz", 3])
-  out$b <- as.numeric(tmp[tmpindex=="real_b", 3])
-  names(out$b) <- colnames(X)
-  out$stdbeta <- as.numeric(tmp[tmpindex=="real_b", 4])
-  names(out$stdbeta) <- colnames(X)
+  out$b <- as.numeric(tmp[tmpindex=="real_beta", 3])
+  out$stdbeta <- as.numeric(tmp[tmpindex=="real_beta", 4])
+  names(out$stdbeta) <- names(out$b) <- colnames(X)
 
   if(family == "nbinom")
   {
     out$alpha <- as.numeric(tmp[tmpindex=="alpha", 3])
     out$sd_alpha <- as.numeric(tmp[tmpindex=="alpha", 3])
   }
-  if(!missing(random))
-  {
+  if(has_rand) {
+    ## BMB: fixme!
     out$S <- matrix(as.numeric(tmp[tmpindex=="S",3]), nrow=m, dimnames=list(colnames(Z),colnames(Z)))
     out$sd_S <- matrix(as.numeric(tmp[tmpindex=="S",4]), nrow=m, dimnames=list(colnames(Z),colnames(Z)))
     if(corStruct == "diag")
@@ -117,11 +164,11 @@ glmm.admb <- function(fixed, random, group, data, family="poisson", link, corStr
       out$S[below(m,TRUE)|t(below(m,TRUE))] <- 0
       out$sd_S[below(m,TRUE)|t(below(m,TRUE))] <- 0
     }
-    out$random <- random
+    ## out$random <- random
   }
   if(!missing(link))
     out$link <- link
-  if(!missing(random))
+  if(has_rand)
   {
     U <- matrix(as.numeric(tmp[tmpindex=="u",3]), ncol=m, byrow=TRUE,
                 dimnames=list(data[,group][group_d[-1]-1],colnames(Z)))
@@ -158,11 +205,18 @@ glmm.admb <- function(fixed, random, group, data, family="poisson", link, corStr
   ## drop cors that don't correspond to fixed-effect parameters
   out$corMat <- tmp$cor[1:nfixpar,1:nfixpar]
 
-  if(abs(out$gradloglik) >= 0.001)
-    warning("Proper convergence could not be reached")
+  out$conv <- 0
+  out$convmsg <- ""
+  
+  if (abs(out$gradloglik) >= 0.001) {
+    out$convmsg <- paste("log-likelihood of gradient=",out$gradloglik)
+    out$conv <- 1
+    warning("Convergence failed:",out$convmsg)
+  }
 
-  out$fitted = out$fitted[backwards_key]
-  out$residuals = out$residuals[backwards_key]
+  ## unnecessary??
+  ## out$fitted = out$fitted[backwards_key]
+  ## out$residuals = out$residuals[backwards_key]
 
   class(out) <- "glmm.admb"
 
