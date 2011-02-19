@@ -10,6 +10,8 @@ glmm.admb <- function(formula, data, family="poisson", link, corStruct="diag", i
     on.exit(unlink(dirname,recursive=TRUE), add=TRUE)
 
   call <- match.call()
+  ## FIXME: corStruct could be a vector, corresponding to the random
+  ##    effects in order?
   if(!(corStruct %in% c("diag","full")))
     stop("Argument \"corStruct\" must be either \"diag\" or \"full\"")
   if(!(family %in% c("poisson","nbinom","binomial")))
@@ -53,28 +55,31 @@ glmm.admb <- function(formula, data, family="poisson", link, corStruct="diag", i
 
   X <- model.matrix(mt,mf)  ## BMB: allow contrasts?
   p <- ncol(X)
-  
-  REmat <- process_randformula(formula,data=data)
 
-  m <- sapply(REmat$mmats, function(x) ncol(x))		 # Number of random effects within each crossed term
-  M <- length(m)					 # Number of crossed terms
-  q <- sapply(REmat$codes, function(x) length(unique(x))) # Number of levels of each crossed term
+  if (has_rand) {
+    REmat <- process_randformula(formula,data=data)
+    ## Number of random effects within each crossed term
+    m <- sapply(REmat$mmats, ncol)
+    ## Number of crossed terms
+    M <- length(m)
+    ## Number of levels of each crossed term
+    q <- sapply(REmat$codes, function(x) length(unique(x))) 
 
-  # Construct design matrix (Z) for random effects
-  for(i in 1:M)
-  {
-    tmp <- REmat$mmats[[i]]
-    colnames(tmp) = paste(names(REmat$mmats)[i],colnames(tmp),sep=":")
-    if(i==1)
-      Z <- tmp
-    else
-      Z <- cbind(Z,tmp)
-  }
+    ## Construct design matrix (Z) for random effects
+    for(i in 1:M)
+      {
+        tmp <- REmat$mmats[[i]]
+        colnames(tmp) <- paste(names(REmat$mmats)[i],colnames(tmp),sep=":")
+        if(i==1)
+          Z <- tmp
+        else
+          Z <- cbind(Z,tmp)
+      }
 
   # Make matrix of pointers into ADMB vector of random effects "u".
   # Rows in II contain pointers for a given data point 
   # First offset the columns of II to point into different segments of u
-  II = matrix(rep(q,m),nrow=n,ncol=sum(m),byrow=T)
+  II <- matrix(rep(q,m),nrow=n,ncol=sum(m),byrow=TRUE)
   if(sum(m)>1)
     for(i in 2:sum(m))
       II[,i] = II[,i] + II[,i-1] 
@@ -91,7 +96,15 @@ glmm.admb <- function(formula, data, family="poisson", link, corStruct="diag", i
   cor_block_start = cumsum(m)-m[1]+1
   cor_block_stop = cumsum(m)
   numb_cor_params = max(sum(m*(m-1)/2),1)	# For technical reasons we need at least 1 parameter: see glmmadmb.tpl
-  
+
+  } else {
+    ## no random factor: fill in with dummies
+    m <- M <- q <- 1
+    Z <- matrix(0,ncol=1,nrow=n)
+    II <- matrix(rep(q,m),nrow=n,ncol=sum(m),byrow=TRUE)
+    cor_block_start <- cor_block_stop <- 1
+    numb_cor_params <- 1
+  }
   cmdoptions = paste("-maxfn 500", if(impSamp==0) "" else paste("-is",impSamp))
   dat_list = list(n=n, y=y, p=p, X=X, M=M, q=q, m=m, ncolZ=ncol(Z),Z=Z, II=II, 
 		   	cor_flag=rep(0,M),
@@ -117,20 +130,26 @@ glmm.admb <- function(formula, data, family="poisson", link, corStruct="diag", i
   if(file.exists(std_file))
     file.remove(std_file)
 
-  if(.Platform$OS.type == "windows")
-  {
-    cmd <- paste("\"",system.file("bin","windows",paste(file_name,".exe",sep=""),package="glmmADMB"), "\"", " ", cmdoptions, sep="")
+  nbits <- 8 * .Machine$sizeof.pointer
+  platform <- if (.Platform$OS.type == "windows") "windows" else {
+    ## MacOS detection OK?
+    ## http://tolstoy.newcastle.edu.au/R/e2/help/07/01/8497.html
+    if (substr(R.version$os,1,6)=="darwin") "macos" else {
+      if (R.version$os=="linux-gnu") "linux" else {
+        stop("glmmadmb binary not available for this OS")
+        ## FIXME: allow user to supply their own here?
+      }
+    }
+  }
+  bin_loc <- system.file("bin",paste(platform,nbits,sep=""),
+                         if (platform=="windows") paste(file_name,"exe",sep=".") else file_name,
+                         package="glmmADMB")
+  if (nchar(bin_loc)==0) stop("glmmadmb binary should be available, but isn't")
+  if (platform=="windows") {
+    cmd <- paste("\"",bin_loc, "\"", " ", cmdoptions, sep="")
     shell(cmd, invisible=TRUE)
-  } else  {
-    if (substr(R.version$os,1,6)=="darwin") {
-      ## MacOS detection OK?
-      ## http://tolstoy.newcastle.edu.au/R/e2/help/07/01/8497.html
-      ## do we really need to copy the binaries over to the temp directory, or can we
-      ##   run them in situ?
-      file.copy(system.file("bin","macos",file_name,package="glmmADMB"),".")
-    } else if (R.version$os=="linux-gnu") {
-      file.copy(system.file("bin","linux",file_name,package="glmmADMB"),".")
-    } else stop("unknown OS detected")
+  } else {
+    file.copy(bin_loc,".")
     Sys.chmod(file_name,mode="0755") ## file.copy strips executable permissions????
     cmd2 <- paste("./", file_name, " ", cmdoptions, sep="")
     sys.result <- system(cmd2,intern=!verbose)
@@ -142,7 +161,8 @@ glmm.admb <- function(formula, data, family="poisson", link, corStruct="diag", i
   tmp <- read.table(paste(file_name,"std",sep="."), skip=1,as.is=TRUE)
   ## BMB: if 'std dev' were written without a space we could use header=TRUE
   tmpindex <- tmp[,2]
-  out <- list(n=n, q=q, fixed=fixed, call=call, group=group, family=family, corStruct=corStruct, impSamp=impSamp,
+  out <- list(n=n, q=q, formula=formula, call=call,
+              family=family, corStruct=corStruct, impSamp=impSamp,
               easyFlag=easyFlag, zeroInflation=zeroInflation)
   if(zeroInflation)
     out$pz <- as.numeric(tmp[tmpindex=="pz", 3])
@@ -157,12 +177,23 @@ glmm.admb <- function(formula, data, family="poisson", link, corStruct="diag", i
   }
   if(has_rand) {
     ## BMB: fixme!
-    out$S <- matrix(as.numeric(tmp[tmpindex=="S",3]), nrow=m, dimnames=list(colnames(Z),colnames(Z)))
-    out$sd_S <- matrix(as.numeric(tmp[tmpindex=="S",4]), nrow=m, dimnames=list(colnames(Z),colnames(Z)))
+    Svec <- tmp[tmpindex=="S",3]
+    out$S <- mapply(matrix,split(Svec,rep(1:length(m),m)),
+                    nrow=m,SIMPLIFY=FALSE)
+    ## fixme: name list: dimnames should correspond to Z?
+    sd_Svec <- tmp[tmpindex=="S",4]
+    out$sd_S <- mapply(matrix,split(Svec,rep(1:length(m),m)),
+                       nrow=m,SIMPLIFY=FALSE)
     if(corStruct == "diag")
-    {
-      out$S[below(m,TRUE)|t(below(m,TRUE))] <- 0
-      out$sd_S[below(m,TRUE)|t(below(m,TRUE))] <- 0
+      {
+        replace_offdiag <- function(m,r=0) {
+          m[upper.tri(m) | lower.tri(m)] <- r
+          m
+        }
+        out$S <- lapply(out$S,replace_offdiag)
+        out$sd_S <- lapply(out$S,replace_offdiag)
+        ## FIXME: replace with NA for sd_S?
+
     }
     ## out$random <- random
   }
@@ -170,22 +201,32 @@ glmm.admb <- function(formula, data, family="poisson", link, corStruct="diag", i
     out$link <- link
   if(has_rand)
   {
-    U <- matrix(as.numeric(tmp[tmpindex=="u",3]), ncol=m, byrow=TRUE,
-                dimnames=list(data[,group][group_d[-1]-1],colnames(Z)))
-    out$U <- U
-    out$sd_U <- matrix(as.numeric(tmp[tmpindex=="u",4]), ncol=m, byrow=TRUE,
-                       dimnames=list(data[,group][group_d[-1]-1],colnames(Z)))
-  }
-  else
-  {
-    U <- matrix(rep(0,q), ncol=1, byrow=TRUE)
+    ## FIXME: get dimnames right, without explicit 'group' specifications
+    uvec <- tmp[tmpindex=="u",3]
+    out$U <- mapply(matrix,
+                    split(uvec,rep(1:length(q),q)),
+                    ncol=m,
+                    MoreArgs=list(nrow=1,byrow=TRUE))
+    ##    U <- matrix(as.numeric(tmp[tmpindex=="u",3]), ncol=m, byrow=TRUE,
+    ## ## dimnames=list(data[,group][group_d[-1]-1],colnames(Z)))
+    ## dimnames=list(NULL,colnames(Z)))
+    sd_uvec <- tmp[tmpindex=="u",4]
+    out$sd_U <- mapply(matrix,
+                       split(sd_uvec,rep(1:length(q),q)),
+                       ncol=m,
+                       MoreArgs=list(nrow=1,byrow=TRUE))
+    ## matrix(as.numeric(tmp[tmpindex=="u",4]), ncol=m, byrow=TRUE,
+    ## dimnames=list(data[,group][group_d[-1]-1],colnames(Z)))
+    ##    dimnames=list(NULL,colnames(Z)))
+  } else {
+    out$U <- matrix(rep(0,q), ncol=1, byrow=TRUE)
   }
 
   mu <- as.numeric(X %*% out$b)
   ## BMB: doesn't include influence of random effects?
   lambda <- 0
   for(i in 1:n)
-    lambda[i] <- exp(mu[i] + sum(Z[i,]*U[II[i],]))
+    lambda[i] <- exp(mu[i] + sum(Z[i,]*out$U[II[i],]))
   if(family == "binomial")
     out$fitted <- lambda / (1+lambda)
   else
