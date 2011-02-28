@@ -47,11 +47,13 @@ print.summary.glmm.admb <- function(x, digits = max(3, getOption("digits") - 4),
     coefs <- x$coefficients
     printCoefmat(coefs, digits=digits, signif.stars=signif.stars,
                  na.print="NA", ...)
-    cat("\n",x$n," total observations; ",x$q," groups (",x$group,
-        ")\n",sep="")
-    if (!is.null(x$S))
-      cat("Random effect variance (",x$group,"): ",x$S," (std. err.: ",x$sd_S,")\n",
-          sep="")
+    cat("\n","# observations: total=",x$n,", ",sep="")
+    cat(paste(names(x$q),x$q,sep="=",collapse=", "),"\n")
+    if (!is.null(x$S)) {
+      cat("Random effect variance(s):\n")
+      print(VarCorr(x))
+      ## FIXME: prettier? standard errors?
+    }
     if (!is.null(x$alpha))
       cat("Negative binomial alpha: ",x$alpha," (std. err.: ",x$sd_alpha,")\n",
         sep="")

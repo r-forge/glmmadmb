@@ -1,7 +1,9 @@
-glmm.admb <- function(formula, data, family="poisson", link, corStruct="diag", impSamp=0, easyFlag=TRUE,
+glmm.admb <- function(formula, data, family="poisson", link,
+                      corStruct="diag", impSamp=0, easyFlag=TRUE,
                       zeroInflation=FALSE, imaxfn=10, save.dir=NULL, verbose=FALSE)
 {
-  ## BMB: make this an R temp directory? begin with a .?
+  ## FIXME: removed commented code after checking
+  ## FIXME: make this an R temp directory? begin with a . for invisibility?
   dirname <- if(is.null(save.dir)) "_glmm_ADMB_temp_dir_" else save.dir
   if(!file_test("-d",dirname))
     dir.create(dirname)
@@ -20,10 +22,13 @@ glmm.admb <- function(formula, data, family="poisson", link, corStruct="diag", i
   has_rand <- length(grep("\\|",as.character(formula)[3]))>0
   if (!has_rand && (!missing(impSamp) || !missing(corStruct)))
     stop("No random effects specified: neither \"impSamp\" or \"corStruct\" make sense")
-  if(missing(link) && family=="binomial")
-    stop("Argument \"link\" must be provided for the \"binomial\" family)")
-  ## BMB: make logit link the default?
 
+  if (missing(link)) {
+    link <- switch(family, binomial="logit", nbinom=, poisson="log")
+  }
+  linkfun <- switch(link,log=log,logit=qlogis,probit=qnorm)
+  ilinkfun <- switch(link,log=exp,logit=plogis,probit=pnorm)
+  
   ## from glm()
   ## extract x, y, etc from the model formula and frame
   if (missing(data)) 
@@ -63,40 +68,47 @@ glmm.admb <- function(formula, data, family="poisson", link, corStruct="diag", i
     ## Number of crossed terms
     M <- length(m)
     ## Number of levels of each crossed term
-    q <- sapply(REmat$codes, function(x) length(unique(x))) 
+    q <- sapply(REmat$codes, function(x) length(unique(x)))
+    names(q) <- names(REmat$mmats)
 
     ## Construct design matrix (Z) for random effects
-    for(i in 1:M)
-      {
-        tmp <- REmat$mmats[[i]]
-        colnames(tmp) <- paste(names(REmat$mmats)[i],colnames(tmp),sep=":")
-        if(i==1)
-          Z <- tmp
-        else
-          Z <- cbind(Z,tmp)
-      }
+    ## for(i in 1:M)
+    ##   {
+    ##     tmp <- REmat$mmats[[i]]
+    ##     colnames(tmp) <- paste(names(REmat$mmats)[i],colnames(tmp),sep=":")
+    ##     if(i==1)
+    ##       Z <- tmp
+    ##     else
+    ##       Z <- cbind(Z,tmp)
+    ##   }
 
-  # Make matrix of pointers into ADMB vector of random effects "u".
-  # Rows in II contain pointers for a given data point 
-  # First offset the columns of II to point into different segments of u
-  II <- matrix(rep(q,m),nrow=n,ncol=sum(m),byrow=TRUE)
-  if(sum(m)>1)
+    Z <- do.call(cbind,REmat$mmats)
+    colnames(Z) <- paste(rep(names(REmat$mmat),m),
+                         sapply(REmat$mmat,colnames),sep=":")
+
+    ## Make matrix of pointers into ADMB vector of random effects "u".
+    ## Rows in II contain pointers for a given data point 
+    ## First offset the columns of II to point into different segments of u
+    II <- matrix(rep(q,m),nrow=n,ncol=sum(m),byrow=TRUE)
+    if(sum(m)>1)
     for(i in 2:sum(m))
-      II[,i] = II[,i] + II[,i-1] 
-  II = cbind(0,II[,-ncol(II)])
-  ii = 1
-  for(i in 1:M)		# Fill in the actual random effects codes
-    for(j in 1:m[i])
-    {
-      II[,ii] = II[,ii] + REmat$codes[[i]]
-      ii = ii+1
-    }
-
-  # Splits u into "correlation blocks" (no way yet of specifying uncorrelated random effects)
-  cor_block_start = cumsum(m)-m[1]+1
-  cor_block_stop = cumsum(m)
-  numb_cor_params = max(sum(m*(m-1)/2),1)	# For technical reasons we need at least 1 parameter: see glmmadmb.tpl
-
+      II[,i] = II[,i] + II[,i-1]
+    II <- cbind(0,II[,-ncol(II)])
+    ##    tmpf <- function(x) c(0,cumsum(x)[-length(x)])
+    ##    II <- t(apply(II,1,tmpf))
+    ii <- 1
+    for(i in 1:M)		# Fill in the actual random effects codes
+      for(j in 1:m[i])
+        {
+          II[,ii] = II[,ii] + REmat$codes[[i]]
+          ii = ii+1
+        }
+    
+    ## Splits u into "correlation blocks" (no way yet of specifying uncorrelated random effects)
+    cor_block_start = cumsum(m)-m[1]+1
+    cor_block_stop = cumsum(m)
+    numb_cor_params = max(sum(m*(m-1)/2),1)	# For technical reasons we need at least 1 parameter: see glmmadmb.tpl
+    
   } else {
     ## no random factor: fill in with dummies
     m <- M <- q <- 1
@@ -107,16 +119,16 @@ glmm.admb <- function(formula, data, family="poisson", link, corStruct="diag", i
   }
   cmdoptions = paste("-maxfn 500", if(impSamp==0) "" else paste("-is",impSamp))
   dat_list = list(n=n, y=y, p=p, X=X, M=M, q=q, m=m, ncolZ=ncol(Z),Z=Z, II=II, 
-		   	cor_flag=rep(0,M),
-			cor_block_start=cor_block_start,
-		   	cor_block_stop=cor_block_stop,
-			numb_cor_params=numb_cor_params,
-                   	like_type_flag=as.numeric(family=="poisson"||(family=="binomial"&&link=="logit")),
-                   	no_rand_flag=as.numeric(!has_rand),
-                   	zi_flag=as.numeric(zeroInflation), 
-			intermediate_maxfn=10, 
-			has_offset=as.numeric(has_offset), 
-			offset=offset)
+    cor_flag=rep(0,M),
+    cor_block_start=cor_block_start,
+    cor_block_stop=cor_block_stop,
+    numb_cor_params=numb_cor_params,
+    like_type_flag=as.numeric(family=="poisson"||(family=="binomial"&&link=="logit")),
+    no_rand_flag=as.numeric(!has_rand),
+    zi_flag=as.numeric(zeroInflation), 
+    intermediate_maxfn=10, 
+    has_offset=as.numeric(has_offset), 
+    offset=offset)
   ## BMB: pz=0.0001 should be clearly specified, possibly made into a control parameter
   pin_list = list(pz=if(zeroInflation) 0.02 else 0.0001, b=numeric(p), tmpL=0.25+numeric(sum(m)),
     tmpL1=0.0001+numeric(numb_cor_params), logalpha=2.0, u=rep(0,sum(m*q)))
@@ -137,13 +149,19 @@ glmm.admb <- function(formula, data, family="poisson", link, corStruct="diag", i
     if (substr(R.version$os,1,6)=="darwin") "macos" else {
       if (R.version$os=="linux-gnu") "linux" else {
         stop("glmmadmb binary not available for this OS")
-        ## FIXME: allow user to supply their own here?
+        ## FIXME: allow user to supply their own binary?
       }
     }
   }
+  execname <- if (platform=="windows") paste(file_name,"exe",sep=".") else file_name
   bin_loc <- system.file("bin",paste(platform,nbits,sep=""),
-                         if (platform=="windows") paste(file_name,"exe",sep=".") else file_name,
+                         execname,
                          package="glmmADMB")
+  ## FIXME: for what platforms do we really need to copy the binary?
+  ##  can't we just run it in place?  Or does it do something silly and produce
+  ##  output in the directory in which the binary lives rather than the
+  ##  current working directory (feel like I struggled with this earlier
+  ##  but have now forgotten -- ADMB mailing list archives??)
   if (nchar(bin_loc)==0) stop("glmmadmb binary should be available, but isn't")
   if (platform=="windows") {
     cmd <- paste("\"",bin_loc, "\"", " ", cmdoptions, sep="")
@@ -159,6 +177,8 @@ glmm.admb <- function(formula, data, family="poisson", link, corStruct="diag", i
   if(!file.exists(std_file))
     stop("The function maximizer failed")
   tmp <- read.table(paste(file_name,"std",sep="."), skip=1,as.is=TRUE)
+  ## FIXME: could we change the TPL file to write everything out in full precision??
+  ##   ... otherwise to read .par file or binary versions ...
   ## BMB: if 'std dev' were written without a space we could use header=TRUE
   tmpindex <- tmp[,2]
   out <- list(n=n, q=q, formula=formula, call=call,
@@ -171,19 +191,34 @@ glmm.admb <- function(formula, data, family="poisson", link, corStruct="diag", i
   names(out$stdbeta) <- names(out$b) <- colnames(X)
 
   if(family == "nbinom")
-  {
+    {
     out$alpha <- as.numeric(tmp[tmpindex=="alpha", 3])
     out$sd_alpha <- as.numeric(tmp[tmpindex=="alpha", 3])
   }
+  if(!missing(link))
+    out$link <- link
   if(has_rand) {
-    ## BMB: fixme!
+    ## BMB: fixme! make sure this works for multiple random effects
     Svec <- tmp[tmpindex=="S",3]
+    parnames <- lapply(REmat$mmat,colnames)
+    groupnames <- names(REmat$mmats)
+    dn <- mapply(list,
+                 parnames,
+                 parnames,SIMPLIFY=FALSE)
     out$S <- mapply(matrix,split(Svec,rep(1:length(m),m)),
-                    nrow=m,SIMPLIFY=FALSE)
-    ## fixme: name list: dimnames should correspond to Z?
+                    nrow=m,
+                    ncol=m,
+                    dimnames=dn,
+                    MoreArgs=list(byrow=FALSE),
+                    SIMPLIFY=FALSE)
     sd_Svec <- tmp[tmpindex=="S",4]
-    out$sd_S <- mapply(matrix,split(Svec,rep(1:length(m),m)),
-                       nrow=m,SIMPLIFY=FALSE)
+    out$sd_S <- mapply(matrix,split(sd_Svec,rep(1:length(m),m)),
+                       nrow=m,
+                       ncol=m,
+                       dimnames=dn,
+                       MoreArgs=list(byrow=FALSE),
+                       SIMPLIFY=FALSE)
+    names(out$S) <- names(out$sd_S) <- groupnames
     if(corStruct == "diag")
       {
         replace_offdiag <- function(m,r=0) {
@@ -191,54 +226,71 @@ glmm.admb <- function(formula, data, family="poisson", link, corStruct="diag", i
           m
         }
         out$S <- lapply(out$S,replace_offdiag)
-        out$sd_S <- lapply(out$S,replace_offdiag)
+        out$sd_S <- lapply(out$sd_S,replace_offdiag)
         ## FIXME: replace with NA for sd_S?
-
     }
     ## out$random <- random
-  }
-  if(!missing(link))
-    out$link <- link
-  if(has_rand)
-  {
-    ## FIXME: get dimnames right, without explicit 'group' specifications
+    ## FIXME: check dimnames for a wider range of cases ...
     uvec <- tmp[tmpindex=="u",3]
+    ulist <- split(uvec,rep(1:length(q),q))
+    dn <- mapply(list,
+                 lapply(REmat$mmat,attr,which="levels"),
+                 parnames,
+                 SIMPLIFY=FALSE)
     out$U <- mapply(matrix,
-                    split(uvec,rep(1:length(q),q)),
+                    ulist,
                     ncol=m,
-                    MoreArgs=list(nrow=1,byrow=TRUE))
-    ##    U <- matrix(as.numeric(tmp[tmpindex=="u",3]), ncol=m, byrow=TRUE,
+                    nrow=q,
+                    dimnames=dn,
+                    SIMPLIFY=FALSE)
+    names(out$U) <- groupnames
+    ## BMB/FIXME: should this be byrow or not? check ...
+    ii <- 1
+    allU <- matrix(nrow=n,ncol=sum(m))
+    for (i in 1:length(m)) {
+      allU[,ii:(ii+m[i]-1)] <- out$U[[i]][c(REmat$codes[[i]]),]
+      ii <- ii+m[i]
+    }
+    ## U <- matrix(as.numeric(tmp[tmpindex=="u",3]), ncol=m, byrow=TRUE,
     ## ## dimnames=list(data[,group][group_d[-1]-1],colnames(Z)))
     ## dimnames=list(NULL,colnames(Z)))
     sd_uvec <- tmp[tmpindex=="u",4]
+    sd_ulist <- split(sd_uvec,rep(1:length(q),q))
     out$sd_U <- mapply(matrix,
-                       split(sd_uvec,rep(1:length(q),q)),
+                       sd_ulist,
                        ncol=m,
-                       MoreArgs=list(nrow=1,byrow=TRUE))
+                       nrow=q,
+                       dimnames=dn,
+                       SIMPLIFY=FALSE)
+    ## FIXME: check byrow = TRUE or FALSE
     ## matrix(as.numeric(tmp[tmpindex=="u",4]), ncol=m, byrow=TRUE,
     ## dimnames=list(data[,group][group_d[-1]-1],colnames(Z)))
     ##    dimnames=list(NULL,colnames(Z)))
   } else {
-    out$U <- matrix(rep(0,q), ncol=1, byrow=TRUE)
+    out$U <- out$sd_U <- matrix(rep(0,q), ncol=1, byrow=TRUE)
   }
 
   mu <- as.numeric(X %*% out$b)
   ## BMB: doesn't include influence of random effects?
   lambda <- 0
-  for(i in 1:n)
-    lambda[i] <- exp(mu[i] + sum(Z[i,]*out$U[II[i],]))
+
+  ## for(i in 1:n)
+  ## lambda[i] <- exp(mu[i] + rowSums(Z * allU))
+  eta <- mu + rowSums(Z*allU)
+  lambda <- ilinkfun(eta)
+
   if(family == "binomial")
     out$fitted <- lambda / (1+lambda)
   else
     out$fitted <- lambda
-    out$sd.est <- switch(family,
-                  poisson=sqrt(lambda),
-                  nbinom=sqrt(lambda*(1+lambda/out$alpha)),
-                  binomial=sqrt(out$fitted*(1-out$fitted)))
+  out$sd.est <- switch(family,
+                       poisson=sqrt(lambda),
+                       nbinom=sqrt(lambda*(1+lambda/out$alpha)),
+                       binomial=sqrt(out$fitted*(1-out$fitted)))
 
   out$residuals <- as.numeric(y-lambda)
   tmp <- par_read(file_name)
-  out$npar <- tmp$npar ## as.numeric(scan(paste(file_name,".par",sep=""), what="", quiet=TRUE)[6])
+  out$npar <- tmp$npar
   ## BMB: should this be total number of parameters or number of fixed parameters?
   out$loglik <- tmp$loglik
   out$gradloglik <- tmp$gradient
@@ -255,7 +307,9 @@ glmm.admb <- function(formula, data, family="poisson", link, corStruct="diag", i
     warning("Convergence failed:",out$convmsg)
   }
 
-  ## unnecessary??
+  ## BMB: warning/convergence code for bad hessian?
+  
+  ## unnecessary now??
   ## out$fitted = out$fitted[backwards_key]
   ## out$residuals = out$residuals[backwards_key]
 
