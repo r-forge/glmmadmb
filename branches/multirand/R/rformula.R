@@ -27,7 +27,8 @@ process_randformula <- function(f,data) {
   splitbits <- strsplit(randbits,"\\|")
                               
   cfun <- function(lbit,mdata) {
-    model.matrix(as.formula(paste("~",lbit)),mdata)
+    m <- model.matrix(as.formula(paste("~",lbit)),mdata)
+    m
   }
 
   ## here we want to expand RHS and provide a list of indices
@@ -45,9 +46,16 @@ process_randformula <- function(f,data) {
                          gsub("/","_nest_",
                               gsub("\\*","_cross",
                                    gsub(" ","",randbits)))))
-  L <- list(mmats=lapply(lapply(splitbits,"[",1),cfun,mdata=data),
-       codes=lapply(lapply(splitbits,"[",2),rfun,rdata=data))
-  names(L$mmats) <- names(L$codes) <- termnames
+  groups <- gsub("^ +","",lapply(splitbits,"[",2))
+  LHS <- gsub("^ +","",lapply(splitbits,"[",1))
+  
+  L <- list(mmats=lapply(LHS,cfun,mdata=data),
+       codes=lapply(groups,rfun,rdata=data))
+  for (i in seq_along(L$mmats)) {
+    attr(L$mmats[[i]],"levels") <- levels(with(data,get(groups[i])))
+  }
+  names(L$mmats) <- groups
+  names(L$codes) <- termnames
   L
 }
 
