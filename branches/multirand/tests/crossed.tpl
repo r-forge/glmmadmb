@@ -1,9 +1,9 @@
 DATA_SECTION
 
-  init_matrix Zf(1,5000,1,5)
-  init_matrix Zg(1,5000,1,5)
-  init_matrix X(1,5000,1,2)
-  init_vector y(1,5000)
+  init_matrix Zf(1,1250,1,5)
+  init_matrix Zg(1,1250,1,5)
+  init_matrix X(1,1250,1,2)
+  init_vector y(1,1250)
   init_int nobs
 
 PARAMETER_SECTION
@@ -16,7 +16,6 @@ PARAMETER_SECTION
   vector mu(1,nobs)
   random_effects_vector u_f(1,5)
   random_effects_vector u_g(1,5)
-
 TOP_OF_MAIN_SECTION
   arrmblsize = 500000;
 
