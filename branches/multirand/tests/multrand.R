@@ -73,23 +73,28 @@ ranef(m4)
 
 if (require(R2admb)) {
   ## it was easier for me to do this via R2admb ...
-  Zf <- model.matrix(~f-1,data=d2)
-  Zg <- model.matrix(~g-1,data=d2)
-  X <- model.matrix(~y,data=d2)
-  admb_dat <- list(Zf=Zf,Zg=Zg,X=X,y=d2$y,nobs=nrow(d2))
+  Zf <- model.matrix(~f-1,data=d1)
+  Zg <- model.matrix(~g-1,data=d1)
+  X <- model.matrix(~y,data=d1)
+  admb_dat <- list(Zf=Zf,Zg=Zg,X=X,y=d1$y,nobs=nrow(d1))
                  
   setup_admb()
+  if (!file.exists("g3.RData")) {
   g3 <- do_admb("crossed",data=admb_dat,
                 params=list(beta=c(1,0),
                   sigma_f=1,sigma_g=1),
                 re=TRUE,
-                re_vectors=c(u_f=length(levels(d2$f)),
-                  u_g=length(levels(d2$g))),
-                ## checkparam="write",
-                ## checkdata="write",
+                re_vectors=c(u_f=length(levels(d1$f)),
+                  u_g=length(levels(d1$g))),
+                checkparam="write",
+                checkdata="write",
                 ## extra.args="-l1 10000000 -l2 100000000 -l3 10000000 -nl1 10000000",
                 extra.args="-ndb 2 -l1 1000000",
                 verbose=TRUE)
+  save("g3",file="g3.RData")
+} else load("g3.RData")
+
+  
 }
 
 
