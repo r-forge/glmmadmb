@@ -21,6 +21,16 @@ g1$S
 g1$sd_S
 summary(g1$U$f) ## not quite identical
 
+library(lme4)
+m1 <- glmer(y~x+(1|f),family="poisson",data=d)
+r1 <- ranef(g1)[[1]]
+r2 <- ranef(m1)[[1]][[1]]
+## ranef(mer) returns DATA FRAME so need additional unwrapping
+plot(r1,r2,xlab="glmmADMB random effects",ylab="glmer random effects")
+abline(a=0,b=1)
+## proportional but 'shrunk' slightly differently
+summary(lm(r2~r1)) ## slope=0.9387
+
 ## random intercepts and slopes
 set.seed(101)
 nblock <- 10
