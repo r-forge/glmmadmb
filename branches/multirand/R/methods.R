@@ -3,8 +3,12 @@ coef.glmm.admb <- function(object, ...) {
   object$b
 }
 
-ranef.glmm.admb <- function(object, ...) {
-  object$U
+ranef <- function(object, ...) {
+  UseMethod("ranef")
+}
+
+ranef.glmm.admb <- function(object, sf=FALSE, ...) {
+  if(sd) object$sd_U else object$U
 }
 
 residuals.glmm.admb <- function(object, type=c("pearson", "response"), ...) {
