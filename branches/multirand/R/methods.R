@@ -7,7 +7,7 @@ ranef <- function(object, ...) {
   UseMethod("ranef")
 }
 
-ranef.glmm.admb <- function(object, sf=FALSE, ...) {
+ranef.glmm.admb <- function(object, sd=FALSE, ...) {
   if(sd) object$sd_U else object$U
 }
 
