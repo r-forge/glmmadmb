@@ -65,8 +65,8 @@ PARAMETER_SECTION
  LOC_CALCS
   int alpha_phase = like_type_flag==0 ? 1 : -1;         // Phase 1 if active
   int zi_phase = zi_flag ? 2 : -1;                      // Phase 2 if active
-  int rand_phase = 2+zi_flag;                           // Right after zi
-  int cor_phase = sum(cor_flag)>0 ? rand_phase+1 : -1 ; // Right after rand_phase
+  int rand_phase = no_rand_flag==0 ? 2+zi_flag : -1;    // Right after zi
+  int cor_phase = (rand_phase>0) && (sum(cor_flag)>0) ? rand_phase+1 : -1 ; // Right after rand_phase
   ivector ncolS(1,M);
   ncolS = m;                                            // Uncorrelated random effects
   for (int i=1;i<=M;i++)                                // Modifies the correlated ones
@@ -158,8 +158,8 @@ SEPARABLE_FUNCTION void n01_prior(const prevariable&  u)
 SEPARABLE_FUNCTION void log_lik(int _i, const dvar_vector& tmpL,const dvar_vector& tmpL1,const dvar_vector& ui,const dvar_vector& beta,const prevariable& log_alpha,const prevariable& pz)
   
   int i,j, i_m;
-  double e1=1.e-8;
-  double e2=1.e-8;
+  double e1=1.e-20;
+  double e2=1.e-20;
 
   dvariable alpha = e2+exp(log_alpha);
 
