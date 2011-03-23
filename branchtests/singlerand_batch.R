@@ -26,6 +26,9 @@ eta <- model.matrix(~x,data=d2) %*% beta + u[as.numeric(d2$f)]+
   u[as.numeric(d2$f)]*d$x
 d2$y <- rpois(N,exp(eta))
 
+## clean up (leave d and d2)
+rm("nblock","nrep","N","u","beta","eta")
+
 ##
 data(epil2,package="glmmADMB")
 
@@ -38,7 +41,8 @@ t0_old <- system.time(g0_old <- glmm.admb(y~1,random=~1,
 t1_old <- system.time(g1_old <- glmm.admb(y~x,random=~1,
                                           group="f",family="poisson",data=d))
 t2_old <- system.time(g2_old <- glmm.admb(y~x,random=~x,
-                                          group="f",family="poisson",data=d))
+                                          group="f",family="poisson",
+                                          data=d))
 t3_old <- system.time(g3_old <- glmm.admb(y~1,random=~1,group="f",
                                           family="poisson",data=d2))
 t4_old <- system.time(g4_old <- glmm.admb(y~x,random=~1,group="f",
@@ -84,20 +88,20 @@ t0_lme4 <- system.time(g0_lme4 <- glmer(y~1+(1|f),
                                           family="poisson",data=d))
 t1_lme4 <- system.time(g1_lme4 <- glmer(y~x+(1|f),
                                           family="poisson",data=d))
-t2_lme4 <- system.time(g2_lme4 <- glmer(y~x+(x|f),
+t2_lme4 <- system.time(g2_lme4 <- glmer(y~x+(1|f)+(0+x|f),
                                           family="poisson",data=d))
 t3_lme4 <- system.time(g3_lme4 <- glmer(y~1+(1|f),
                                           family="poisson",data=d2))
 t4_lme4 <- system.time(g4_lme4 <- glmer(y~x+(1|f),
                                           family="poisson",data=d2))
-t5_lme4 <- system.time(g5_lme4 <- glmer(y~x+(x|f),
+t5_lme4 <- system.time(g5_lme4 <- glmer(y~x+(1|f)+(0+x|f),
                                           family="poisson",data=d2))
 ## t6_lme4 <- system.time(g6_lme4 <- try(glmer(y~Base*trt+Age+Visit+
 ##                                           (Visit|subject),
 ##                                           data=epil2, family="nbinom")))
 ## epil2 data fitted with Poisson, for comparison to lme4
 t7_lme4 <- system.time(g7_lme4 <- glmer(y~Base*trt+Age+Visit+ 
-                                          (Visit|subject),
+                                          (1|subject)+(0+Visit|subject),
                                           data=epil2, family="poisson"))
 save.image("singlerand_batch.RData")
 
