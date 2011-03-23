@@ -6,133 +6,173 @@
 options(continue=" ")
 @ 
 
-\section{Simulate/load data}
+\subsubsection{Tests:}
 
-\subsection{Simulated data}
+Data sets.
 
-\subsubsection{Random intercepts}
-<<>>=
-set.seed(101)
-nblock <- 10
-nrep <- 10
-d <- expand.grid(f=factor(LETTERS[1:nblock]),rep=1:nrep)
-N <- nrow(d)
-d$x <- runif(N)
-u <- rnorm(nblock,sd=1)
-beta <- c(1,2)
-eta <- model.matrix(~x,data=d) %*% beta + u[as.numeric(d$f)]
-d$y <- rpois(N,exp(eta))
-@ 
-\subsubsection{Random intercepts and slopes}
-<<>>=
-set.seed(101)
-nblock <- 10
-nrep <- 10
-d2 <- expand.grid(f=factor(LETTERS[1:nblock]),rep=1:nrep)
-N <- nrow(d)
-d2$x <- runif(N)
-u_f <- rnorm(nblock,sd=1)
-u_fx <- rnorm(nblock,sd=0.5)
-beta <- c(1,2)
-eta <- model.matrix(~x,data=d2) %*% beta + u[as.numeric(d2$f)]+
-  u[as.numeric(d2$f)]*d$x
-d2$y <- rpois(N,exp(eta))
-@ 
+\begin{itemize}
+  \item Set 1: Poisson-distributed data.
+    Regression design ($\beta=\{1,2\}$), $x\sim U[0,1]$.
+    10 blocks, 10 reps per block.  Random intercept with $\sigma=1$.
+  \item Set 2: as above but random slope with $\sigma_s=0.5$.
+  \item Set 3: \code{epil2} data set from \code{glmmADMB}
+  \end{itemize}
+  
+Models.  
+  \begin{itemize}
+    \item 0: Data set 1: intercept-only model, random intercepts.
+    \item 1: Data set 1: \verb!y~x!, random intercepts.
+    \item 2: Data set 1: \verb!y~x!, random slopes.
+    \item 3--5: as 0--2, but with data set 2
+    \item 6: \code{epil2} data, \verb!y~Base*trt+Age+Visit!,
+      random slopes (\code{Visit}) by subject,
+      negative binomial
+    \item 7: as 6, but Poisson (bad model, but useful for comparison
+      with \code{lme4})
+\end{itemize}
+All models with multiple random effects (i.e. 2, 5, 6, 7) are fitted
+with diagonal variance-covariance matrix (i.e. default
+\code{corStruct="diag"} in glmmADMB, non-default \code{(1|group)+(0+x|group)}
+in glmer).
 
-\subsection{Other test data}
 Would like to test \code{cbpp} data from \code{lme4},
 but it's binomial with $N>1$.
-
-Can test \code{epil2} in both old and new versions of
-glmmADMB, but not in \code{lme4} (negative binomial).
-(Will fit with Poisson in both, just for comparison,
-although it will be a bad model \ldots)
-
-\section{Fitting}
-
-Models:
-\subsection{original glmmADMB}
-
-<<>>=
-fn_old <- "glmmADMB_old_cmp.RData"
-if (!file.exists(fn_old)) {
-} else load(fn_old)
-@ 
-
-Warning from model 1, old:
-\code{Estimated covariance matrix may not be positive definite ...}
-
-New (multi-rand) glmmADMB:
-<<>>=
-fn_new <- "glmmADMB_new_cmp.RData"
-if (!file.exists(fn_new)) {
-  library(glmmADMB)
-  t1_new <- system.time(g1_new <- glmm.admb(y~x+(1|f),
-                                            family="poisson",data=d))
-  t0_new <- system.time(g0_new <- glmm.admb(y~1+(1|f),
-                                            family="poisson",data=d))
-  t2_new <- system.time(try(g2_new <- glmm.admb(y~Base*trt+Age+Visit+
-                                                (Visit|subject),
-                                                data=epil2, family="nbinom")))
-  ## fails (don't yet know why)
-  t3_new <- system.time(g3_new <- glmm.admb(y~Base*trt+Age+Visit+
-                                            (Visit|subject),
-                                            data=epil2, family="poisson"))
-  save(list=c(ls(pattern="[tg].*_new")),file=fn_new)
-  detach("package:glmmADMB")
-} else load(fn_new)
-@ 
-
-<<>>=
-library(lme4)
-t1_glmer <- system.time(g1_glmer <- glmer(y~x+(1|f),
-                                          family="poisson",data=d))
-t0_glmer <- system.time(g0_glmer <- update(g1_glmer,.~.-x))
-t3_glmer <- system.time(g3_glmer <- glmer(y~Base*trt+Age+Visit+
-                                          (Visit|subject),
-                                          data=epil2, family="poisson"))
-## don't detach lme4: harder to extract coefficients etc.
-@ 
 
 \section{Comparisons}
 
 <<>>=
-cmp <- function(x,...) {
-  L <- list(...)
-  m <- do.call(cbind,L)
-  m.sc <- sweep(m,1,x,"-")
-  mcmp <- cbind(abs=apply(abs(m.sc),2,max),
-                rel=apply(abs(sweep(m.sc,1,x,"/")),2,max))
-  mcmp
-}
-cmp(g1_new$b,g1_old$b,fixef(g1_glmer))
-cmp(unlist(g1_new$U),g1_old$U,ranef(g1_glmer)$f)
-cmp(g1_new$stdbeta,g1_old$stdbeta)
-cmp(unlist(g1_new$S),g1_old$S)
-
-## log-likelihoods are slightly different across new/old (0.017),
-##   hugely different with glmer (computed with different constants)
-llvec <- c(logLik(g1_new),logLik(g1_old),logLik(g1_glmer))
-
-
-
-g1_old$U
-## identical 
-coef(g1)
-g1$stdbeta
-logLik(g1)
-g1$S
-g1$sd_S
-summary(g1$U)
+load("singlerand_batch.RData")
 @ 
 
 <<>>=
+library(lme4) ## handy for glmer accessors
+library(glmmADMB)
+@ 
 
+All fits OK, \emph{except}:
 
-coef(g2)
-logLik(g2)
-g2$U
-summary(fitted(g2))
-g2$S
-g2$sd_S
+\begin{itemize}
+  \item Warnings (\code{Estimated covariance matrix may not be positive definite})
+    for models 0-5, 7 with old glmmADMB.  (Is this a real difference or a 
+    reporting difference?  Doesn't seem to be in the TPL file, hence must (?)
+    be coming from ADMB, hence must (?) be real \ldots)
+  \item new glmmADMB fails on model 6
+  \end{itemize}
 
+<<sumfun,echo=FALSE>>=
+sumfun <- function(o,n,m) {
+  fixed <- cbind(coef(o),coef(n),fixef(m))
+  ran <- cbind(o$U,n$U[[1]],ranef(m)[[1]])
+  ransum <- apply(ran,2,function(x) c(min=min(x),mean=mean(x),max=max(x)))
+  if (ncol(ransum)>3) { ## multiple REs
+    dim(ransum) <- c(length(ransum)/3,3)
+  }
+  LL <- c(logLik(o),logLik(n),logLik(m))
+  rv <- cbind(diag(o$S),diag(n$S[[1]]),sapply(VarCorr(m),c))
+  mm <- rbind(fixed,rv,LL,ransum)
+  rnames <- rownames(rv)
+  dimnames(mm) <- list(c(names(fixef(m)),
+                        paste("var(RE)",rnames,sep="."),
+                        "logLik",
+                        paste("U",
+                              c(outer(c("min","mean","max"),rnames,
+                                      function(x,y) paste(y,x,sep="."))),sep=".")),
+                      c("glmmADMB(orig)","glmmADMB(new)","glmer"))
+  mm
+}
+
+require(Hmisc)
+sumfun2 <- function(o,n,m) {
+  latex(sumfun(o,n,m),file="",dec=7,table.env=FALSE)
+}
+@ 
+
+\subsubsection{Model 0}
+<<m0,echo=FALSE,results=tex>>=
+sumfun2(g0_old,g0_new,g0_lme4)
+@ 
+
+\textbf{Conclusions}: 
+\begin{itemize}
+  \item Precision of glmmADMB results is truncated, presumably
+    from printing/reading intermediate files in lowered precision.
+    This applies throughout: not a big deal, but would be nice 
+    (and presumably not too hard) to fix.
+  \item new glmmADMB and glmer agree on intercept, intercept variance
+  \item new glmmADMB and old glmmADMB agree on random effects.
+  \item Log-likelihood is obviously computed differently for glmer 
+    and glmmADMB; new and old glmmADMB differ by a disturbing amount.
+    (Don't know whether this is computation or poorer fit; could check
+    this.)
+  \end{itemize}
+  
+  
+\subsubsection{Model 1}
+<<m1,echo=FALSE,results=tex>>=
+sumfun2(g1_old,g1_new,g1_lme4)
+@ 
+\textbf{Conclusions:}
+\begin{itemize}
+  \item All three agree on coefficients
+  \item glmmADMBs agree very closely on RE var (although glmer is close),
+    REs
+  \end{itemize}
+
+\subsubsection{Model 2}
+<<m2,echo=FALSE,results=tex>>=
+sumfun2(g2_old,g2_new,g2_lme4)
+@ 
+\textbf{Conclusions:}
+\begin{itemize}
+  \item All three agree on coefficients
+  \item glmmADMBs agree very closely on RE var (although glmer is close),
+    all three set var of $x$ (correctly) to zero
+  \end{itemize}
+
+\subsubsection{Model 3}
+<<m3,echo=FALSE,results=tex>>=
+sumfun2(g3_old,g3_new,g3_lme4)
+@ 
+\textbf{Conclusions:}
+\begin{itemize}
+  \item Like model 0: new glmmADMB agrees with glmer
+    (is this those two getting stuck at a slightly suboptimal fit?)
+  \item log-likelihoods are all over the map
+  \end{itemize}
+
+\subsubsection{Model 4}
+<<m4,echo=FALSE,results=tex>>=
+sumfun2(g4_old,g4_new,g4_lme4)
+@ 
+\textbf{Conclusions:}
+\begin{itemize}
+  \item Like model 1
+  \end{itemize}
+  
+\subsubsection{Model 5}
+<<m5,echo=FALSE,results=tex>>=
+sumfun2(g5_old,g5_new,g5_lme4)
+@ 
+\textbf{Conclusions:}
+\begin{itemize}
+  \item Like model 2 (but now slope variances are non-zero)
+  \end{itemize}
+
+\subsubsection{Model 6}
+  
+glmer can't do this one (negative binomial),
+and new glmmADMB fails.
+
+  \subsubsection{Model 7}
+<<echo=FALSE,results=tex>>=
+sumfun2(g7_old,g7_new,g7_lme4)
+@ 
+
+<<echo=FALSE,eval=FALSE>>=
+summary(ranef(g7_new)$subject[,1]*sqrt(g7_new$S$subject[1,1]))
+summary(ranef(g7_lme4)$subject[,1])
+object <- g5_new
+sweep(object$U[[1]],sqrt(diag(object$S[[1]])),MARGIN=2,FUN="*")
+mapply(sweep,object$U,sqrt(diag(object$S[[1]])),MARGIN=2,FUN="*")
+@ 
+\end{document}
