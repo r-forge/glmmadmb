@@ -9,6 +9,8 @@ Maintainer: Hans Skaug <Hans.Skaug@mi.uib.no>
 LazyData: yes
 Description: Fits mixed-effects models to count data using Poisson, negative
   binomial, or Bernoulli response distributions.
+Imports: stats, nlme
+Depends: methods
 Suggests: lattice, lme4
 License: BSD
 URL: http://glmmadmb.r-forge.r-project.org, http://admb-project.org
