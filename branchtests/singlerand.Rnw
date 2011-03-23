@@ -1,0 +1,138 @@
+\documentclass{article}
+\begin{document}
+\newcommand{\code}[1]{{\tt #1 }}
+\SweaveOpts{keep.source=TRUE}
+<<echo=FALSE>>=
+options(continue=" ")
+@ 
+
+\section{Simulate/load data}
+
+\subsection{Simulated data}
+
+\subsubsection{Random intercepts}
+<<>>=
+set.seed(101)
+nblock <- 10
+nrep <- 10
+d <- expand.grid(f=factor(LETTERS[1:nblock]),rep=1:nrep)
+N <- nrow(d)
+d$x <- runif(N)
+u <- rnorm(nblock,sd=1)
+beta <- c(1,2)
+eta <- model.matrix(~x,data=d) %*% beta + u[as.numeric(d$f)]
+d$y <- rpois(N,exp(eta))
+@ 
+\subsubsection{Random intercepts and slopes}
+<<>>=
+set.seed(101)
+nblock <- 10
+nrep <- 10
+d2 <- expand.grid(f=factor(LETTERS[1:nblock]),rep=1:nrep)
+N <- nrow(d)
+d2$x <- runif(N)
+u_f <- rnorm(nblock,sd=1)
+u_fx <- rnorm(nblock,sd=0.5)
+beta <- c(1,2)
+eta <- model.matrix(~x,data=d2) %*% beta + u[as.numeric(d2$f)]+
+  u[as.numeric(d2$f)]*d$x
+d2$y <- rpois(N,exp(eta))
+@ 
+
+\subsection{Other test data}
+Would like to test \code{cbpp} data from \code{lme4},
+but it's binomial with $N>1$.
+
+Can test \code{epil2} in both old and new versions of
+glmmADMB, but not in \code{lme4} (negative binomial).
+(Will fit with Poisson in both, just for comparison,
+although it will be a bad model \ldots)
+
+\section{Fitting}
+
+Models:
+\subsection{original glmmADMB}
+
+<<>>=
+fn_old <- "glmmADMB_old_cmp.RData"
+if (!file.exists(fn_old)) {
+} else load(fn_old)
+@ 
+
+Warning from model 1, old:
+\code{Estimated covariance matrix may not be positive definite ...}
+
+New (multi-rand) glmmADMB:
+<<>>=
+fn_new <- "glmmADMB_new_cmp.RData"
+if (!file.exists(fn_new)) {
+  library(glmmADMB)
+  t1_new <- system.time(g1_new <- glmm.admb(y~x+(1|f),
+                                            family="poisson",data=d))
+  t0_new <- system.time(g0_new <- glmm.admb(y~1+(1|f),
+                                            family="poisson",data=d))
+  t2_new <- system.time(try(g2_new <- glmm.admb(y~Base*trt+Age+Visit+
+                                                (Visit|subject),
+                                                data=epil2, family="nbinom")))
+  ## fails (don't yet know why)
+  t3_new <- system.time(g3_new <- glmm.admb(y~Base*trt+Age+Visit+
+                                            (Visit|subject),
+                                            data=epil2, family="poisson"))
+  save(list=c(ls(pattern="[tg].*_new")),file=fn_new)
+  detach("package:glmmADMB")
+} else load(fn_new)
+@ 
+
+<<>>=
+library(lme4)
+t1_glmer <- system.time(g1_glmer <- glmer(y~x+(1|f),
+                                          family="poisson",data=d))
+t0_glmer <- system.time(g0_glmer <- update(g1_glmer,.~.-x))
+t3_glmer <- system.time(g3_glmer <- glmer(y~Base*trt+Age+Visit+
+                                          (Visit|subject),
+                                          data=epil2, family="poisson"))
+## don't detach lme4: harder to extract coefficients etc.
+@ 
+
+\section{Comparisons}
+
+<<>>=
+cmp <- function(x,...) {
+  L <- list(...)
+  m <- do.call(cbind,L)
+  m.sc <- sweep(m,1,x,"-")
+  mcmp <- cbind(abs=apply(abs(m.sc),2,max),
+                rel=apply(abs(sweep(m.sc,1,x,"/")),2,max))
+  mcmp
+}
+cmp(g1_new$b,g1_old$b,fixef(g1_glmer))
+cmp(unlist(g1_new$U),g1_old$U,ranef(g1_glmer)$f)
+cmp(g1_new$stdbeta,g1_old$stdbeta)
+cmp(unlist(g1_new$S),g1_old$S)
+
+## log-likelihoods are slightly different across new/old (0.017),
+##   hugely different with glmer (computed with different constants)
+llvec <- c(logLik(g1_new),logLik(g1_old),logLik(g1_glmer))
+
+
+
+g1_old$U
+## identical 
+coef(g1)
+g1$stdbeta
+logLik(g1)
+g1$S
+g1$sd_S
+summary(g1$U)
+@ 
+
+<<>>=
+
+
+coef(g2)
+logLik(g2)
+g2$U
+summary(fitted(g2))
+g2$S
+g2$sd_S
+
