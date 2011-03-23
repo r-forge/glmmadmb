@@ -1,0 +1,14 @@
+exportPattern("^[^\\.]")
+
+importFrom("nlme",ranef,VarCorr)
+
+S3method(coef,glmm.admb)
+S3method(ranef,glmm.admb)
+S3method(residuals,glmm.admb)
+S3method(fitted,glmm.admb)
+S3method(stdEr,glmm.admb)
+S3method(vcov,glmm.admb)
+## wait for 2.13 to be released ... or work around it
+## S3method(nobs,glmm.admb)
+S3method(VarCorr,glmm.admb)
+S3method(VarCorr,summary.glmm.admb)
