@@ -33,4 +33,3 @@ vcov.glmm.admb <- function(object, ...) {
   outer(object$stdbeta,object$stdbeta)*object$corMat
 }
 
- 
