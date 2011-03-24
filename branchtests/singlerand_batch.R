@@ -1,33 +1,22 @@
 ## should be run with --vanilla
 
 ## simulated data, intercept-only RE
-set.seed(101)
-nblock <- 10
-nrep <- 10
-d <- expand.grid(f=factor(LETTERS[1:nblock]),rep=1:nrep)
-N <- nrow(d)
-d$x <- runif(N)
-u <- rnorm(nblock,sd=1)
-beta <- c(1,2)
-eta <- model.matrix(~x,data=d) %*% beta + u[as.numeric(d$f)]
-d$y <- rpois(N,exp(eta))
+simfun <- function(seed=101,nblock=10,nrep=10,sd=c(int=1,slope=0),beta=c(1,2)) {
+  if (!is.null(seed)) set.seed(seed)
+  d <- expand.grid(f=factor(LETTERS[1:nblock]),rep=1:nrep)
+  N <- nrow(d)
+  d$x <- runif(N)
+  u_f1 <- rnorm(nblock,sd=sd["int"])
+  u_fx <- rnorm(nblock,sd=sd["slope"])
+  eta <- model.matrix(~x,data=d) %*% beta + u_f1[as.numeric(d$f)]+
+    u_fx[as.numeric(d$f)]*d$x    
+  d$y <- rpois(N,exp(eta))
+  d
+}
 
 ## simulated data, slope+intercept RE
-set.seed(101)
-nblock <- 10
-nrep <- 10
-d2 <- expand.grid(f=factor(LETTERS[1:nblock]),rep=1:nrep)
-N <- nrow(d)
-d2$x <- runif(N)
-u_f <- rnorm(nblock,sd=1)
-u_fx <- rnorm(nblock,sd=0.5)
-beta <- c(1,2)
-eta <- model.matrix(~x,data=d2) %*% beta + u[as.numeric(d2$f)]+
-  u[as.numeric(d2$f)]*d$x
-d2$y <- rpois(N,exp(eta))
-
-## clean up (leave d and d2)
-rm("nblock","nrep","N","u","beta","eta")
+d <- simfun()
+d2 <- simfun(sd=c(int=1,slope=0.5))
 
 ##
 data(epil2,package="glmmADMB")
@@ -41,8 +30,7 @@ t0_old <- system.time(g0_old <- glmm.admb(y~1,random=~1,
 t1_old <- system.time(g1_old <- glmm.admb(y~x,random=~1,
                                           group="f",family="poisson",data=d))
 t2_old <- system.time(g2_old <- glmm.admb(y~x,random=~x,
-                                          group="f",family="poisson",
-                                          data=d))
+                                          group="f",family="poisson",data=d))
 t3_old <- system.time(g3_old <- glmm.admb(y~1,random=~1,group="f",
                                           family="poisson",data=d2))
 t4_old <- system.time(g4_old <- glmm.admb(y~x,random=~1,group="f",
@@ -105,4 +93,19 @@ t7_lme4 <- system.time(g7_lme4 <- glmer(y~Base*trt+Age+Visit+
                                           data=epil2, family="poisson"))
 save.image("singlerand_batch.RData")
 
-
+## only does Poisson/binomial random-intercept models (2,5,6,7 not possible)
+library(glmmML)
+t0_glmmML <- system.time(g0_glmmML <- glmmML(y~1,cluster=f,
+                                             family="poisson",data=d,
+                                             control=list(maxit=1000)))
+t1_glmmML <- system.time(g1_glmmML <- glmmML(y~x,cluster=f,
+                                             family="poisson",data=d,
+                                             control=list(maxit=1000)))
+t3_glmmML <- system.time(g3_glmmML <- glmmML(y~1,cluster=f,
+                                          family="poisson",data=d2,
+                                             control=list(maxit=1000)))
+t4_glmmML <- system.time(g4_glmmML <- glmmML(y~x,cluster=f,
+                                          family="poisson",data=d2))
+## convergence problem on models 1, 3
+detach("package:glmmML")
+save.image("singlerand_batch.RData")
