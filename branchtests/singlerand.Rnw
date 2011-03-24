@@ -6,9 +6,9 @@
 options(continue=" ")
 @ 
 
-\subsubsection{Tests:}
+\section{Tests}
 
-Data sets.
+\subsection{Data sets}
 
 \begin{itemize}
   \item Set 1: Poisson-distributed data.
@@ -18,7 +18,7 @@ Data sets.
   \item Set 3: \code{epil2} data set from \code{glmmADMB}
   \end{itemize}
   
-Models.  
+\subsection{Models}
   \begin{itemize}
     \item 0: Data set 1: intercept-only model, random intercepts.
     \item 1: Data set 1: \verb!y~x!, random intercepts.
@@ -30,13 +30,18 @@ Models.
     \item 7: as 6, but Poisson (bad model, but useful for comparison
       with \code{lme4})
 \end{itemize}
+
 All models with multiple random effects (i.e. 2, 5, 6, 7) are fitted
 with diagonal variance-covariance matrix (i.e. default
 \code{corStruct="diag"} in glmmADMB, non-default \code{(1|group)+(0+x|group)}
 in glmer).
 
+Note that random effects as stored in \code{glmm.admb} objects are
+unscaled; those in \code{mer} are scaled by the standard deviation
+of the relevant random effect.
+
 Would like to test \code{cbpp} data from \code{lme4},
-but it's binomial with $N>1$.
+but it's binomial with $N>1$ so not currently possible with glmmADMB.
 
 \section{Comparisons}
 
@@ -45,8 +50,8 @@ load("singlerand_batch.RData")
 @ 
 
 <<>>=
+library(glmmADMB) ## MUST load this first!
 library(lme4) ## handy for glmer accessors
-library(glmmADMB)
 @ 
 
 All fits OK, \emph{except}:
@@ -60,36 +65,39 @@ All fits OK, \emph{except}:
   \end{itemize}
 
 <<sumfun,echo=FALSE>>=
-sumfun <- function(o,n,m) {
+sumfun <- function(o,n,m,t.o,t.n,t.m) {
   fixed <- cbind(coef(o),coef(n),fixef(m))
-  ran <- cbind(o$U,n$U[[1]],ranef(m)[[1]])
+  ran <- cbind(sweep(o$U,2,sqrt(diag(o$S)),"*"),
+               ranef(n)[[1]],ranef(m)[[1]])
   ransum <- apply(ran,2,function(x) c(min=min(x),mean=mean(x),max=max(x)))
   if (ncol(ransum)>3) { ## multiple REs
     dim(ransum) <- c(length(ransum)/3,3)
   }
   LL <- c(logLik(o),logLik(n),logLik(m))
   rv <- cbind(diag(o$S),diag(n$S[[1]]),sapply(VarCorr(m),c))
-  mm <- rbind(fixed,rv,LL,ransum)
+  times <- round(c(t.o[3],t.n[3],t.m[3]),2)
+  mm <- rbind(fixed,rv,LL,ransum,times)
   rnames <- rownames(rv)
   dimnames(mm) <- list(c(names(fixef(m)),
                         paste("var(RE)",rnames,sep="."),
                         "logLik",
                         paste("U",
                               c(outer(c("min","mean","max"),rnames,
-                                      function(x,y) paste(y,x,sep="."))),sep=".")),
+                                      function(x,y) paste(y,x,sep="."))),sep="."),
+                         "time"),
                       c("glmmADMB(orig)","glmmADMB(new)","glmer"))
   mm
 }
 
 require(Hmisc)
-sumfun2 <- function(o,n,m) {
-  latex(sumfun(o,n,m),file="",dec=7,table.env=FALSE)
+sumfun2 <- function(o,n,m,t.o,t.n,t.m) {
+  latex(sumfun(o,n,m,t.o,t.n,t.m),file="",dec=7,table.env=FALSE)
 }
 @ 
 
 \subsubsection{Model 0}
 <<m0,echo=FALSE,results=tex>>=
-sumfun2(g0_old,g0_new,g0_lme4)
+sumfun2(g0_old,g0_new,g0_lme4,t0_old,t0_new,t0_lme4)
 @ 
 
 \textbf{Conclusions}: 
@@ -98,8 +106,7 @@ sumfun2(g0_old,g0_new,g0_lme4)
     from printing/reading intermediate files in lowered precision.
     This applies throughout: not a big deal, but would be nice 
     (and presumably not too hard) to fix.
-  \item new glmmADMB and glmer agree on intercept, intercept variance
-  \item new glmmADMB and old glmmADMB agree on random effects.
+  \item new glmmADMB and glmer agree on intercept, intercept variance, random effects
   \item Log-likelihood is obviously computed differently for glmer 
     and glmmADMB; new and old glmmADMB differ by a disturbing amount.
     (Don't know whether this is computation or poorer fit; could check
@@ -109,29 +116,26 @@ sumfun2(g0_old,g0_new,g0_lme4)
   
 \subsubsection{Model 1}
 <<m1,echo=FALSE,results=tex>>=
-sumfun2(g1_old,g1_new,g1_lme4)
+sumfun2(g1_old,g1_new,g1_lme4,t1_old,t1_new,t1_lme4)
 @ 
 \textbf{Conclusions:}
 \begin{itemize}
-  \item All three agree on coefficients
-  \item glmmADMBs agree very closely on RE var (although glmer is close),
-    REs
+  \item All three agree on coefficients, REs
+  \item glmmADMBs agree very closely on RE var (although glmer is pretty close too)
   \end{itemize}
 
 \subsubsection{Model 2}
 <<m2,echo=FALSE,results=tex>>=
-sumfun2(g2_old,g2_new,g2_lme4)
+sumfun2(g2_old,g2_new,g2_lme4,t2_old,t2_new,t2_lme4)
 @ 
 \textbf{Conclusions:}
 \begin{itemize}
-  \item All three agree on coefficients
-  \item glmmADMBs agree very closely on RE var (although glmer is close),
-    all three set var of $x$ (correctly) to zero
+  \item Like model 2: all agree closely
   \end{itemize}
 
 \subsubsection{Model 3}
 <<m3,echo=FALSE,results=tex>>=
-sumfun2(g3_old,g3_new,g3_lme4)
+sumfun2(g3_old,g3_new,g3_lme4,t3_old,t3_new,t3_lme4)
 @ 
 \textbf{Conclusions:}
 \begin{itemize}
@@ -142,7 +146,7 @@ sumfun2(g3_old,g3_new,g3_lme4)
 
 \subsubsection{Model 4}
 <<m4,echo=FALSE,results=tex>>=
-sumfun2(g4_old,g4_new,g4_lme4)
+sumfun2(g4_old,g4_new,g4_lme4,t4_old,t4_new,t4_lme4)
 @ 
 \textbf{Conclusions:}
 \begin{itemize}
@@ -151,7 +155,7 @@ sumfun2(g4_old,g4_new,g4_lme4)
   
 \subsubsection{Model 5}
 <<m5,echo=FALSE,results=tex>>=
-sumfun2(g5_old,g5_new,g5_lme4)
+sumfun2(g5_old,g5_new,g5_lme4,t5_old,t5_new,t5_lme4)
 @ 
 \textbf{Conclusions:}
 \begin{itemize}
@@ -164,15 +168,24 @@ glmer can't do this one (negative binomial),
 and new glmmADMB fails.
 
   \subsubsection{Model 7}
-<<echo=FALSE,results=tex>>=
-sumfun2(g7_old,g7_new,g7_lme4)
+<<m6,echo=FALSE,results=tex>>=
+sumfun2(g7_old,g7_new,g7_lme4,t7_old,t7_new,t7_lme4)
 @ 
+\textbf{Conclusions:}
+\begin{itemize}
+  \item As before: glmer and new glmmADMB agree
+  \end{itemize}
 
-<<echo=FALSE,eval=FALSE>>=
-summary(ranef(g7_new)$subject[,1]*sqrt(g7_new$S$subject[1,1]))
-summary(ranef(g7_lme4)$subject[,1])
-object <- g5_new
-sweep(object$U[[1]],sqrt(diag(object$S[[1]])),MARGIN=2,FUN="*")
-mapply(sweep,object$U,sqrt(diag(object$S[[1]])),MARGIN=2,FUN="*")
-@ 
+
+\section{To do}
+\begin{itemize}
+\item Try to figure out if glmer/new glmmADMB are getting stuck
+  (e.g. evaluate likelihoods from scratch at both sets of parameter
+  values, or evaluate likelihoods from each set in the other package/version
+\item incorporate timings  
+\item incorporate fits from glmmML (can do intercept-only RE Poisson/binomial
+  models, with Laplace [runs done, just have to do reporting]
+\end{itemize}
+  
+  
 \end{document}
