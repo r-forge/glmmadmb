@@ -1,6 +1,8 @@
 exportPattern("^[^\\.]")
 
-importFrom("nlme",ranef,VarCorr)
+importFrom(nlme,ranef,VarCorr)
+## importMethodsFrom("nlme",ranef,VarCorr)
+export(ranef) ## needs to be explicit despite generic exportPattern above
 
 S3method(coef,glmm.admb)
 S3method(ranef,glmm.admb)
