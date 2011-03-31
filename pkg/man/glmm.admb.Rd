@@ -20,7 +20,7 @@ glmm.admb(fixed, random, group, data, family="poisson", link,
   \item{random}{optionally, a one-sided formula describing the
     random-effects part of the model. When \code{random} is missing, an
     ordinary GLM without random effects is fitted.}
-  \item{group}{a string naming the main nesting variable.}
+  \item{group}{a string naming the main nesting variable, which must be a factor.}
   \item{data}{a data frame containing the variables named in
     \code{fixed}, \code{random}, and \code{group}.}
   \item{family}{a string determining the response distribution:

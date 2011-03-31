@@ -23,6 +23,7 @@ glmm.admb <- function(fixed, random, group, data, family="poisson", link, corStr
     stop("\"offset\" must be a character string specifying the variable holding the offset")
   Offset <- if(missing(offset)) rep(0,nrow(data)) else data[[offset]]
 
+  if (!inherits(data[[group]],"factor")) stop("grouping variable must be a factor")
   tmpu <- table(data[[group]])
   tmpu[] <- 1:length(tmpu)
   tmpI <- tmpu[as.character(data[[group]])]
