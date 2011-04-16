@@ -16,6 +16,7 @@ options(continue=" ")
     10 blocks, 10 reps per block.  Random intercept with $\sigma=1$.
   \item Set 2: as above but random slope with $\sigma_s=0.5$.
   \item Set 3: \code{epil2} data set from \code{glmmADMB}
+  \item Set 4: coral/starfish/symbiont experimental predation data set (from Adrian Stier and Seabird McKeon)
   \end{itemize}
   
 \subsection{Models}
@@ -29,6 +30,7 @@ options(continue=" ")
       negative binomial
     \item 7: as 6, but Poisson (bad model, but useful for comparison
       with \code{lme4})
+    \item 8: Data set 4: treatment effects + block (intercept) effect
 \end{itemize}
 
 All models with multiple random effects (i.e. 2, 5, 6, 7) are fitted
@@ -38,10 +40,12 @@ in glmer).
 
 Note that random effects as stored in \code{glmm.admb} objects are
 unscaled; those in \code{mer} are scaled by the standard deviation
-of the relevant random effect.
+of the relevant random effect.  However, \code{ranef} from \code{glmmADMB}
+now returns the scaled random effects.
 
 Would like to test \code{cbpp} data from \code{lme4},
-but it's binomial with $N>1$ so not currently possible with glmmADMB.
+but it's binomial with $N>1$ (i.e. not Bernoulli)
+so not currently possible with \code{glmmADMB}.
 
 \section{Comparisons}
 
@@ -61,43 +65,93 @@ All fits OK, \emph{except}:
     for models 0-5, 7 with old glmmADMB.  (Is this a real difference or a 
     reporting difference?  Doesn't seem to be in the TPL file, hence must (?)
     be coming from ADMB, hence must (?) be real \ldots)
-  \item new glmmADMB fails on model 6
   \end{itemize}
 
 <<sumfun,echo=FALSE>>=
-sumfun <- function(o,n,m,t.o,t.n,t.m) {
-  fixed <- cbind(coef(o),coef(n),fixef(m))
-  ran <- cbind(sweep(o$U,2,sqrt(diag(o$S)),"*"),
-               ranef(n)[[1]],ranef(m)[[1]])
+sumfun <- function (x,times)
+  UseMethod("sumfun")
+
+sumfun.glmm.admb <- function(x,times) {
+  fixed <- coef(x)
+  ran <- if (inherits(try(ranef(x)[[1]],silent=TRUE),"try-error")) {
+    sweep(x$U,2,sqrt(diag(x$S)),"*")
+  } else ranef(x)[[1]]
   ransum <- apply(ran,2,function(x) c(min=min(x),mean=mean(x),max=max(x)))
   if (ncol(ransum)>3) { ## multiple REs
     dim(ransum) <- c(length(ransum)/3,3)
   }
-  LL <- c(logLik(o),logLik(n),logLik(m))
-  rv <- cbind(diag(o$S),diag(n$S[[1]]),sapply(VarCorr(m),c))
-  times <- round(c(t.o[3],t.n[3],t.m[3]),2)
-  mm <- rbind(fixed,rv,LL,ransum,times)
-  rnames <- rownames(rv)
-  dimnames(mm) <- list(c(names(fixef(m)),
-                        paste("var(RE)",rnames,sep="."),
-                        "logLik",
-                        paste("U",
-                              c(outer(c("min","mean","max"),rnames,
-                                      function(x,y) paste(y,x,sep="."))),sep="."),
-                         "time"),
-                      c("glmmADMB(orig)","glmmADMB(new)","glmer"))
+  LL <- logLik(x)
+  rv <- if (is.list(x$S)) diag(x$S[[1]]) else diag(x$S)
+  times <- round(times[3],2)
+  mm <- c(fixed,c(rv),c(LL),ransum,times)
+  rnames <- names(rv)
+  names(mm) <- c(names(coef(x)),
+                 paste("var(RE)",rnames,sep="."),
+                 "logLik",
+                 paste("U",
+                       c(outer(c("min","mean","max"),rnames,
+                               function(x,y) paste(y,x,sep="."))),sep="."),
+                 "time")
   mm
 }
+    
+sumfun.mer <- function(x,times) {
+  fixed <- fixef(x)
+  ran <- ranef(x)[[1]]
+  ransum <- apply(ran,2,function(x) c(min=min(x),mean=mean(x),max=max(x)))
+  if (ncol(ransum)>3) { ## multiple REs
+    dim(ransum) <- c(length(ransum)/3,3)
+  }
+  LL <- logLik(x)
+  rv <- sapply(VarCorr(x),c)
+  times <- round(times[3],2)
+  mm <- c(fixed,c(rv),c(LL),ransum,times)
+  rnames <- names(rv)
+  names(mm) <- c(names(coef(x)),
+                 paste("var(RE)",rnames,sep="."),
+                 "logLik",
+                 paste("U",
+                       c(outer(c("min","mean","max"),rnames,
+                               function(x,y) paste(y,x,sep="."))),sep="."),
+                 "time")
+  mm
+}
+    
+## sumfun <- function(o,n,m,t.o,t.n,t.m,lme4_missing=FALSE) {
+##   fixed <- cbind(coef(o),coef(n))
+##   if (!lme4_missing) fixed <- c(fixef(m))
+##   ran <- cbind(sweep(o$U,2,sqrt(diag(o$S)),"*"),
+##                ranef(n)[[1]],ranef(m)[[1]])
+##   ransum <- apply(ran,2,function(x) c(min=min(x),mean=mean(x),max=max(x)))
+##   if (ncol(ransum)>3) { ## multiple REs
+##     dim(ransum) <- c(length(ransum)/3,3)
+##   }
+##   LL <- c(logLik(o),logLik(n),logLik(m))
+##   rv <- cbind(diag(o$S),diag(n$S[[1]]),sapply(VarCorr(m),c))
+##   times <- round(c(t.o[3],t.n[3],t.m[3]),2)
+##   mm <- rbind(fixed,rv,LL,ransum,times)
+##   rnames <- rownames(rv)
+##   dimnames(mm) <- list(c(names(fixef(m)),
+##                         paste("var(RE)",rnames,sep="."),
+##                         "logLik",
+##                         paste("U",
+##                               c(outer(c("min","mean","max"),rnames,
+##                                       function(x,y) paste(y,x,sep="."))),sep="."),
+##                          "time"),
+##                       c("glmmADMB(orig)","glmmADMB(new)","glmer"))
+##   mm
+## }
 
 require(Hmisc)
-sumfun2 <- function(o,n,m,t.o,t.n,t.m) {
-  latex(sumfun(o,n,m,t.o,t.n,t.m),file="",dec=7,table.env=FALSE)
+sumfun2 <- function(modlist,tlist) {
+  latex(mapply(sumfun,modlist,tlist),
+        file="",dec=7,table.env=FALSE)
 }
 @ 
 
 \subsubsection{Model 0}
 <<m0,echo=FALSE,results=tex>>=
-sumfun2(g0_old,g0_new,g0_lme4,t0_old,t0_new,t0_lme4)
+sumfun2(list(old=g0_old,new=g0_new,lme4=g0_lme4),list(t0_old,t0_new,t0_lme4))
 @ 
 
 \textbf{Conclusions}: 
@@ -116,7 +170,7 @@ sumfun2(g0_old,g0_new,g0_lme4,t0_old,t0_new,t0_lme4)
   
 \subsubsection{Model 1}
 <<m1,echo=FALSE,results=tex>>=
-sumfun2(g1_old,g1_new,g1_lme4,t1_old,t1_new,t1_lme4)
+sumfun2(list(old=g1_old,new=g1_new,lme4=g1_lme4),list(t1_old,t1_new,t1_lme4))
 @ 
 \textbf{Conclusions:}
 \begin{itemize}
@@ -126,7 +180,7 @@ sumfun2(g1_old,g1_new,g1_lme4,t1_old,t1_new,t1_lme4)
 
 \subsubsection{Model 2}
 <<m2,echo=FALSE,results=tex>>=
-sumfun2(g2_old,g2_new,g2_lme4,t2_old,t2_new,t2_lme4)
+sumfun2(list(old=g2_old,new=g2_new,lme4=g2_lme4),list(t2_old,t2_new,t2_lme4))
 @ 
 \textbf{Conclusions:}
 \begin{itemize}
@@ -135,7 +189,7 @@ sumfun2(g2_old,g2_new,g2_lme4,t2_old,t2_new,t2_lme4)
 
 \subsubsection{Model 3}
 <<m3,echo=FALSE,results=tex>>=
-sumfun2(g3_old,g3_new,g3_lme4,t3_old,t3_new,t3_lme4)
+sumfun2(list(old=g3_old,new=g3_new,lme4=g3_lme4),list(t3_old,t3_new,t3_lme4))
 @ 
 \textbf{Conclusions:}
 \begin{itemize}
@@ -146,7 +200,7 @@ sumfun2(g3_old,g3_new,g3_lme4,t3_old,t3_new,t3_lme4)
 
 \subsubsection{Model 4}
 <<m4,echo=FALSE,results=tex>>=
-sumfun2(g4_old,g4_new,g4_lme4,t4_old,t4_new,t4_lme4)
+sumfun2(list(old=g4_old,new=g4_new,lme4=g4_lme4),list(t4_old,t4_new,t4_lme4))
 @ 
 \textbf{Conclusions:}
 \begin{itemize}
@@ -155,7 +209,7 @@ sumfun2(g4_old,g4_new,g4_lme4,t4_old,t4_new,t4_lme4)
   
 \subsubsection{Model 5}
 <<m5,echo=FALSE,results=tex>>=
-sumfun2(g5_old,g5_new,g5_lme4,t5_old,t5_new,t5_lme4)
+sumfun2(list(old=g5_old,new=g5_new,lme4=g5_lme4),list(t5_old,t5_new,t5_lme4))
 @ 
 \textbf{Conclusions:}
 \begin{itemize}
@@ -163,13 +217,31 @@ sumfun2(g5_old,g5_new,g5_lme4,t5_old,t5_new,t5_lme4)
   \end{itemize}
 
 \subsubsection{Model 6}
-  
-glmer can't do this one (negative binomial),
-and new glmmADMB fails.
 
-  \subsubsection{Model 7}
 <<m6,echo=FALSE,results=tex>>=
-sumfun2(g7_old,g7_new,g7_lme4,t7_old,t7_new,t7_lme4)
+sumfun2(list(old=g6_old,new=g6_new),list(t6_old,t6_new))
+@ 
+\textbf{Conclusions:}
+\begin{itemize}
+  \item Like model 2 (but now slope variances are non-zero)
+  \end{itemize}
+
+glmer can't do this one (negative binomial).
+
+
+\subsubsection{Model 7}
+<<m7,echo=FALSE,results=tex>>=
+sumfun2(list(old=g7_old,new=g7_new,lme4=g7_lme4),list(t7_old,t7_new,t7_lme4))
+@ 
+\textbf{Conclusions:}
+\begin{itemize}
+  \item As before: glmer and new glmmADMB agree
+  \end{itemize}
+
+
+\subsubsection{Model 8}
+<<m8,echo=FALSE,results=tex>>=
+sumfun2(list(old=g8_old,new=g8_new,lme4=g8_lme4),list(t8_old,t8_new,t8_lme4))
 @ 
 \textbf{Conclusions:}
 \begin{itemize}
