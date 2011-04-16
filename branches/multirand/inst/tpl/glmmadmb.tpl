@@ -1,3 +1,4 @@
+// 2011-03-24 version from Dave Fournier
 DATA_SECTION
 
   init_int n					// Number of observations
