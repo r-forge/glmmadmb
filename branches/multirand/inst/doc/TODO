@@ -1,0 +1,28 @@
+Wish/to-do list
+
+ * import this list to r-forge tracker
+
+ * (BMB) provide package from www.math.mcmaster.ca for times when R-forge build is absent or out of date (source package only should be OK, since there is no compilable code in the package).  Set up a mirror or alternate repository 
+
+ * allow alternative parameterization (i.e. var=mu(1+mu/k) of NB)?
+
+ * add some sort of progress bar or "working ..." message in the absence of voluminous messages?  progress bar is difficult since ADMB doesn't know how long it will take
+
+ * add warning about Wald tests to summary() man page
+
+ * fix summary [alpha and standard error are missing
+
+ * add MCMC option
+
+ * add options for residuals
+
+ * (BMB,medium): switch to using R2ADMB as interface layer?? Compare R2ADMB and glmmADMB interface code, take the best of both ...
+
+ * alternative distributions: binomial models with size>1, implement Gamma, multinomial, ... , models
+ * alternative links: cloglog, identity, probit for other cases, log ...
+ * alternative RE distributions?
+ * add more examples, tests, vignettes ...
+
+ * predict() method (with newdata], simulate() methods) (confidence intervals, RE specifications?)
+
+ * "R-side" random structure
