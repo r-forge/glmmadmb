@@ -94,7 +94,31 @@ sumfun.glmm.admb <- function(x,times) {
                  "time")
   mm
 }
-    
+
+sumfun.glmmML <- function(x,times) {
+  fixed <- coef(x)
+  ran <- if (inherits(try(ranef(x)[[1]],silent=TRUE),"try-error")) {
+    sweep(x$U,2,sqrt(diag(x$S)),"*")
+  } else ranef(x)[[1]]
+  ransum <- apply(ran,2,function(x) c(min=min(x),mean=mean(x),max=max(x)))
+  if (ncol(ransum)>3) { ## multiple REs
+    dim(ransum) <- c(length(ransum)/3,3)
+  }
+  LL <- logLik(x)
+  rv <- if (is.list(x$S)) diag(x$S[[1]]) else diag(x$S)
+  times <- round(times[3],2)
+  mm <- c(fixed,c(rv),c(LL),ransum,times)
+  rnames <- names(rv)
+  names(mm) <- c(names(coef(x)),
+                 paste("var(RE)",rnames,sep="."),
+                 "logLik",
+                 paste("U",
+                       c(outer(c("min","mean","max"),rnames,
+                               function(x,y) paste(y,x,sep="."))),sep="."),
+                 "time")
+  mm
+}
+
 sumfun.mer <- function(x,times) {
   fixed <- fixef(x)
   ran <- ranef(x)[[1]]
@@ -241,11 +265,17 @@ sumfun2(list(old=g7_old,new=g7_new,lme4=g7_lme4),list(t7_old,t7_new,t7_lme4))
 
 \subsubsection{Model 8}
 <<m8,echo=FALSE,results=tex>>=
-sumfun2(list(old=g8_old,new=g8_new,lme4=g8_lme4),list(t8_old,t8_new,t8_lme4))
+sumfun2(list(old=g8_old,
+             ## new=g8_new,
+             lme4=g8_lme4),
+        list(t8_old,
+             ##t8_new,
+             t8_lme4))
 @ 
 \textbf{Conclusions:}
 \begin{itemize}
-  \item As before: glmer and new glmmADMB agree
+  \item here new glmmADMB results are \textbf{not} presented:
+    binomial is not yet implemented in new glmmADMB
   \end{itemize}
 
 
