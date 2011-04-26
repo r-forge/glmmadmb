@@ -16,6 +16,7 @@ glmm.admb <- function(formula, data, family="poisson", link,
   ##    effects in order?
   if(!(corStruct %in% c("diag","full")))
     stop("Argument \"corStruct\" must be either \"diag\" or \"full\"")
+  if (family=="binomial") stop("binomial family not yet implemented")
   if(!(family %in% c("poisson","nbinom","binomial")))
     stop("Argument \"family\" must be either \"poisson\", \"binomial\"  or \"nbinom\"")
 
@@ -45,14 +46,15 @@ glmm.admb <- function(formula, data, family="poisson", link,
 
   mt <- attr(mf, "terms") # allow model.frame to have updated it
 
-  y <- model.response(mf, "any") # e.g. factors are allowed
-  if(length(dim(y)) == 1L) {
-    nm <- rownames(y)
-    dim(y) <- NULL
-    if(!is.null(nm)) names(y) <- nm
-  }
-
-  n <- if (is.matrix(y)) nrow(y) else length(y)
+  y <- as.matrix(model.response(mf, "any")) # e.g. factors are allowed
+  ## don't convert back from 1D matrix
+  ## if(length(dim(y)) == 1L) {
+  ## nm <- rownames(y)
+  ## dim(y) <- NULL
+  ## if(!is.null(nm)) names(y) <- nm
+  ## }
+  ## n <- if (is.matrix(y)) nrow(y) else length(y)
+  n <- nrow(y)
 
   offset <- as.vector(model.offset(mf))
   has_offset <- !is.null(offset)
