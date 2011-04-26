@@ -87,13 +87,15 @@ t6_new <- system.time(g6_new <- try(glmm.admb(y~Base*trt+Age+Visit+
 t7_new <- system.time(g7_new <- glmm.admb(y~Base*trt+Age+Visit+ 
                                           (Visit|subject),
                                           data=epil2, family="poisson"))
+if (FALSE) {
+  ## SKIP: binomial not yet implemented in new glmmADMB!
 t8_new <- system.time(g8_new <- glmm.admb(predation~ttt+(1|block),
                                           family="binomial",data=cdata,
                                           save.dir="g8newtest"))
 t8_new2 <- system.time(g8_new2 <- glmm.admb(predation~ttt+(1|block),
                                             family="binomial",data=cdata2,
                                             save.dir="g8newtest2"))
-
+}
 
 library("lme4")
 t0_lme4 <- system.time(g0_lme4 <- glmer(y~1+(1|f),
@@ -163,8 +165,11 @@ t4_glmmML <- system.time(g4_glmmML <- glmmML(y~x,cluster=f,
 t8_glmmML <- system.time(g8_glmmML  <- glmmML(predation~ttt,
                                               family=binomial,
                                               data=cdata,cluster=block))
-
-
 ## convergence problem on models 1, 3
 detach("package:glmmML")
+
+library(lme4a)
+t0_lme4a <- system.time(g0_lme4a <- glmer(y~1+(1|f),
+                                          family="poisson",data=d))
+
 save.image("singlerand_batch.RData")
