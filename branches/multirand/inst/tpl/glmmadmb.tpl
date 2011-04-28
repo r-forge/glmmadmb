@@ -1,8 +1,10 @@
 // 2011-03-24 version from Dave Fournier
+// modified 2011-04-27 Hans Skaug, BMB
 DATA_SECTION
 
   init_int n					// Number of observations
-  init_vector y(1,n)				// Observation vector
+  init_int p_y					// Number of fixed effects
+  init_matrix y(1,n,1,p_y)			// Observation matrix
   init_int p					// Number of fixed effects
   init_matrix X(1,n,1,p)			// Design matrix for fixed effects
   init_int M					// Number of RE blocks (crossed terms)
@@ -16,9 +18,12 @@ DATA_SECTION
   init_ivector cor_block_start(1,M) 		// Indices for blocks of correlated random effects
   init_ivector cor_block_stop(1,M) 
   init_int numb_cor_params			// Total number of correlation parameters to be estimated
-  init_int like_type_flag   			// 0 neg bin 1 poisson
+  init_int like_type_flag   			// 0 neg bin 1 poisson 2 binomial
+  init_int link_type_flag   			// 0 neg bin 1 poisson
   init_int no_rand_flag   			// 0 have random effects 1 no random effects
   init_int zi_flag				// 1=zi, 0=no zi
+  // TESTING: remove eventually?
+  init_int zi_kluge				// apply zi=0.001?
   init_int intermediate_maxfn
   init_int has_offset				// 0=no offset, 1=with offset
   init_vector offset(1,n)				// Offset vector
@@ -63,6 +68,13 @@ INITIALIZATION_SECTION
 
 PARAMETER_SECTION
  LOC_CALCS
+
+  if(zi_flag && (like_type_flag>=2))
+  {
+    cerr << "Zero inflation not allowed for this response type" << endl;
+    ad_exit(1);
+  }
+
   int alpha_phase = like_type_flag==0 ? 1 : -1;         // Phase 1 if active
   int zi_phase = zi_flag ? 2 : -1;                      // Phase 2 if active
   int rand_phase = no_rand_flag==0 ? 2+zi_flag : -1;    // Right after zi
@@ -73,7 +85,6 @@ PARAMETER_SECTION
     if(cor_flag(i))
       ncolS(i) = m(i)*(m(i)+1)/2;
   int nS = sum(ncolS);             
-  cout << "nS=" << nS << endl;
  END_CALCS
   
   init_bounded_number pz(.000001,0.999,zi_phase)
@@ -148,13 +159,13 @@ PROCEDURE_SECTION
   }
 
 SEPARABLE_FUNCTION void n01_prior(const prevariable&  u)
- g -= -0.5*log(2.0*3.1415926535) - 0.5*square(u);
+ g -= -0.5*log(2.0*M_PI) - 0.5*square(u);
 
 SEPARABLE_FUNCTION void log_lik(int _i, const dvar_vector& tmpL,const dvar_vector& tmpL1,const dvar_vector& ui,const dvar_vector& beta,const prevariable& log_alpha,const prevariable& pz)
   
-  int i,j, i_m;
-  double e1=1.e-20;
-  double e2=1.e-20;
+  int i,j, i_m, Ni;
+  double e1=1e-8; // formerly 1.e-20; current agrees with nbmm.tpl
+  double e2=1e-8; // formerly 1.e-20; current agrees with nbmm.tpl
 
   dvariable alpha = e2+exp(log_alpha);
 
@@ -197,7 +208,23 @@ SEPARABLE_FUNCTION void log_lik(int _i, const dvar_vector& tmpL,const dvar_vecto
 
   if(has_offset)
     eta += offset(_i);
-  dvariable lambda = e1+mfexp(eta);            	  
+  dvariable lambda;
+  switch(link_type_flag) 
+  {
+    case 0:    // log (exp)
+      lambda = e1+mfexp(eta);            	  
+      break;
+    case 1:   // logit (logistic)
+      lambda = 1.0/(1.0+exp(-eta)); // BMB: with or without mfexp?
+      break;
+    case 2:   // probit (cum norm)
+      lambda = cumd_norm(eta);
+      break;
+    default:
+      cerr << "Illegal value for link_type_flag" << endl;
+      ad_exit(1);
+  }
+
   dvariable tau = 1.0+e1+lambda/alpha;
   dvariable tmpl; 				// Log likelihood
 
@@ -206,26 +233,38 @@ SEPARABLE_FUNCTION void log_lik(int _i, const dvar_vector& tmpL,const dvar_vecto
   {
     case 0:   // neg binomial
       if (cph<2)
-        tmpl = -square(log(1.0+y(_i))-log(1.0+lambda));
+        tmpl = -square(log(1.0+y(_i,1))-log(1.0+lambda));
       else
-        tmpl = log_negbinomial_density(y(_i),lambda,tau);
+        tmpl = log_negbinomial_density(y(_i,1),lambda,tau);
       break;
     case 1:   // Poisson
-      tmpl = log_density_poisson(y(_i),lambda);
+      tmpl = log_density_poisson(y(_i,1),lambda);
+      break;
+    case 2:   // Binomial: y(_i,1)=#successes, y(_i,2)=#failures, 
+      if (p_y==1) {
+         if (y(_i,1)==1) {
+           tmpl = log(e1+lambda); //BMB: bvprobit.tpl uses e1=1e-10 here
+         } else {
+           tmpl = log(e1+(1.0-lambda));
+         }
+      }	 else {
+         Ni = sum(y(_i));			// Number of trials
+         tmpl = log_comb(Ni,y(_i,1)) + y(_i,1)*log(lambda) + (Ni-y(_i,1))*log(1.0-lambda);
+      }
       break;
     default:
       cerr << "Illegal value for like_type_flag" << endl;
       ad_exit(1);
   }
 	
-  // Zero inflation part
-  if(zi_flag)
-    if(y(_i)==0)
-      g -= log(e2+pz+(1.0-pz)*exp(tmpl));
+  // Zero inflation part 
+  // zi_kluge: apply ZI whether or not zi_flag is true
+  if(zi_flag || zi_kluge) {
+    if(y(_i,1)==0)
+      g -= log(e2+pz+(1.0-pz)*mfexp(tmpl));
     else
-      g -= log(e2+(1.0-pz)*exp(tmpl));
-  else
-    g -= tmpl;
+      g -= log(e2+(1.0-pz)*mfexp(tmpl));
+   } else g -= tmpl;
 
 REPORT_SECTION
   report << beta*phi << endl;
