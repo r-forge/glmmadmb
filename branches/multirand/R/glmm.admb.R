@@ -1,6 +1,7 @@
 glmm.admb <- function(formula, data, family="poisson", link,
                       corStruct="diag", impSamp=0, easyFlag=TRUE,
-                      zeroInflation=FALSE, imaxfn=10, save.dir=NULL, verbose=FALSE)
+                      zeroInflation=FALSE, ZI_kluge=FALSE,
+                      imaxfn=10, save.dir=NULL, verbose=FALSE)
 {
   ## FIXME: removed commented code after checking
   ## FIXME: make this an R temp directory? begin with a . for invisibility?
@@ -16,7 +17,7 @@ glmm.admb <- function(formula, data, family="poisson", link,
   ##    effects in order?
   if(!(corStruct %in% c("diag","full")))
     stop("Argument \"corStruct\" must be either \"diag\" or \"full\"")
-  if (family=="binomial") stop("binomial family not yet implemented")
+  #if (family=="binomial") stop("binomial family not yet implemented")
   if(!(family %in% c("poisson","nbinom","binomial")))
     stop("Argument \"family\" must be either \"poisson\", \"binomial\"  or \"nbinom\"")
 
@@ -29,6 +30,9 @@ glmm.admb <- function(formula, data, family="poisson", link,
   }
   linkfun <- switch(link,log=log,logit=qlogis,probit=qnorm)
   ilinkfun <- switch(link,log=exp,logit=plogis,probit=pnorm)
+
+  like_type_flag <- switch(family,nbinom=0,poisson=1,binomial=2)
+  link_type_flag <- switch(link,log=0,logit=1,probit=2)
   
   ## from glm()
   ## extract x, y, etc from the model formula and frame
@@ -55,6 +59,7 @@ glmm.admb <- function(formula, data, family="poisson", link,
   ## }
   ## n <- if (is.matrix(y)) nrow(y) else length(y)
   n <- nrow(y)
+  p_y <- ncol(y)
 
   offset <- as.vector(model.offset(mf))
   has_offset <- !is.null(offset)
@@ -120,14 +125,18 @@ glmm.admb <- function(formula, data, family="poisson", link,
     numb_cor_params <- 1
   }
   cmdoptions = paste("-maxfn 500", if(impSamp==0) "" else paste("-is",impSamp))
-  dat_list = list(n=n, y=y, p=p, X=X, M=M, q=q, m=m, ncolZ=ncol(Z),Z=Z, II=II, 
+  dat_list = list(n=n, p_y=p_y,
+    y=y, p=p, X=X, M=M, q=q, m=m, ncolZ=ncol(Z),Z=Z, II=II, 
     cor_flag=rep(0,M),
     cor_block_start=cor_block_start,
     cor_block_stop=cor_block_stop,
     numb_cor_params=numb_cor_params,
-    like_type_flag=as.numeric(family=="poisson"||(family=="binomial"&&link=="logit")),
+    like_type_flag=like_type_flag,
+    link_type_flag=link_type_flag,
+    ## as.numeric(family=="poisson"||(family=="binomial"&&link=="logit")),
     no_rand_flag=as.numeric(!has_rand),
-    zi_flag=as.numeric(zeroInflation), 
+    zi_flag=as.numeric(zeroInflation),
+    zi_kluge=as.numeric(ZI_kluge),
     intermediate_maxfn=10, 
     has_offset=as.numeric(has_offset), 
     offset=offset)

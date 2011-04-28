@@ -47,6 +47,12 @@ process_randformula <- function(f,data) {
                               gsub("\\*","_cross",
                                    gsub(" ","",randbits)))))
   groups <- gsub("^ +","",lapply(splitbits,"[",2))
+
+  nonfactors <- groups[!sapply(data[groups],inherits,"factor")]
+  if (length(nonfactors)>0)
+    stop("all grouping variables must be factors")
+  ## FIXME: say which ones
+  
   LHS <- gsub("^ +","",lapply(splitbits,"[",1))
   
   L <- list(mmats=lapply(LHS,cfun,mdata=data),
