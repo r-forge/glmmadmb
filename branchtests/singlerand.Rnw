@@ -17,6 +17,8 @@ options(continue=" ")
   \item Set 2: as above but random slope with $\sigma_s=0.5$.
   \item Set 3: \code{epil2} data set from \code{glmmADMB}
   \item Set 4: coral/starfish/symbiont experimental predation data set (from Adrian Stier and Seabird McKeon)
+  \item Set 5: contagious bovine pleuropneumonia (CBPP) data set from
+    \code{lme4}, originally from Lesnoff et al 2004
   \end{itemize}
   
 \subsection{Models}
@@ -31,6 +33,7 @@ options(continue=" ")
     \item 7: as 6, but Poisson (bad model, but useful for comparison
       with \code{lme4})
     \item 8: Data set 4: treatment effects + block (intercept) effect
+    \item 9: Data set 5: period + herd (intercept) effect
 \end{itemize}
 
 All models with multiple random effects (i.e. 2, 5, 6, 7) are fitted
@@ -175,7 +178,9 @@ sumfun2 <- function(modlist,tlist) {
 
 \subsubsection{Model 0}
 <<m0,echo=FALSE,results=tex>>=
-sumfun2(list(old=g0_old,new=g0_new,lme4=g0_lme4),list(t0_old,t0_new,t0_lme4))
+sumfun2(list(old=g0_old,newZ=g0_newZ,
+             new=g0_new,lme4=g0_lme4),
+        list(t0_old,t0_newZ,t0_new,t0_lme4))
 @ 
 
 \textbf{Conclusions}: 
@@ -184,12 +189,13 @@ sumfun2(list(old=g0_old,new=g0_new,lme4=g0_lme4),list(t0_old,t0_new,t0_lme4))
     from printing/reading intermediate files in lowered precision.
     This applies throughout: not a big deal, but would be nice 
     (and presumably not too hard) to fix.
-  \item new glmmADMB and glmer agree on intercept, intercept variance, random effects
-  \item Log-likelihood is obviously computed differently for glmer 
-    and glmmADMB; new and old glmmADMB differ by a disturbing amount.
-    (Don't know whether this is computation or poorer fit; could check
-    this.)
-  \end{itemize}
+  \item there is a clear difference between fixing a zero-inflation proportion of $10^{-3}$ 
+    even when zero-inflation is turned off (i.e., old glmmADMB and new glmmADMB
+    with \code{ZI\_kluge=TRUE} (newZ)), or really 
+    omitting zero-inflation (new glmmADMB and lme4)
+\item Log-likelihood is obviously computed differently for glmer 
+  and glmmADMB
+\end{itemize}
   
   
 \subsubsection{Model 1}
@@ -198,8 +204,9 @@ sumfun2(list(old=g1_old,new=g1_new,lme4=g1_lme4),list(t1_old,t1_new,t1_lme4))
 @ 
 \textbf{Conclusions:}
 \begin{itemize}
-  \item All three agree on coefficients, REs
-  \item glmmADMBs agree very closely on RE var (although glmer is pretty close too)
+  \item All three agree quite closely (except on LL), although var(RE) is
+    about 0.5\% lower for lme4
+    
   \end{itemize}
 
 \subsubsection{Model 2}
@@ -213,22 +220,23 @@ sumfun2(list(old=g2_old,new=g2_new,lme4=g2_lme4),list(t2_old,t2_new,t2_lme4))
 
 \subsubsection{Model 3}
 <<m3,echo=FALSE,results=tex>>=
-sumfun2(list(old=g3_old,new=g3_new,lme4=g3_lme4),list(t3_old,t3_new,t3_lme4))
+sumfun2(list(old=g3_old,
+             new=g3_new,lme4=g3_lme4),list(t3_old,
+                          t3_new,t3_lme4))
 @ 
 \textbf{Conclusions:}
 \begin{itemize}
-  \item Like model 0: new glmmADMB agrees with glmer
-    (is this those two getting stuck at a slightly suboptimal fit?)
-  \item log-likelihoods are all over the map
-  \end{itemize}
+  \item OK
+\end{itemize}
 
 \subsubsection{Model 4}
 <<m4,echo=FALSE,results=tex>>=
 sumfun2(list(old=g4_old,new=g4_new,lme4=g4_lme4),list(t4_old,t4_new,t4_lme4))
 @ 
+
 \textbf{Conclusions:}
 \begin{itemize}
-  \item Like model 1
+  \item OK
   \end{itemize}
   
 \subsubsection{Model 5}
@@ -237,7 +245,7 @@ sumfun2(list(old=g5_old,new=g5_new,lme4=g5_lme4),list(t5_old,t5_new,t5_lme4))
 @ 
 \textbf{Conclusions:}
 \begin{itemize}
-  \item Like model 2 (but now slope variances are non-zero)
+  \item OK
   \end{itemize}
 
 \subsubsection{Model 6}
@@ -247,44 +255,55 @@ sumfun2(list(old=g6_old,new=g6_new),list(t6_old,t6_new))
 @ 
 \textbf{Conclusions:}
 \begin{itemize}
-  \item Like model 2 (but now slope variances are non-zero)
+  \item OK
+  \item glmer can't do this one (negative binomial).
   \end{itemize}
-
-glmer can't do this one (negative binomial).
 
 
 \subsubsection{Model 7}
 <<m7,echo=FALSE,results=tex>>=
-sumfun2(list(old=g7_old,new=g7_new,lme4=g7_lme4),list(t7_old,t7_new,t7_lme4))
+sumfun2(list(old=g7_old,newZ=g7_newZ,new=g7_new,lme4=g7_lme4),list(t7_old,t7_newZ,
+                                                  t7_new,t7_lme4))
 @ 
 \textbf{Conclusions:}
 \begin{itemize}
-  \item As before: glmer and new glmmADMB agree
+  \item As with Model 0, result depends on whether ZI=0.001 is included
   \end{itemize}
 
 
 \subsubsection{Model 8}
 <<m8,echo=FALSE,results=tex>>=
 sumfun2(list(old=g8_old,
-             ## new=g8_new,
+             newZ=g8_newZ,
+             new=g8_new,
              lme4=g8_lme4),
         list(t8_old,
-             ##t8_new,
+             t8_newZ,
+             t8_new,
              t8_lme4))
 @ 
 \textbf{Conclusions:}
 \begin{itemize}
-  \item here new glmmADMB results are \textbf{not} presented:
-    binomial is not yet implemented in new glmmADMB
+  \item Here ZI=0.001 messes things up (it wasn't incorporated in
+    \code{bvprobit.tpl}, the old glmmADMB for binomial data)
+  \end{itemize}
+
+\subsubsection{Model 9}
+<<m9,echo=FALSE,results=tex>>=
+sumfun2(list(new=g9_new,
+             lme4=g9_lme4),
+        list(t9_new,
+             t9_lme4))
+@ 
+\textbf{Conclusions:}
+\begin{itemize}
+  \item ZI (not shown) has a small effect
+  \item old glmmADMB can't do this model
   \end{itemize}
 
 
 \section{To do}
 \begin{itemize}
-\item Try to figure out if glmer/new glmmADMB are getting stuck
-  (e.g. evaluate likelihoods from scratch at both sets of parameter
-  values, or evaluate likelihoods from each set in the other package/version
-\item incorporate timings  
 \item incorporate fits from glmmML (can do intercept-only RE Poisson/binomial
   models, with Laplace [runs done, just have to do reporting]
 \end{itemize}

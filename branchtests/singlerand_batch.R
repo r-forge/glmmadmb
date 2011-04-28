@@ -27,10 +27,11 @@ cdata <- read.csv("culcitalogreg.csv",
                 rep("factor",6)))
 cdata$block <- factor(cdata$block,levels=1:10)
 
-cdata2 <- cdata[order(cdata$block),]
-
 ##
 data(epil2,package="glmmADMB")
+epil2$subject <- factor(epil2$subject)
+
+data(cbpp,package="lme4")
 
 ## model 1:
 
@@ -38,6 +39,10 @@ data(epil2,package="glmmADMB")
 library(glmmADMB.old)  ## version 0.5-2
 t0_old <- system.time(g0_old <- glmm.admb(y~1,random=~1,
                                           group="f",family="poisson",data=d))
+t0_old_noEF <- system.time(g0_old_noEF <- glmm.admb(y~1,random=~1,
+                                               easyFlag=FALSE,
+                                               group="f",
+                                               family="poisson",data=d))
 t1_old <- system.time(g1_old <- glmm.admb(y~x,random=~1,
                                           group="f",family="poisson",data=d))
 t2_old <- system.time(g2_old <- glmm.admb(y~x,random=~x,
@@ -60,8 +65,7 @@ t8_old <- system.time(g8_old <- glmm.admb(predation~ttt,
                                           random=~1,
                                           group="block",family="binomial",
                                           link="logit",
-                                          data=cdata,
-                                          save.dir="g8oldtest"))
+                                          data=cdata))
 
 save.image("singlerand_batch.RData")
 
@@ -70,12 +74,18 @@ detach("package:glmmADMB.old")
 library("glmmADMB")
 t0_new <- system.time(g0_new <- glmm.admb(y~1+(1|f),
                                           family="poisson",data=d))
+t0_newZ <- system.time(g0_newZ <- glmm.admb(y~1+(1|f),
+                                            family="poisson",data=d,
+                                           ZI_kluge=TRUE))
 t1_new <- system.time(g1_new <- glmm.admb(y~x+(1|f),
                                           family="poisson",data=d))
 t2_new <- system.time(g2_new <- glmm.admb(y~x+(x|f),
                                           family="poisson",data=d))
 t3_new <- system.time(g3_new <- glmm.admb(y~1+(1|f),
                                           family="poisson",data=d2))
+t3_newZ <- system.time(g3_newZ <- glmm.admb(y~1+(1|f),
+                                          family="poisson",data=d2,
+                                            ZI_kluge=TRUE))
 t4_new <- system.time(g4_new <- glmm.admb(y~x+(1|f),
                                           family="poisson",data=d2))
 t5_new <- system.time(g5_new <- glmm.admb(y~x+(x|f),
@@ -87,15 +97,23 @@ t6_new <- system.time(g6_new <- try(glmm.admb(y~Base*trt+Age+Visit+
 t7_new <- system.time(g7_new <- glmm.admb(y~Base*trt+Age+Visit+ 
                                           (Visit|subject),
                                           data=epil2, family="poisson"))
-if (FALSE) {
-  ## SKIP: binomial not yet implemented in new glmmADMB!
+t7_newZ <- system.time(g7_newZ <- glmm.admb(y~Base*trt+Age+Visit+ 
+                                          (Visit|subject),
+                                          data=epil2, family="poisson",
+                                            ZI_kluge=TRUE))
 t8_new <- system.time(g8_new <- glmm.admb(predation~ttt+(1|block),
+                                          family="binomial",data=cdata))
+t8_newZ <- system.time(g8_newZ <- glmm.admb(predation~ttt+(1|block),
                                           family="binomial",data=cdata,
-                                          save.dir="g8newtest"))
-t8_new2 <- system.time(g8_new2 <- glmm.admb(predation~ttt+(1|block),
-                                            family="binomial",data=cdata2,
-                                            save.dir="g8newtest2"))
-}
+                                           ZI_kluge=TRUE))
+t9_new <- system.time(g9_new <- glmm.admb(cbind(incidence, size - incidence) ~ period +
+                                        (1 | herd),
+                                        data=cbpp, family="binomial"))
+
+t9_newZ <- system.time(g9_newZ <- glmm.admb(cbind(incidence, size - incidence) ~ period +
+                                        (1 | herd),
+                                        data=cbpp, family="binomial",
+                                            ZI_kluge=TRUE))
 
 library("lme4")
 t0_lme4 <- system.time(g0_lme4 <- glmer(y~1+(1|f),
@@ -145,6 +163,17 @@ t7_lme4 <- system.time(g7_lme4 <- glmer(y~Base*trt+Age+Visit+
                                           data=epil2, family="poisson"))
 
 t8_lme4 <- system.time(g8_lme4 <- glmer(predation~ttt+(1|block),family=binomial,data=cdata))
+
+t9_lme4 <- system.time(g9_lme4 <- glmer(cbind(incidence, size - incidence) ~ period +
+                                        (1 | herd),
+                                        data=cbpp, family=binomial))
+
+
+     (m3 <- glmer(cbind(incidence, size - incidence) ~ period +
+         (1 | herd) +  (1|obs),
+                   family = binomial, data = cbpp))
+
+
 
 save.image("singlerand_batch.RData")
 
