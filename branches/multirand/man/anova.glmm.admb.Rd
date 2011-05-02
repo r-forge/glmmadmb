@@ -24,9 +24,10 @@
 }
 \examples{
   data(epil2)
-  f1<-glmm.admb(y~Base*trt+Age+Visit, random=~Visit, group="subject",
+  epil2$subject <- factor(epil2$subject)
+  f1<-glmm.admb(y~Base*trt+Age+Visit+(Visit|subject),
                 data=epil2, family="nbinom")
-  f2<-glmm.admb(y~Base*trt+Age, random=~Visit, group="subject",
+  f2<-glmm.admb(y~Base*trt+Age+(Visit|subject),
                 data=epil2, family="nbinom")
   anova(f2,f1)
 }
