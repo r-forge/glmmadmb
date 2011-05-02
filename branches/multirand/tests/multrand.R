@@ -4,7 +4,7 @@ set.seed(101)
 ## nblock <- 10
 ## nrep <- 10
 
-## smaller for quicker testing
+## smaller (5 x 50) for quicker testing
 simfun <- function(seed=101,
                    nblock=5,
                    nrep=50,
@@ -18,7 +18,8 @@ simfun <- function(seed=101,
   d$x <- runif(N)
   u_f <- rnorm(nblock,sd=rsd["f"])
   u_g <- rnorm(nblock,sd=rsd["g"])
-  eta <- model.matrix(~x,data=d) %*% beta + u_f[as.numeric(d$f)]+u_g[as.numeric(d$g)]
+  eta <- model.matrix(~x,data=d) %*% beta +
+    u_f[as.numeric(d$f)]+u_g[as.numeric(d$g)]
   d$y <- rpois(N,exp(eta))
   attr(d,"reff") <- rbind(data.frame(eff="f",block=levels(d$f),u=u_f),
                           data.frame(eff="g",block=levels(d$g),u=u_g))
@@ -28,15 +29,17 @@ simfun <- function(seed=101,
                                
 library(lme4)
 d1 <- simfun()
-m1 <- glmer(y~x+(1|f)+(1|g),family="poisson",data=d)
+m1 <- glmer(y~x+(1|f)+(1|g),family="poisson",data=d1)
 res1 <- cbind(attr(d1,"reff"),glmer_est=c(unlist(ranef(m1))))
 g1 <- glmm.admb(y~x+(1|f)+(1|g),family="poisson",data=d1)
-res1 <- cbind(res1,glmer_est=c(unlist(ranef(m1))))
+res1 <- cbind(res1,glmmADMB_est=c(unlist(ranef(g1))))
 
-summary(g2)
-coef(g2)
-VarCorr(g2)
-g2$U
+plot(res1[,"u"],res1[,"glmmADMB_est"],col=as.numeric(res1[,"eff"]))
+abline(a=0,b=1)
+
+summary(g1)
+coef(g1)
+VarCorr(g1)
 
 
 dd <- data.frame(expand.grid(x=1:5,eff=c("f","g"),
