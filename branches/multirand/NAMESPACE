@@ -1,16 +1,24 @@
-exportPattern("^[^\\.]")
+
+export(glmm.admb)
 
 importFrom(nlme,ranef,VarCorr)
 ## importMethodsFrom("nlme",ranef,VarCorr)
 export(ranef) ## needs to be explicit despite generic exportPattern above
+export(stdEr)
+export(VarCorr)
 
+S3method(print,glmm.admb)
+S3method(summary,glmm.admb)
+S3method(print,summary.glmm.admb)
 S3method(coef,glmm.admb)
 S3method(ranef,glmm.admb)
 S3method(residuals,glmm.admb)
 S3method(fitted,glmm.admb)
 S3method(stdEr,glmm.admb)
 S3method(vcov,glmm.admb)
-## wait for 2.13 to be released ... or work around it
-## S3method(nobs,glmm.admb)
+S3method(anova,glmm.admb)
+S3method(logLik,glmm.admb)
 S3method(VarCorr,glmm.admb)
 S3method(VarCorr,summary.glmm.admb)
+## wait for 2.13 to be released ... or work around it
+## S3method(nobs,glmm.admb)

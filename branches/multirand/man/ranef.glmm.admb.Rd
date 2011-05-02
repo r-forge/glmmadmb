@@ -1,4 +1,5 @@
 \name{ranef.glmm.admb}
+\alias{ranef}
 \alias{ranef.glmm.admb}
 \title{Extract Random Effects}
 \description{
@@ -6,7 +7,7 @@
   (optionally) their standard deviations.
 }
 \usage{
-ranef.glmm.admb(object, sd=FALSE, \dots)
+\method{ranef}{glmm.admb}(object, sd=FALSE, \dots)
 }
 \arguments{
   \item{object}{a fitted \code{glmm.admb} model.}
