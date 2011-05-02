@@ -54,6 +54,6 @@ g2$S
 g2$sd_S
 summary(g2)
 
-(fm <- glmm.admb(y~Base*trt+Age+Visit+(Visit|subject),
-                 data=epil2, family="nbinom",verbose=TRUE))
+fm <- glmm.admb(y~Base*trt+Age+Visit+(Visit|subject),
+                 data=epil2, family="nbinom")
 ## FAILS with non-positive-definite Hessian
