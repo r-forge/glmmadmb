@@ -97,14 +97,16 @@ data frame: see example below).}
   \code{\link{glmmADMB-package}}.
 }
 \examples{
-  (fm <- glmm.admb(y~Base*trt+Age+Visit, random=~Visit, group="subject",
+  epil2$subject <- factor(epil2$subject)
+  (fm <- glmm.admb(y~Base*trt+Age+Visit+(Visit|subject),
                   data=epil2, family="nbinom"))
 \dontrun{
 data(Owls)
 Owls$offset <- log(Owls$BroodSize) 
- om <- glmm.admb(SiblingNegotiation~FoodTreatment*SexParent,random=~1,
-          zeroInflation=TRUE,group="Nest",
-              family="nbinom",data=Owls,offset="offset")
+ om <- glmm.admb(SiblingNegotiation~FoodTreatment*SexParent+
+           (1|Nest)+offset(offset),
+## FIXME: would like to be able to use offset(log(BroodSize))
+          zeroInflation=TRUE,family="nbinom",data=Owls)
 }
 }
 \keyword{models}

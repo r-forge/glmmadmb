@@ -36,8 +36,8 @@
   \code{\link{glmmADMB-package}}.
 }
 \examples{
-fm <- glmm.admb(y~Base*trt+Age+Visit, random=~Visit, group="subject",
-                data=epil2, family="nbinom")
-fm
+epil2$subject <- factor(epil2$subject)
+(fm <- glmm.admb(y~Base*trt+Age+Visit, random=~Visit, group="subject",
+                data=epil2, family="nbinom"))
 }
 \keyword{datasets}
