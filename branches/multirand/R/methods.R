@@ -57,15 +57,23 @@ nobs.glmm.admb <- function(object,...) {
 }
 
 ## VarCorr <- function(x,...) {
-##  UseMethod("VarCorr")
-## }
+##   UseMethod("VarCorr")
+##}
 
-VarCorr.glmm.admb <- function(x,...) {
+## big difficulty here with nlme (S3 method, arguments x, sigma=1, rdig=3)
+##  and lme4 (S4 methods, arguments x, ...)
+VarCorr.glmm.admb <- function(x,sigma=1,rdig=3) {
+  if (!missing(sigma) || !missing(rdig)) warning("'sigma' and 'rdig' arguments are present for compatibility only: ignored")
   x$S
 }
 
 VarCorr.summary.glmm.admb <- VarCorr.glmm.admb
 
+## want to make this work when lme4 is loaded, too ... needs S4 method
+setOldClass("glmm.admb")
+setOldClass("summary.glmm.admb")
+setMethod("VarCorr", signature(x="glmm.admb"), VarCorr.glmm.admb)
+setMethod("VarCorr", signature(x="summary.glmm.admb"), VarCorr.glmm.admb)
 ## FIXME:
 ##   needed:
 ##    update (for general convenience & to make drop1 work)

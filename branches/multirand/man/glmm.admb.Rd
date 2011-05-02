@@ -7,27 +7,34 @@
   Poisson and negative binomial distributions are supported.
 }
 \usage{
-glmm.admb(fixed, random, group, data, family="poisson", link,
+glmm.admb(formula, data, family="poisson", link,
           corStruct="diag", impSamp=0, easyFlag=TRUE,
-          zeroInflation=FALSE, imaxfn=10, save.dir=NULL, offset,
+          zeroInflation=FALSE, ZI_kluge=FALSE, imaxfn=10, save.dir=NULL,
           verbose=FALSE)
 }
 \arguments{
-  \item{fixed}{a two-sided linear formula describing the fixed-effects
-    part of the model. The response is on the left of a \code{~}
-    operator and the terms, separated by \code{+} operators, are on the
-    right.}
-  \item{random}{optionally, a one-sided formula describing the
-    random-effects part of the model. When \code{random} is missing, an
-    ordinary GLM without random effects is fitted.}
-  \item{group}{a string naming the main nesting variable.}
+  \item{formula}{a two-sided linear formula describing the 
+    part of the model. The response, which may be a numeric vector
+    (for most models) or a matrix (for binomial models)
+    is on the left of a \code{~} operator and the terms,
+    separated by \code{+} operators, are on the
+    right.  Random effects terms should be enclosed in parentheses
+    \code{(x|g)}, where \code{x} represents the formula for the
+    parameter(s) that vary across grouping variables and \code{g}
+    represents the grouping variables; for example, \code{(1|g)} indicates
+    a model where only intercepts vary across groups.
+    Grouping variables must be factors.
+    The model may include an offset term, which must be specified on the
+    scale of the linear predictor and included in \code{data}:
+    see \code{\link{offset}}.}
   \item{data}{a data frame containing the variables named in
-    \code{fixed}, \code{random}, and \code{group}.}
+    \code{formula}.}
   \item{family}{a string determining the response distribution:
-    \code{"poisson"} or \code{"nbinom"}.}
-  \item{link}{a string specifying the shape of the link function
-    (\code{"logit"} or \code{"probit"}) used for the \code{"binomial"}
-    family.}
+    \code{"poisson"}, \code{"binom"}, and \code{"nbinom"}
+     are currently implemented.}
+  \item{link}{a string specifying the shape of the link function:
+    (\code{"log"}, \code{"logit"}, and \code{"probit"} are
+    currently implemented.}
   \item{corStruct}{a string specifying the covariance structure of the
     random effects vector. Two types of covariance matrices are
     currently implemented: \code{"diag"} (diagonal matrix) and
@@ -41,20 +48,16 @@ glmm.admb(fixed, random, group, data, family="poisson", link,
     \code{"nbinom"} families).}
   \item{zeroInflation}{whether a zero-inflated model should be fitted
     (only \code{"poisson"} and \code{"nbinom"} families).}
+  \item{ZI_kluge}{whether to retain a zero-inflation term of 0.001
+    even when \code{zeroInflation=FALSE} (for backward
+    compatibility/testing; deprecated)}
   \item{imaxfn}{number of function evaluations used in intermediate
     optimization steps.}
   \item{save.dir}{optionally, a directory name where all ADMB output
     files are saved.}
-  \item{offset}{optional offset for the model: should
-be specified as the name of the offset variable (which should
-be on the scale of the linear predictor, and included in the
-data frame: see example below).}
   \item{verbose}{(logical) Print interim output from AD Model Builder run?}
 }
 \details{
-  Currently, the \code{"binomial"} family only accepts Bernoulli
-  response (0 or 1).
-
   Parameterization of the negative binomial distribution:
 
   \deqn{\mathrm{Var}(Y) = E(Y) \left[1 +
@@ -81,7 +84,7 @@ data frame: see example below).}
   \item{alpha}{parameter in negative binomial distribution (only when
   \code{family="poisson"}).}
   \item{pz}{Zero-inflation parameter (only when
-  \code{zeroInflation=TRUE}).}
+    \code{zeroInflation=TRUE}).}
 }
 \references{
   Bohning, D., E. Dietz, and P. Schlattmann. 1999. The zero-inflated

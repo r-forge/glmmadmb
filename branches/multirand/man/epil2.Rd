@@ -37,7 +37,7 @@
 }
 \examples{
 epil2$subject <- factor(epil2$subject)
-(fm <- glmm.admb(y~Base*trt+Age+Visit, random=~Visit, group="subject",
+(fm <- glmm.admb(y~Base*trt+Age+Visit+(Visit|subject),
                 data=epil2, family="nbinom"))
 }
 \keyword{datasets}

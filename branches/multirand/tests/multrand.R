@@ -28,6 +28,10 @@ simfun <- function(seed=101,
                           
                                
 library(lme4)
+## kluge, for passing tests until I can get this sorted out
+setMethod("VarCorr", signature(x="glmm.admb"), glmmADMB:::VarCorr.glmm.admb)
+setMethod("VarCorr", signature(x="summary.glmm.admb"), glmmADMB:::VarCorr.glmm.admb)
+
 d1 <- simfun()
 m1 <- glmer(y~x+(1|f)+(1|g),family="poisson",data=d1)
 res1 <- cbind(attr(d1,"reff"),glmer_est=c(unlist(ranef(m1))))

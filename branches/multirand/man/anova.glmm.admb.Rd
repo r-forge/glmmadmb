@@ -1,7 +1,7 @@
 \name{anova.glmm.admb}
 \alias{anova.glmm.admb}
-\title{Anova Table}
-\description{Compute an anova table for a series of fitted models.}
+\title{Model Comparison Table}
+\description{Compute a model comparison (likelihood ratio test) table for a series of fitted models.}
 \usage{
 \method{anova}{glmm.admb}(object, \dots)
 }
@@ -10,7 +10,8 @@
   \item{\dots}{more fitted models, with the same random effects.}
 }
 \details{
-  Basic anova table for testing the fixed effects (may be extended
+  Basic table for testing the fixed effects, using
+  likelihood ratio tests (may be extended
   later).
 }
 \value{

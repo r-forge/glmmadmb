@@ -28,6 +28,7 @@ glmm.admb <- function(formula, data, family="poisson", link,
   if (missing(link)) {
     link <- switch(family, binomial="logit", nbinom=, poisson="log")
   }
+  ## FIXME: add error for unknown links
   linkfun <- switch(link,log=log,logit=qlogis,probit=qnorm)
   ilinkfun <- switch(link,log=exp,logit=plogis,probit=pnorm)
 
