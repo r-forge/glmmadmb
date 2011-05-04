@@ -37,7 +37,7 @@ OwlModel_poiss.admb <- glmm.admb(SiblingNegotiation~FoodTreatment*SexParent+
                                  easyFlag=FALSE)
 
 OwlModel_poiss.glmer2 <- glmer(SiblingNegotiation ~ FoodTreatment * SexParent +
-                              (1|Nest)+offset(Lbroodsize),
+                              (1|Nest)+offset(logBroodSize),
                               data=Owls, family=poisson,
                                start=list(fixed=coef(OwlModel_poiss.admb)))
 
