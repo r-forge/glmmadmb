@@ -11,7 +11,7 @@ d.AD <- data.frame(counts=c(18,17,15,20,10,20,25,13,12),
 glm.D93 <- glm(counts ~ outcome + treatment, family=poisson,
                data=d.AD)
 glm.D93.admb <- glmm.admb(counts~outcome+treatment, family="poisson",
-          data=d.AD,group="treatment")
+          data=d.AD)
 r1P <- residuals(glm.D93,type="pearson")
 r2P <- residuals(glm.D93.admb,type="pearson")
 stopifnot(max(abs(r1P-r2P))<2e-4)
@@ -26,18 +26,13 @@ coef(glm.D93.admb)
 
 ## ... so fit Poisson with RE, even though it's not a great fit to the data
 
-data(Owls)
-Owls$Lbroodsize <- log(Owls$BroodSize)
-
 OwlModel_poiss.glmer <- glmer(SiblingNegotiation ~ FoodTreatment * SexParent +
-                              (1|Nest)+offset(Lbroodsize),
+                              (1|Nest)+offset(logBroodSize),
                               data=Owls, family=poisson)
 
 
-OwlModel_poiss.admb <- glmm.admb(SiblingNegotiation ~ FoodTreatment * SexParent,
-                                 random=~1,
-                                 group="Nest",
-                                 offset="Lbroodsize",
+OwlModel_poiss.admb <- glmm.admb(SiblingNegotiation~FoodTreatment*SexParent+
+                                 (1|Nest)+offset(logBroodSize),
                                  data=Owls, family="poisson",
                                  easyFlag=FALSE)
 
