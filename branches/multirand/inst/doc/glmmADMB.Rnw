@@ -20,19 +20,18 @@
 
 \linenumbers
 
-\fixme{maybe don't want to depend on cacheSweave?}
-
 <<setopts,echo=FALSE>>=
 Rver <- paste(R.version$major,R.version$minor,sep=".")
 options(continue=" ")
-library(cacheSweave)
-setCacheDir("glmmADMB_vignette")
+## library(cacheSweave)
+## setCacheDir("glmmADMB_vignette")
 @ 
 
 <<loaddat>>=
 library(MASS)
 epil2 <- transform(epil,Base=log(base/4),Age=log(age),
-                   Visit=scale(period,center=TRUE,scale=5))
+                   Visit=scale(period,center=TRUE,scale=5),
+                   subject=factor(subject))
 @ 
 
 <<loadglmmadmb>>=

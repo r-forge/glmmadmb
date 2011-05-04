@@ -10,19 +10,24 @@ Wish/to-do list
 
  * add warning about Wald tests to summary() man page
 
- * fix summary [alpha and standard error are missing
+ * fix summary [alpha and standard error of alpha are missing]
 
  * add MCMC option
 
  * add options for residuals
 
- * (BMB,medium): switch to using R2ADMB as interface layer?? Compare R2ADMB and glmmADMB interface code, take the best of both ...
+ * switch to using R2ADMB as interface layer?? Compare R2ADMB and glmmADMB interface code, take the best of both ...
 
- * alternative distributions: binomial models with size>1, implement Gamma, multinomial, ... , models
- * alternative links: cloglog, identity, probit for other cases, log ...
+ * alternative distributions: implement Gamma, multinomial, ... , models
+
+ * alternative links: cloglog, identity, probit for other cases, log ... (test!)
+
  * alternative RE distributions?
+
  * add more examples, tests, vignettes ...
 
  * predict() method (with newdata], simulate() methods) (confidence intervals, RE specifications?)
+
+ * make VarCorr() method work with lme4
 
  * "R-side" random structure
