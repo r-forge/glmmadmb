@@ -8,7 +8,9 @@ glm.D93 <- glm(counts ~ outcome + treatment,
                data=d,
                family=poisson())
 
-## FAILS ("error division by zero in solve(dvar_matrix)")
-glmm.admb(counts~outcome+treatment,family="poisson",data=d)
+g2 <- glmm.admb(counts~outcome+treatment,family="poisson",data=d)
+
+coef(glm.D93)
+coef(g2)
 
 
