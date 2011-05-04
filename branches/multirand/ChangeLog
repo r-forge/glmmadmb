@@ -1,3 +1,7 @@
+2011-04-26  Ben Bolker  <bolker@mcmaster.ca>
+
+	* many, many changes (branch)
+
 2010-11-10  Ben Bolker  <bolker@mcmaster.ca>
 
 	* added Owls data and example (shows use of offset= argument)
