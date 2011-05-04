@@ -1,10 +1,10 @@
-`\newcommand{\PR}{\Sexpr[results=rd]{tools:::Rd_expr_PR(#1)}}
+\newcommand{\PR}{\Sexpr[results=rd]{tools:::Rd_expr_PR(#1)}}
 
 \name{NEWS}
 \title{glmmADMB News}
 \encoding{UTF-8}
 
-\section{CHANGES IN VERSION 0.6 (4 May 2011)}{
+\section{Changes in version 0.6 (2011-05-04)}{
   \itemize{
     \item Changed formula to lme4-style: random effects, and offsets,
     included within the formula
@@ -17,17 +17,17 @@
   effects]; updated summary method (includes Wald tests); vcov(); stdEr()
 }}
 
-\section{CHANGES IN VERSION 0.4-1 (26 Oct 2010)}{
+\section{Changes in version 0.4-1 (2010-10-26)}{
   \itemize{
     \item Fixed executable bits in Linux.
     \item Improved backward compatibility with old versions of R.
 }}
-\section{CHANGES IN VERSION 0.4-0 (17 Oct 2010)}{
+\section{Changes in version 0.4-0 (2010-10-17)}{
   \itemize{
     \item Removed unnecessary internal functions.
     \item Removed unnecessary warnings.
 }}
-\section{CHANGES IN VERSION 0.3-0 (28 Jul 2010)}{
+\section{Changes in version 0.3-0 (2010-07-28)}{
   \itemize{
     \item Legacy version, now on R-Forge.
 }}
