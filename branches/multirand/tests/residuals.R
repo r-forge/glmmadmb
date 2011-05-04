@@ -45,14 +45,16 @@ OwlModel_poiss.glmer2 <- glmer(SiblingNegotiation ~ FoodTreatment * SexParent +
 logLik(OwlModel_poiss.admb)
 logLik(OwlModel_poiss.glmer)
 
-if (require(ggplot2)) {
-  ca <- fixef(OwlModel_poiss.glmer)
-  cg <- coef(OwlModel_poiss.admb)
-  d <- rbind(data.frame(par=names(ca),est=ca,pkg="lme4"),
-             data.frame(par=names(cg),est=cg,pkg="glmmADMB"))
-  levels(d$par) <- c("food","food:sex","intercept","sex")
-  qplot(est,par,data=d,colour=pkg)
-}
+
+## avoid Suggests: ggplot2 requirement
+## if (require(ggplot2)) {
+##  ca <- fixef(OwlModel_poiss.glmer)
+##  cg <- coef(OwlModel_poiss.admb)
+##  d <- rbind(data.frame(par=names(ca),est=ca,pkg="lme4"),
+##             data.frame(par=names(cg),est=cg,pkg="glmmADMB"))
+##  levels(d$par) <- c("food","food:sex","intercept","sex")
+##  qplot(est,par,data=d,colour=pkg)
+## }
 
 r_glmer <- residuals(OwlModel_poiss.glmer)
 r_admb <- residuals(OwlModel_poiss.admb)
