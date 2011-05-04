@@ -240,7 +240,7 @@ glmm.admb <- function(formula, data, family="poisson", link,
         out$S <- lapply(out$S,replace_offdiag)
         out$sd_S <- lapply(out$sd_S,replace_offdiag)
         ## FIXME: replace with NA for sd_S?
-    }
+      }
     ## out$random <- random
     ## FIXME: check dimnames for a wider range of cases ...
     uvec <- tmp[tmpindex=="u",3]
@@ -288,7 +288,10 @@ glmm.admb <- function(formula, data, family="poisson", link,
 
   ## for(i in 1:n)
   ## lambda[i] <- exp(mu[i] + rowSums(Z * allU))
-  eta <- mu + rowSums(Z*allU)
+  if (has_rand) {
+    eta <- mu + rowSums(Z*allU)
+  } else eta <- mu
+  
   lambda <- ilinkfun(eta)
 
   if(family == "binomial")
@@ -302,8 +305,9 @@ glmm.admb <- function(formula, data, family="poisson", link,
 
   out$residuals <- as.numeric(y-lambda)
   tmp <- par_read(file_name)
-  out$npar <- tmp$npar
-  ## BMB: should this be total number of parameters or number of fixed parameters?
+  out$npar <- tmp$npar   ## BMB: should this be total number of parameters or number of fixed parameters?
+  bpar <- bar_read(file_name,n=tmp$npar+1)[-1] ## ZI parameter comes first
+  tmp$beta <- bpar
   out$loglik <- tmp$loglik
   out$gradloglik <- tmp$gradient
   nfixpar <- length(out$b)

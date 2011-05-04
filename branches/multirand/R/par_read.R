@@ -35,3 +35,14 @@ par_read <- function(name)
   
   return(x)
 }
+
+bar_read <- function(name,n)
+{
+  filename <- if(substring(name,nchar(name)-3)==".bar") name else paste(name,"bar",sep=".")
+  ## filename <- if(tools::file_ext(name)=="par") name else paste(name,".par",sep="") # R 2.11 and later
+
+  f <- file(filename,open="rb")
+  r <- readBin(f,what="numeric",n=n)
+  close(f)
+  r
+}
