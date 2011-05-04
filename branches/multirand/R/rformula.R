@@ -12,10 +12,16 @@
 get_fixedformula <- function(f) {
   lchar <- as.character(f[2])
   rchar <- as.character(f[3]) ## RHS
+  offsetstr <- ""
+  if (length(grep("offset\\(",rchar))>0) {
+    ## protect/remove offset
+    offsetstr <- gsub(".*(\\+ *offset\\([^)]+\\)).*","\\1",rchar)
+    rchar <- gsub("offset\\([^)]+\\)","",rchar)
+  } 
   rchar <- gsub("\\([^)]+\\)","",rchar) ## parentheses
   rchar <- gsub("(\\+ *\\+ *)+","+",rchar) ## duplicated +
   rchar <- gsub(" *\\+ *$","",rchar) ## terminating +
-  as.formula(paste(lchar,"~",rchar))
+  as.formula(paste(lchar,"~",rchar,offsetstr))
 }
 
 process_randformula <- function(f,data) {
