@@ -1,0 +1,7 @@
+Package: glmmADMB
+Version: 0.6
+Depends: methods, MASS
+Imports: stats, nlme
+Suggests: lattice, lme4
+License: BSD
+
