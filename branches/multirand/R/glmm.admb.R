@@ -166,9 +166,8 @@ glmm.admb <- function(formula, data, family="poisson", link,
     }
   }
   execname <- if (platform=="windows") paste(file_name,"exe",sep=".") else file_name
-  bin_loc <- system.file("bin",paste(platform,nbits,sep=""),
-                         execname,
-                         package="glmmADMB")
+  pkgdir <- if (platform=="macos") platform else paste(platform,nbits,sep="")
+  bin_loc <- system.file("bin",pkgdir, execname, package="glmmADMB")
   ## FIXME: for what platforms do we really need to copy the binary?
   ##  can't we just run it in place?  Or does it do something silly and produce
   ##  output in the directory in which the binary lives rather than the
