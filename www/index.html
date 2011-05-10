@@ -15,7 +15,7 @@
 
 <h1>glmmADMB</h1>
 
-<p>Please visit the following webpages for information about the glmmADMB package:
+<p>Please visit the following webpages for information about the <tt>glmmADMB</tt> package:
 
 <ul>
   <li><a href="http://r-forge.r-project.org/projects/glmmadmb/">R-Forge</a> (current development)
@@ -28,6 +28,19 @@
 
 <p>If you catch the R-Forge package server on a bad day, so the normal installation doesn't work, try:
 <pre>install.packages("glmmADMB", repos="http://r-forge.r-project.org", type="source")</pre>
+
+<p>
+You can also install an <strong>alpha</strong> release of a new version of glmmADMB as follows:
+<pre>install.packages("glmmADMB",repos="http://glmmadmb.r-forge.r-project.org/repos",type="source")
+</pre>
+The new version of <tt>glmmADMB</tt> has the following major changes:
+<ul>
+<li>new formula format, similar to that of the <tt>lme4</tt> package, where random and fixed effects are specified as part of a single formula</li>
+<li>multiple grouping variables (random effects) are allowed</li>
+<li>wider range of distributions and link functions supported (e.g. binomial with <em>N</em>&gt; 1)</li>
+</ul>
+The alpha release gives practically identical answers to the previous (stable) releases; however, for the time being it is somewhat slower than the stable release.
+</p>
 
 <p>&mdash;&mdash;&mdash;
 
