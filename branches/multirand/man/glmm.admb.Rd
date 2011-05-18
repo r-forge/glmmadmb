@@ -9,7 +9,8 @@
 \usage{
 glmm.admb(formula, data, family="poisson", link,
           corStruct="diag", impSamp=0, easyFlag=TRUE,
-          zeroInflation=FALSE, ZI_kluge=FALSE, imaxfn=10, save.dir=NULL,
+          zeroInflation=FALSE, ZI_kluge=FALSE, imaxfn=10,
+          mcmc=FALSE,mcmc.opts=mcmc.control(),save.dir=NULL,
           verbose=FALSE)
 }
 \arguments{
@@ -53,6 +54,9 @@ glmm.admb(formula, data, family="poisson", link,
     compatibility/testing; deprecated)}
   \item{imaxfn}{number of function evaluations used in intermediate
     optimization steps.}
+  \item{mcmc}{(logical) run MCMC after fitting, based on estimated mode
+    and parameter variance-covariance matrix}
+  \item{mcmc.opts}{list of options for MCMC run: see \code{\link{mcmc.control}}}
   \item{save.dir}{optionally, a directory name where all ADMB output
     files are saved.}
   \item{verbose}{(logical) Print interim output from AD Model Builder run?}

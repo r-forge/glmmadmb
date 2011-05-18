@@ -3,7 +3,7 @@ mcmc.control <- function(mcmc=1000,
                          mcnoscale=FALSE,
                          mcgrope=FALSE,
                          mcmult=1) {
-  if (missing(mcsave)) mcsave <- pmax(1,floor(1000/mcmc))
+  if (missing(mcsave)) mcsave <- pmax(1,floor(mcmc/1000))
   list(mcmc=mcmc,mcsave=mcsave,mcnoscale=mcnoscale,mcgrope=mcgrope,mcmult=mcmult)
 }
 
