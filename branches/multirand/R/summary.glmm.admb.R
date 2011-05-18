@@ -47,7 +47,7 @@ print.summary.glmm.admb <- function(x, digits = max(3, getOption("digits") - 4),
     coefs <- x$coefficients
     printCoefmat(coefs, digits=digits, signif.stars=signif.stars,
                  na.print="NA", ...)
-    cat("\n","# observations: total=",x$n,", ",sep="")
+    cat("\n","Number of observations: total=",x$n,", ",sep="")
     cat(paste(names(x$q),x$q,sep="=",collapse=", "),"\n")
     if (!is.null(x$S)) {
       cat("Random effect variance(s):\n")
