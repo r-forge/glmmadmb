@@ -1,36 +1,22 @@
 Wish/to-do list
 
- * import this list to r-forge tracker
+SHORT-TERM/EASY
 
- * (BMB) provide package from www.math.mcmaster.ca for times when R-forge build is absent or out of date (source package only should be OK, since there is no compilable code in the package).  Set up a mirror or alternate repository 
-
- * allow alternative parameterization (i.e. var=mu(1+mu/k) of NB)?
-
- * add some sort of progress bar or "working ..." message in the absence of voluminous messages?  progress bar is difficult since ADMB doesn't know how long it will take
-
- * add warning about Wald tests to summary() man page
-
- * fix summary [alpha and standard error of alpha are missing]
-
- * add MCMC option
-
- * add options for residuals
-
- * switch to using R2ADMB as interface layer?? Compare R2ADMB and glmmADMB interface code, take the best of both ...
-
- * alternative distributions: implement Gamma, multinomial, ... , models
-
- * alternative links: cloglog, identity, probit for other cases, log ... (test!)
-
- * alternative RE distributions?
-
- * add more examples, tests, vignettes ... esp. simple/quick tests of new links etc.
-
- * update epil2?  draw from MASS instead?
-
- * predict() method (with newdata], simulate() methods) (confidence intervals, RE specifications?)
-
- * make VarCorr() method work with lme4
-
- * "R-side" random structure
+* import this list to r-forge tracker
+* (BMB) provide package from www.math.mcmaster.ca for times when R-forge build is absent or out of date (source package only should be OK, since there is no compilable code in the package).  Set up a mirror or alternate repository 
+* allow alternative parameterization (i.e. var=mu(1+mu/k) of NB)?
+* add some sort of progress bar or "working ..." message in the absence of voluminous messages?  progress bar is difficult since ADMB doesn't know how long it will take
+* add warning about Wald tests to summary() man page
+* fix summary [alpha and standard error of alpha are missing]
+* add MCMC option
+* add options for residuals
+* switch to using R2ADMB as interface layer?? Compare R2ADMB and glmmADMB interface code, take the best of both ...
+* alternative distributions: implement Gamma, multinomial, ... , models
+* alternative links: cloglog, identity, probit for other cases, log ... (test!)
+* alternative RE distributions?
+* add more examples, tests, vignettes ... esp. simple/quick tests of new links etc.
+* update epil2?  draw from MASS instead?
+* predict() method (with newdata], simulate() methods) (confidence intervals, RE specifications?)
+* make VarCorr() method work with lme4
+* "R-side" random structure
 

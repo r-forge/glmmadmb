@@ -16,7 +16,8 @@ g1 <- glmm.admb(y~x+(1|f),family="poisson",data=d)
 coef(g1)
 VarCorr(g1)
 
-g1M <- glmm.admb(y~x+(1|f),family="poisson",data=d,mcmc=100)
+g1M <- glmm.admb(y~x+(1|f),family="poisson",data=d,mcmc=TRUE,
+                 mcmc.opts=mcmc.control(mcmc=100))
 library(coda)
 xyplot(as.mcmc(g1M$mcmc),layout=c(4,4),aspect="fill")
 densityplot(as.mcmc(g1M$mcmc),layout=c(4,4),aspect="fill")

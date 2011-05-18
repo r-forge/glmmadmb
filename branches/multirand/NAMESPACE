@@ -1,5 +1,5 @@
 
-export(glmm.admb)
+export(glmm.admb,mcmc.control)
 
 importFrom(nlme,ranef,VarCorr)
 ## importMethodsFrom("nlme",ranef,VarCorr)
