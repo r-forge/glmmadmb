@@ -1,7 +1,27 @@
+mcmc.control <- function(mcmc=1000,
+                         mcsave,
+                         mcnoscale=FALSE,
+                         mcgrope=FALSE,
+                         mcmult=1) {
+  if (missing(mcsave)) mcsave <- pmax(1,floor(1000/mcmc))
+  list(mcmc=mcmc,mcsave=mcsave,mcnoscale=mcnoscale,mcgrope=mcgrope,mcmult=mcmult)
+}
+
+mcmc.args <- function(L) {
+  argstr <- mapply(function(n,val) {
+    if (is.numeric(val)) paste("-",n," ",val,sep="") else
+    if (isTRUE(val)) paste("-",val,sep="")
+  },names(L),L)
+  paste(unlist(argstr),collapse=" ")
+}
+
 glmm.admb <- function(formula, data, family="poisson", link,
                       corStruct="diag", impSamp=0, easyFlag=TRUE,
                       zeroInflation=FALSE, ZI_kluge=FALSE,
-                      imaxfn=10, save.dir=NULL, verbose=FALSE)
+                      imaxfn=10,
+                      mcmc=FALSE,
+                      mcmc.opts=mcmc.control(),
+                      save.dir=NULL, verbose=FALSE)
 {
   ## FIXME: removed commented code after checking
   ## FIXME: make this an R temp directory? begin with a . for invisibility?
@@ -17,22 +37,20 @@ glmm.admb <- function(formula, data, family="poisson", link,
   ##    effects in order?
   if(!(corStruct %in% c("diag","full")))
     stop("Argument \"corStruct\" must be either \"diag\" or \"full\"")
-  #if (family=="binomial") stop("binomial family not yet implemented")
-  if(!(family %in% c("poisson","nbinom","binomial")))
-    stop("Argument \"family\" must be either \"poisson\", \"binomial\"  or \"nbinom\"")
-
   has_rand <- length(grep("\\|",as.character(formula)[3]))>0
   if (!has_rand && (!missing(impSamp) || !missing(corStruct)))
     stop("No random effects specified: neither \"impSamp\" or \"corStruct\" make sense")
 
+  like_type_flag <- switch(family,nbinom=0,poisson=1,binomial=2,gamma=3,
+                           stop("unknown family"))
+
   if (missing(link)) {
-    link <- switch(family, binomial="logit", nbinom=, poisson="log")
+    link <- switch(family, binomial="logit", nbinom=, poisson=, gamma="log")
   }
-  ## FIXME: add error for unknown links
-  linkfun <- switch(link,log=log,logit=qlogis,probit=qnorm)
+  linkfun <- switch(link,log=log,logit=qlogis,probit=qnorm,
+                    stop("unknown link function"))
   ilinkfun <- switch(link,log=exp,logit=plogis,probit=pnorm)
 
-  like_type_flag <- switch(family,nbinom=0,poisson=1,binomial=2)
   link_type_flag <- switch(link,log=0,logit=1,probit=2)
   
   ## from glm()
@@ -52,13 +70,6 @@ glmm.admb <- function(formula, data, family="poisson", link,
   mt <- attr(mf, "terms") # allow model.frame to have updated it
 
   y <- as.matrix(model.response(mf, "any")) # e.g. factors are allowed
-  ## don't convert back from 1D matrix
-  ## if(length(dim(y)) == 1L) {
-  ## nm <- rownames(y)
-  ## dim(y) <- NULL
-  ## if(!is.null(nm)) names(y) <- nm
-  ## }
-  ## n <- if (is.matrix(y)) nrow(y) else length(y)
   n <- nrow(y)
   p_y <- ncol(y)
 
@@ -80,15 +91,6 @@ glmm.admb <- function(formula, data, family="poisson", link,
     names(q) <- names(REmat$mmats)
 
     ## Construct design matrix (Z) for random effects
-    ## for(i in 1:M)
-    ##   {
-    ##     tmp <- REmat$mmats[[i]]
-    ##     colnames(tmp) <- paste(names(REmat$mmats)[i],colnames(tmp),sep=":")
-    ##     if(i==1)
-    ##       Z <- tmp
-    ##     else
-    ##       Z <- cbind(Z,tmp)
-    ##   }
 
     Z <- do.call(cbind,REmat$mmats)
     colnames(Z) <- paste(rep(names(REmat$mmat),m),
@@ -125,7 +127,9 @@ glmm.admb <- function(formula, data, family="poisson", link,
     cor_block_start <- cor_block_stop <- 1
     numb_cor_params <- 1
   }
-  cmdoptions = paste("-maxfn 500", if(impSamp==0) "" else paste("-is",impSamp))
+  cmdoptions = "-maxfn 500"
+  if(impSamp>0) cmdoptions <- paste(cmdoptions,"-is",impSamp)
+  if (mcmc) cmdoptions <- paste(cmdoptions,mcmc.args(mcmc.opts))
   dat_list = list(n=n, p_y=p_y,
     y=y, p=p, X=X, M=M, q=q, m=m, ncolZ=ncol(Z),Z=Z, II=II, 
     cor_flag=rep(0,M),
@@ -143,7 +147,7 @@ glmm.admb <- function(formula, data, family="poisson", link,
     offset=offset)
   ## BMB: pz=0.0001 should be clearly specified, possibly made into a control parameter
   pin_list = list(pz=if(zeroInflation) 0.02 else 0.0001, b=numeric(p), tmpL=0.25+numeric(sum(m)),
-    tmpL1=0.0001+numeric(numb_cor_params), logalpha=2.0, u=rep(0,sum(m*q)))
+    tmpL1=0.0001+numeric(numb_cor_params), logalpha=2.0, loggammashape=0, u=rep(0,sum(m*q)))
 
 
   file_name <- "glmmadmb"
@@ -166,8 +170,9 @@ glmm.admb <- function(formula, data, family="poisson", link,
     }
   }
   execname <- if (platform=="windows") paste(file_name,"exe",sep=".") else file_name
-  pkgdir <- if (platform=="macos") platform else paste(platform,nbits,sep="")
-  bin_loc <- system.file("bin",pkgdir, execname, package="glmmADMB")
+  bin_loc <- system.file("bin",paste(platform,nbits,sep=""),
+                         execname,
+                         package="glmmADMB")
   ## FIXME: for what platforms do we really need to copy the binary?
   ##  can't we just run it in place?  Or does it do something silly and produce
   ##  output in the directory in which the binary lives rather than the
@@ -205,7 +210,9 @@ glmm.admb <- function(formula, data, family="poisson", link,
     {
     out$alpha <- as.numeric(tmp[tmpindex=="alpha", 3])
     out$sd_alpha <- as.numeric(tmp[tmpindex=="alpha", 3])
+  } else if (family=="gamma") {
   }
+  
   if(!missing(link))
     out$link <- link
   if(has_rand) {
@@ -279,7 +286,7 @@ glmm.admb <- function(formula, data, family="poisson", link,
     ##    dimnames=list(NULL,colnames(Z)))
   } else {
     out$U <- out$sd_U <- matrix(rep(0,q), ncol=1, byrow=TRUE)
-  }
+  } ## !has_rand
 
   mu <- as.numeric(X %*% out$b)
   ## BMB: doesn't include influence of random effects?
@@ -323,11 +330,12 @@ glmm.admb <- function(formula, data, family="poisson", link,
   }
 
   ## BMB: warning/convergence code for bad hessian?
-  
-  ## unnecessary now??
-  ## out$fitted = out$fitted[backwards_key]
-  ## out$residuals = out$residuals[backwards_key]
 
+  ## FIXME: figure out names of parameters
+  if (mcmc) {
+    out$mcmc <- read_psv(file_name)
+  }
+  
   class(out) <- "glmm.admb"
 
   return(out)

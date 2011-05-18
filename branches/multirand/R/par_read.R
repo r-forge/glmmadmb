@@ -46,3 +46,4 @@ bar_read <- function(name,n)
   close(f)
   r
 }
+

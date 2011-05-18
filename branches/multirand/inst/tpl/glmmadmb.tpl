@@ -64,6 +64,7 @@ INITIALIZATION_SECTION
  tmpL 1.0
  tmpL1 0.0
  log_alpha 1
+ log_gammashape 0
  pz .001
 
 PARAMETER_SECTION
@@ -76,6 +77,7 @@ PARAMETER_SECTION
   }
 
   int alpha_phase = like_type_flag==0 ? 1 : -1;         // Phase 1 if active
+  int gammashape_phase = like_type_flag==3 ? 1: -1 ;
   int zi_phase = zi_flag ? 2 : -1;                      // Phase 2 if active
   int rand_phase = no_rand_flag==0 ? 2+zi_flag : -1;    // Right after zi
   int cor_phase = (rand_phase>0) && (sum(cor_flag)>0) ? rand_phase+1 : -1 ; // Right after rand_phase
@@ -93,6 +95,7 @@ PARAMETER_SECTION
   init_bounded_vector tmpL(1,ncolZ,-10,10.5,rand_phase)		// Log standard deviations of random effects
   init_bounded_vector tmpL1(1,numb_cor_params,-10,10.5,cor_phase)	// Offdiagonal elements of cholesky-factor of correlation matrix
   init_bounded_number log_alpha(-5.,6.,alpha_phase)	
+  init_bounded_number log_gammashape(-5.,6.,gammashape_phase)	
   sdreport_vector S(1,nS)
   random_effects_vector u(1,sum_mq,rand_phase)    // Pool of random effects 
   objective_function_value g                    	   // Log-likelihood
@@ -110,7 +113,7 @@ PROCEDURE_SECTION
       n01_prior(u(i));			// u's are N(0,1) distributed
 
   for(i=1;i<=n;i++)
-    log_lik(i,tmpL,tmpL1,u(I(i)),beta,log_alpha,pz);
+    log_lik(i,tmpL,tmpL1,u(I(i)),beta,log_alpha,log_gammashape,pz);
 
   if (sd_phase())
   {
@@ -161,13 +164,14 @@ PROCEDURE_SECTION
 SEPARABLE_FUNCTION void n01_prior(const prevariable&  u)
  g -= -0.5*log(2.0*M_PI) - 0.5*square(u);
 
-SEPARABLE_FUNCTION void log_lik(int _i, const dvar_vector& tmpL,const dvar_vector& tmpL1,const dvar_vector& ui,const dvar_vector& beta,const prevariable& log_alpha,const prevariable& pz)
+SEPARABLE_FUNCTION void log_lik(int _i,const dvar_vector& tmpL,const dvar_vector& tmpL1,const dvar_vector& ui, const dvar_vector& beta,const prevariable& log_alpha,const prevariable& log_gammashape, const prevariable& pz)
   
   int i,j, i_m, Ni;
   double e1=1e-8; // formerly 1.e-20; current agrees with nbmm.tpl
   double e2=1e-8; // formerly 1.e-20; current agrees with nbmm.tpl
 
   dvariable alpha = e2+exp(log_alpha);
+  dvariable gammashape = e2+exp(log_gammashape);
 
   // Construct random effects vector with proper var-covar structure from u
   dvar_vector b(1,ncolZ);
@@ -252,6 +256,13 @@ SEPARABLE_FUNCTION void log_lik(int _i, const dvar_vector& tmpL,const dvar_vecto
          tmpl = log_comb(Ni,y(_i,1)) + y(_i,1)*log(lambda) + (Ni-y(_i,1))*log(1.0-lambda);
       }
       break;
+    case 3: // Gamma 
+        // parameterization: (x,r,mu); r=shape, mu = rate
+        // r log mu + (r-1) log x - mu x -log gamma(r)
+        // i.e. for r=1, log mu - mu x or mu*exp(-mu*x): mean = 1/mu
+        // mean = shape/rate, so rate = shape/mean
+	tmpl = log_gamma_density(y(_i,1),gammashape,gammashape/lambda);
+	break;
     default:
       cerr << "Illegal value for like_type_flag" << endl;
       ad_exit(1);
