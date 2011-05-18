@@ -24,10 +24,13 @@ Wish/to-do list
 
  * alternative RE distributions?
 
- * add more examples, tests, vignettes ...
+ * add more examples, tests, vignettes ... esp. simple/quick tests of new links etc.
+
+ * update epil2?  draw from MASS instead?
 
  * predict() method (with newdata], simulate() methods) (confidence intervals, RE specifications?)
 
  * make VarCorr() method work with lme4
 
  * "R-side" random structure
+

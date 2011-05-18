@@ -11,6 +11,6 @@ Description: Fits mixed-effects models to count data using Poisson, negative
   binomial, or Bernoulli response distributions.
 Imports: stats, nlme
 Depends: methods, MASS
-Suggests: lattice, lme4
+Suggests: lattice, lme4, coda
 License: BSD
 URL: http://glmmadmb.r-forge.r-project.org, http://admb-project.org
