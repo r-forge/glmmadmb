@@ -18,8 +18,8 @@ DATA_SECTION
   init_ivector cor_block_start(1,M) 		// Indices for blocks of correlated random effects
   init_ivector cor_block_stop(1,M) 
   init_int numb_cor_params			// Total number of correlation parameters to be estimated
-  init_int like_type_flag   			// 0 neg bin 1 poisson 2 binomial
-  init_int link_type_flag   			// 0 neg bin 1 poisson
+  init_int like_type_flag   			// 0 poisson 1 binomial 2 negative binomial 3 Gamma 4 beta (?)
+  init_int link_type_flag   			// 0 log 1 logit 2 probit
   init_int no_rand_flag   			// 0 have random effects 1 no random effects
   init_int zi_flag				// 1=zi, 0=no zi
   // TESTING: remove eventually?
@@ -64,20 +64,20 @@ INITIALIZATION_SECTION
  tmpL 1.0
  tmpL1 0.0
  log_alpha 1
- log_gammashape 0
  pz .001
 
 PARAMETER_SECTION
  LOC_CALCS
 
-  if(zi_flag && (like_type_flag>=2))
-  {
-    cerr << "Zero inflation not allowed for this response type" << endl;
-    ad_exit(1);
-  }
+  // BMB: FIXME: do we need this?  formerly disallowed for binomial (was like_type_flag 2);
+  //     would be problematic for binary data but otherwise OK.  Should test in R code
+  //  if(zi_flag && (like_type_flag>=2))
+  // {
+  //  cerr << "Zero inflation not allowed for this response type" << endl;
+  //  ad_exit(1);
+  // }
 
-  int alpha_phase = like_type_flag==0 ? 1 : -1;         // Phase 1 if active
-  int gammashape_phase = like_type_flag==3 ? 1: -1 ;
+  int alpha_phase = like_type_flag>1 ? 1 : -1;         // Phase 1 if active
   int zi_phase = zi_flag ? 2 : -1;                      // Phase 2 if active
   int rand_phase = no_rand_flag==0 ? 2+zi_flag : -1;    // Right after zi
   int cor_phase = (rand_phase>0) && (sum(cor_flag)>0) ? rand_phase+1 : -1 ; // Right after rand_phase
@@ -95,7 +95,7 @@ PARAMETER_SECTION
   init_bounded_vector tmpL(1,ncolZ,-10,10.5,rand_phase)		// Log standard deviations of random effects
   init_bounded_vector tmpL1(1,numb_cor_params,-10,10.5,cor_phase)	// Offdiagonal elements of cholesky-factor of correlation matrix
   init_bounded_number log_alpha(-5.,6.,alpha_phase)	
-  init_bounded_number log_gammashape(-5.,6.,gammashape_phase)	
+  sdreport_number alpha
   sdreport_vector S(1,nS)
   random_effects_vector u(1,sum_mq,rand_phase)    // Pool of random effects 
   objective_function_value g                    	   // Log-likelihood
@@ -113,10 +113,11 @@ PROCEDURE_SECTION
       n01_prior(u(i));			// u's are N(0,1) distributed
 
   for(i=1;i<=n;i++)
-    log_lik(i,tmpL,tmpL1,u(I(i)),beta,log_alpha,log_gammashape,pz);
+    log_lik(i,tmpL,tmpL1,u(I(i)),beta,log_alpha,pz);
 
   if (sd_phase())
   {
+    alpha = exp(log_alpha);
     real_beta=beta*phi;
 
     int i,j,i_m;
@@ -164,14 +165,13 @@ PROCEDURE_SECTION
 SEPARABLE_FUNCTION void n01_prior(const prevariable&  u)
  g -= -0.5*log(2.0*M_PI) - 0.5*square(u);
 
-SEPARABLE_FUNCTION void log_lik(int _i,const dvar_vector& tmpL,const dvar_vector& tmpL1,const dvar_vector& ui, const dvar_vector& beta,const prevariable& log_alpha,const prevariable& log_gammashape, const prevariable& pz)
+SEPARABLE_FUNCTION void log_lik(int _i,const dvar_vector& tmpL,const dvar_vector& tmpL1,const dvar_vector& ui, const dvar_vector& beta,const prevariable& log_alpha, const prevariable& pz)
   
   int i,j, i_m, Ni;
   double e1=1e-8; // formerly 1.e-20; current agrees with nbmm.tpl
   double e2=1e-8; // formerly 1.e-20; current agrees with nbmm.tpl
 
   dvariable alpha = e2+exp(log_alpha);
-  dvariable gammashape = e2+exp(log_gammashape);
 
   // Construct random effects vector with proper var-covar structure from u
   dvar_vector b(1,ncolZ);
@@ -235,16 +235,10 @@ SEPARABLE_FUNCTION void log_lik(int _i,const dvar_vector& tmpL,const dvar_vector
   int cph=current_phase();
   switch(like_type_flag)
   {
-    case 0:   // neg binomial
-      if (cph<2)
-        tmpl = -square(log(1.0+y(_i,1))-log(1.0+lambda));
-      else
-        tmpl = log_negbinomial_density(y(_i,1),lambda,tau);
-      break;
-    case 1:   // Poisson
+    case 0:   // Poisson
       tmpl = log_density_poisson(y(_i,1),lambda);
       break;
-    case 2:   // Binomial: y(_i,1)=#successes, y(_i,2)=#failures, 
+    case 1:   // Binomial: y(_i,1)=#successes, y(_i,2)=#failures, 
       if (p_y==1) {
          if (y(_i,1)==1) {
            tmpl = log(e1+lambda); //BMB: bvprobit.tpl uses e1=1e-10 here
@@ -256,13 +250,24 @@ SEPARABLE_FUNCTION void log_lik(int _i,const dvar_vector& tmpL,const dvar_vector
          tmpl = log_comb(Ni,y(_i,1)) + y(_i,1)*log(lambda) + (Ni-y(_i,1))*log(1.0-lambda);
       }
       break;
+    case 2:   // neg binomial
+      if (cph<2)
+        tmpl = -square(log(1.0+y(_i,1))-log(1.0+lambda));
+      else
+        tmpl = log_negbinomial_density(y(_i,1),lambda,tau);
+      break;
     case 3: // Gamma 
         // parameterization: (x,r,mu); r=shape, mu = rate
         // r log mu + (r-1) log x - mu x -log gamma(r)
-        // i.e. for r=1, log mu - mu x or mu*exp(-mu*x): mean = 1/mu
         // mean = shape/rate, so rate = shape/mean
-	tmpl = log_gamma_density(y(_i,1),gammashape,gammashape/lambda);
+	tmpl = log_gamma_density(y(_i,1),alpha,alpha/lambda);
 	break;
+    case 4: // Beta 
+      // BMB: better to implement log_beta_density?
+      tmpl =  (alpha*lambda-1)*log(y(_i,1)) + (alpha*(1-lambda)-1)*log(1-y(_i,1));
+     // ignore normalization constant for now: // lgam(alpha) - lgam(alpha*lambda) - lgam(alpha*(1-lambda)) +
+      //      cerr << "Beta not implemented yet" << endl;
+      break;
     default:
       cerr << "Illegal value for like_type_flag" << endl;
       ad_exit(1);

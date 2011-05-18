@@ -41,7 +41,7 @@ glmm.admb <- function(formula, data, family="poisson", link,
   if (!has_rand && (!missing(impSamp) || !missing(corStruct)))
     stop("No random effects specified: neither \"impSamp\" or \"corStruct\" make sense")
 
-  like_type_flag <- switch(family,nbinom=0,poisson=1,binomial=2,gamma=3,
+  like_type_flag <- switch(family,poisson=0,binomial=1,nbinom=2,gamma=3,
                            stop("unknown family"))
 
   if (missing(link)) {
@@ -147,7 +147,7 @@ glmm.admb <- function(formula, data, family="poisson", link,
     offset=offset)
   ## BMB: pz=0.0001 should be clearly specified, possibly made into a control parameter
   pin_list = list(pz=if(zeroInflation) 0.02 else 0.0001, b=numeric(p), tmpL=0.25+numeric(sum(m)),
-    tmpL1=0.0001+numeric(numb_cor_params), logalpha=2.0, loggammashape=0, u=rep(0,sum(m*q)))
+    tmpL1=0.0001+numeric(numb_cor_params), log_alpha=1.0, u=rep(0,sum(m*q)))
 
 
   file_name <- "glmmadmb"
@@ -206,12 +206,11 @@ glmm.admb <- function(formula, data, family="poisson", link,
   out$stdbeta <- as.numeric(tmp[tmpindex=="real_beta", 4])
   names(out$stdbeta) <- names(out$b) <- colnames(X)
 
-  if(family == "nbinom")
+  if(family %in% c("nbinom","gamma"))
     {
-    out$alpha <- as.numeric(tmp[tmpindex=="alpha", 3])
-    out$sd_alpha <- as.numeric(tmp[tmpindex=="alpha", 3])
-  } else if (family=="gamma") {
-  }
+      out$alpha <- as.numeric(tmp[tmpindex=="alpha", 3])
+      out$sd_alpha <- as.numeric(tmp[tmpindex=="alpha", 3])
+    } 
   
   if(!missing(link))
     out$link <- link
