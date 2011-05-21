@@ -20,6 +20,7 @@ DATA_SECTION
   init_int numb_cor_params			// Total number of correlation parameters to be estimated
   init_int like_type_flag   			// 0 poisson 1 binomial 2 negative binomial 3 Gamma 4 beta (?)
   init_int link_type_flag   			// 0 log 1 logit 2 probit
+  init_int rlinkflag                            // robust link function?
   init_int no_rand_flag   			// 0 have random effects 1 no random effects
   init_int zi_flag				// 1=zi, 0=no zi
   // TESTING: remove eventually?
@@ -208,26 +209,71 @@ SEPARABLE_FUNCTION void log_lik(int _i,const dvar_vector& tmpL,const dvar_vector
 
   }
 
+  // fudge factors for inverse link
+  double eps=1.e-2;
+  double eps1=1.e-2;
+  switch (current_phase())
+  {
+  case 1:
+    eps=.01;
+    eps1=.05;
+    break;
+  default:
+    eps=.01;
+    eps1=.01;
+  }
+
+
   dvariable eta = X(_i)*beta + Z(_i)*b;
 
   if(has_offset)
     eta += offset(_i);
   dvariable lambda;
+  dvariable fpen=0.0;
   switch(link_type_flag) 
   {
-    case 0:    // log (exp)
-      lambda = e1+mfexp(eta);            	  
-      break;
-    case 1:   // logit (logistic)
-      lambda = 1.0/(1.0+exp(-eta)); // BMB: with or without mfexp?
-      break;
-    case 2:   // probit (cum norm)
-      lambda = cumd_norm(eta);
-      break;
-    default:
-      cerr << "Illegal value for link_type_flag" << endl;
-      ad_exit(1);
-  }
+     case 0:    // [robust] log
+       if (rlinkflag) {
+          lambda = e1+mfexp(eta);
+       } else {
+          lambda = exp(eta);
+       }
+       break;
+     case 1:    // [robust] logistic
+       if (rlinkflag) {
+        if (value(eta)<10)
+          {
+            dvariable eeta=mfexp(eta);
+            lambda=eeta/(1.0+eeta);
+          }
+          else
+         {
+            dvariable eeta=mfexp(-eta);
+            lambda=1.0/(1.0+eeta);
+         }
+       } else {
+          lambda = 1.0/(1.0+exp(-eta));
+       }
+       break;
+     case 2:   // probit (cum norm)
+       lambda = cumd_norm(eta);
+       break;
+     case 3:   // inverse link
+       if (rlinkflag) {
+         lambda = 1.0/(eps+posfun(eta-eps,eps1,fpen));
+          g+=fpen;
+        } else {
+         lambda = 1.0/eta;
+        }
+       break;
+     case 4: // cloglog
+       // pmax(pmin(-expm1(-exp(eta)), 1 - .Machine$double.eps), .Machine$double.eps)
+       cerr << "cloglog not yet implemented" << endl;
+       break;
+     default:
+       cerr << "Illegal value for link_type_flag" << endl;
+       ad_exit(1);
+   }
 
   dvariable tau = 1.0+e1+lambda/alpha;
   dvariable tmpl; 				// Log likelihood
@@ -257,17 +303,11 @@ SEPARABLE_FUNCTION void log_lik(int _i,const dvar_vector& tmpL,const dvar_vector
         tmpl = log_negbinomial_density(y(_i,1),lambda,tau);
       break;
     case 3: // Gamma 
-        // parameterization: (x,r,mu); r=shape, mu = rate
-        // r log mu + (r-1) log x - mu x -log gamma(r)
-        // mean = shape/rate, so rate = shape/mean
-	tmpl = log_gamma_density(y(_i,1),alpha,alpha/lambda);
+        tmpl = log_gamma_density(y(_i,1),alpha,alpha/lambda);
 	break;
     case 4: // Beta 
-      // BMB: better to implement log_beta_density?
-      tmpl =  (alpha*lambda-1)*log(y(_i,1)) + (alpha*(1-lambda)-1)*log(1-y(_i,1));
-     // ignore normalization constant for now: // lgam(alpha) - lgam(alpha*lambda) - lgam(alpha*(1-lambda)) +
-      //      cerr << "Beta not implemented yet" << endl;
-      break;
+        tmpl = log_beta_density(y(_i,1),lambda,alpha);
+        break;
     default:
       cerr << "Illegal value for like_type_flag" << endl;
       ad_exit(1);
@@ -290,4 +330,45 @@ TOP_OF_MAIN_SECTION
   gradient_structure::set_GRADSTACK_BUFFER_SIZE(2000000);
   gradient_structure::set_CMPDIF_BUFFER_SIZE(100000000);
   gradient_structure::set_MAX_NVAR_OFFSET(2000000);
+
+GLOBALS_SECTION
+
+  #include <admodel.h>
+  #include <df1b2fun.h>
+
+  ofstream ofs11("b1");
+  ofstream ofs12("b2");
+  ofstream ofs13("s1");
+  ofstream ofs14("s2");
+
+  dvariable betaln(const prevariable& a,const prevariable& b )
+  {
+    return gammln(a)+gammln(b)-gammln(a+b);
+  }
+
+
+  dvariable log_beta_density(double y,const prevariable & mu,
+    const prevariable& phi)
+  {
+    dvariable omega=mu*phi;
+    dvariable tau=phi-mu*phi;
+    dvariable lb=betaln(omega,tau);
+    dvariable d=(omega-1)*log(y)+(tau-1)*log(1.0-y)-lb;
+    return d;
+  }
+
+  df1b2variable betaln(const df1b2variable& a,const df1b2variable& b )
+  {
+    return gammln(a)+gammln(b)-gammln(a+b);
+  }
+
+  df1b2variable ln_beta_density(double y,const df1b2variable & mu,
+    const df1b2variable& phi)
+  {
+    df1b2variable omega=mu*phi;
+    df1b2variable tau=phi-mu*phi;
+    df1b2variable lb=betaln(omega,tau);
+    df1b2variable d=(omega-1)*log(y)+(tau-1)*log(1.0-y)-lb;
+    return d;
+  }
 
