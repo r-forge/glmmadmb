@@ -54,9 +54,14 @@ print.summary.glmm.admb <- function(x, digits = max(3, getOption("digits") - 4),
       print(VarCorr(x))
       ## FIXME: prettier? standard errors?
     }
-    if (!is.null(x$alpha))
-      cat("Negative binomial alpha: ",x$alpha," (std. err.: ",x$sd_alpha,")\n",
-        sep="")
+    if (!is.null(x$alpha)) {
+      label <- switch(x$family,nbinom="Negative binomial dispersion parameter",
+                      gamma="Gamma shape parameter",
+                      beta="Beta dispersion parameter")
+      cat(label,": ",x$alpha," (std. err.: ",x$sd_alpha,")\n",
+          sep="")
+    }
+
     if (!is.null(x$pz))
       cat("Zero-inflation:",x$pz,"\n")
 
