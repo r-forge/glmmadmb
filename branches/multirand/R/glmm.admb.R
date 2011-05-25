@@ -21,16 +21,16 @@ glmm.admb <- function(formula, data, family="poisson", link,
                       imaxfn=10,
                       mcmc=FALSE,
                       mcmc.opts=mcmc.control(),
-                      save.dir=NULL, verbose=FALSE)
+                      save.dir=tempdir(), verbose=FALSE)
 {
   ## FIXME: removed commented code after checking
   ## FIXME: make this an R temp directory? begin with a . for invisibility?
-  dirname <- if(is.null(save.dir)) "_glmm_ADMB_temp_dir_" else save.dir
-  if(!file_test("-d",dirname))
-    dir.create(dirname)
-  owd <- setwd(dirname); on.exit(setwd(owd))
-  if(is.null(save.dir))
-    on.exit(unlink(dirname,recursive=TRUE), add=TRUE)
+  ## dirname <- if(is.null(save.dir)) "_glmm_ADMB_temp_dir_" else save.dir
+  ## if(!file_test("-d",dirname))
+  ## dir.create(dirname)
+  owd <- setwd(save.dir); on.exit(setwd(owd))
+  if(!missing(save.dir))
+    on.exit(unlink(save.dir,recursive=TRUE), add=TRUE)
 
   call <- match.call()
   ## FIXME: corStruct could be a vector, corresponding to the random
