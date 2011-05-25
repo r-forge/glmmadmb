@@ -306,8 +306,10 @@ SEPARABLE_FUNCTION void log_lik(int _i,const dvar_vector& tmpL,const dvar_vector
         tmpl = log_gamma_density(y(_i,1),alpha,alpha/lambda);
 	break;
     case 4: // Beta 
-        tmpl = log_beta_density(y(_i,1),lambda,alpha);
-        break;
+      // FIXME: "log_beta_density" seems more consistent but changing name
+      //       causes problems -- already exists somewhere?
+      tmpl = ln_beta_density(y(_i,1),lambda,alpha);
+      break;
     default:
       cerr << "Illegal value for like_type_flag" << endl;
       ad_exit(1);
@@ -347,7 +349,7 @@ GLOBALS_SECTION
   }
 
 
-  dvariable log_beta_density(double y,const prevariable & mu,
+  dvariable ln_beta_density(double y,const prevariable & mu,
     const prevariable& phi)
   {
     dvariable omega=mu*phi;
