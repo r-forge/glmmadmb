@@ -1,19 +1,19 @@
-\name{plot.glmm.admb}
-\alias{plot.glmm.admb}
+\name{plot.glmmadmb}
+\alias{plot.glmmadmb}
 \title{Plot Model Fit}
 \description{
-  Default plotting method for a fitted \code{glmm.admb} model.
+  Default plotting method for a fitted \code{glmmadmb} model.
   Currently, it only plots the residuals.
 }
 \usage{
-\method{plot}{glmm.admb}(x, \dots)
+\method{plot}{glmmadmb}(x, \dots)
 }
 \arguments{
-  \item{x}{a fitted \code{glmm.admb} model.}
+  \item{x}{a fitted \code{glmmadmb} model.}
   \item{\dots}{further arguments passed to \code{plot}.}
 }
 \seealso{
-  \code{\link{glmm.admb}}.
+  \code{\link{glmmadmb}}.
 
   \code{\link{glmmADMB-package}}.
 }

@@ -6,7 +6,7 @@ library(glmmADMB)
              offset = log(expected)))
 
 Mmmec$logExpected <- log(Mmmec$expected)
-gm1 <- glmm.admb(deaths ~ uvb + (1|region)+offset(logExpected), Mmmec, "poisson")
+gm1 <- glmmadmb(deaths ~ uvb + (1|region)+offset(logExpected), Mmmec, "poisson")
 
 coef(gm1)
 fixef(fm1)
@@ -14,7 +14,7 @@ fixef(fm1)
 ## overdispersion?  not too bad
 sum(residuals(fm1)^2)/(nrow(Mmmec)-2)
 
-gm2 <- glmm.admb(deaths ~ uvb + (1|region)+offset(logExpected), Mmmec, "nbinom")
+gm2 <- glmmadmb(deaths ~ uvb + (1|region)+offset(logExpected), Mmmec, "nbinom")
 
 
 AIC(gm1)-AIC(gm2)

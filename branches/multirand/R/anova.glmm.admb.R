@@ -1,4 +1,4 @@
-anova.glmm.admb <- function(object, ...)
+anova.glmmadmb <- function(object, ...)
 {
   objects <- list(object, ...)
 

@@ -100,6 +100,18 @@ PARAMETER_SECTION
   sdreport_vector S(1,nS)
   random_effects_vector u(1,sum_mq,rand_phase)    // Pool of random effects 
   objective_function_value g                    	   // Log-likelihood
+ LOC_CALCS
+  for (int i=I.indexmin() ; i<= I.indexmax(); i++)
+  {
+    if (min(I(i)) < u.indexmin() || max(I(i)) > u.indexmax())
+    {
+      cerr << "Bounds error in I for i = " << i << endl
+         << " I(" << i << ") = " << I(i) << endl
+         <<  "u.indexmin() = " << u.indexmin() << endl
+          <<  "u.indexmax() = " << u.indexmax() << endl;
+      ad_exit(1);
+    }
+  }
 
 PRELIMINARY_CALCS_SECTION
   cout << setprecision(4);

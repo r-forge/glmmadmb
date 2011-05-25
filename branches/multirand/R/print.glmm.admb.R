@@ -1,4 +1,4 @@
-print.glmm.admb <- function(x, ...)
+print.glmmadmb <- function(x, ...)
 {
   object <- x
 

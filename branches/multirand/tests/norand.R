@@ -8,7 +8,7 @@ glm.D93 <- glm(counts ~ outcome + treatment,
                data=d,
                family=poisson())
 
-g2 <- glmm.admb(counts~outcome+treatment,family="poisson",data=d)
+g2 <- glmmadmb(counts~outcome+treatment,family="poisson",data=d)
 
 coef(glm.D93)
 coef(g2)

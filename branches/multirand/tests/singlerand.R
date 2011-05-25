@@ -13,7 +13,7 @@ beta <- c(1,2)
 eta <- model.matrix(~x,data=d) %*% beta + u[as.numeric(d$f)]
 d$y <- rpois(N,exp(eta))
 
-g1 <- glmm.admb(y~x+(1|f),family="poisson",data=d)
+g1 <- glmmadmb(y~x+(1|f),family="poisson",data=d)
 coef(g1)
 g1$stdbeta
 logLik(g1)
@@ -45,7 +45,7 @@ eta <- model.matrix(~x,data=d2) %*% beta + u[as.numeric(d2$f)]+
   u[as.numeric(d2$f)]*d2$x
 d2$y <- rpois(N,exp(eta))
 
-g2 <- glmm.admb(y~x+(x|f),family="poisson",data=d2)
+g2 <- glmmadmb(y~x+(x|f),family="poisson",data=d2)
 coef(g2)
 logLik(g2)
 g2$U$f ## not quite identical
@@ -55,5 +55,5 @@ g2$sd_S
 summary(g2)
 
 epil2$subject <- factor(epil2$subject)
-fm <- glmm.admb(y~Base*trt+Age+Visit+(Visit|subject),
+fm <- glmmadmb(y~Base*trt+Age+Visit+(Visit|subject),
                  data=epil2, family="nbinom")

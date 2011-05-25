@@ -34,7 +34,7 @@ mcmc.control(mcmc = 1000, mcsave, mcnoscale = FALSE, mcgrope = FALSE, mcmult = 1
 }
 \value{
   Returns a list of options suitable for passing as the \code{mcmc.opts}
-  argument to \code{\link{glmm.admb}}
+  argument to \code{\link{glmmadmb}}
 }
 \author{
   Ben Bolker

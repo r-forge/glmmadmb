@@ -15,22 +15,24 @@ mcmc.args <- function(L) {
   paste(unlist(argstr),collapse=" ")
 }
 
-glmm.admb <- function(formula, data, family="poisson", link,
+glmmadmb <- function(formula, data, family="poisson", link,
                       corStruct="diag", impSamp=0, easyFlag=TRUE,
                       zeroInflation=FALSE, ZI_kluge=FALSE,
                       imaxfn=10,
                       mcmc=FALSE,
                       mcmc.opts=mcmc.control(),
-                      save.dir=tempdir(), verbose=FALSE)
+                      save.dir, verbose=FALSE)
 {
   ## FIXME: removed commented code after checking
   ## FIXME: make this an R temp directory? begin with a . for invisibility?
   ## dirname <- if(is.null(save.dir)) "_glmm_ADMB_temp_dir_" else save.dir
-  ## if(!file_test("-d",dirname))
-  ## dir.create(dirname)
+
+  if (use_tmp_dir <- missing(save.dir)) save.dir <- paste(tempfile(),"glmmADMB",sep="_")
+  if (newdir <- !file_test("-d",save.dir)) {
+    dir.create(save.dir)
+  }
   owd <- setwd(save.dir); on.exit(setwd(owd))
-  if(!missing(save.dir))
-    on.exit(unlink(save.dir,recursive=TRUE), add=TRUE)
+  if (use_tmp_dir) on.exit(unlink(save.dir,recursive=TRUE), add=TRUE)
 
   call <- match.call()
   ## FIXME: corStruct could be a vector, corresponding to the random
@@ -70,7 +72,13 @@ glmm.admb <- function(formula, data, family="poisson", link,
 
   mt <- attr(mf, "terms") # allow model.frame to have updated it
 
-  y <- as.matrix(model.response(mf, "any")) # e.g. factors are allowed
+  y <- model.response(mf, "any") # e.g. factors are allowed
+  if (inherits(y,"factor")) {
+    if (family!="binomial") stop("factors only allowed for binomial models")
+    ## slightly odd, but this is how glm() defines it: first level is failure, all others success
+    y <- 1-as.numeric(as.numeric(y)==1)
+  }
+  y <- as.matrix(y)
   n <- nrow(y)
   p_y <- ncol(y)
 
@@ -352,7 +360,7 @@ glmm.admb <- function(formula, data, family="poisson", link,
     out$mcmc <- read_psv(file_name)
   }
   
-  class(out) <- "glmm.admb"
+  class(out) <- "glmmadmb"
 
   return(out)
 }
