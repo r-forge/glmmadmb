@@ -1,4 +1,4 @@
-logLik.glmm.admb <- function(object, ...)
+logLik.glmmadmb <- function(object, ...)
 {
   ret <- object$loglik
   class(ret) <- "logLik"

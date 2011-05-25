@@ -33,19 +33,19 @@ if (file.exists("multrand_batch.RData")) {
                                
 library(lme4)
 ## kluge, for passing tests until I can get this sorted out
-setMethod("VarCorr", signature(x="glmm.admb"), glmmADMB:::VarCorr.glmm.admb)
-setMethod("VarCorr", signature(x="summary.glmm.admb"), glmmADMB:::VarCorr.glmm.admb)
+setMethod("VarCorr", signature(x="glmmadmb"), glmmADMB:::VarCorr.glmmadmb)
+setMethod("VarCorr", signature(x="summary.glmmadmb"), glmmADMB:::VarCorr.glmmadmb)
 
 d1 <- simfun()
 t1_lme4 <- system.time(g1_lme4 <- glmer(y~x+(1|f)+(1|g),family="poisson",data=d1))
-t1_GA <- system.time(g1_GA <- glmm.admb(y~x+(1|f)+(1|g),family="poisson",data=d1))
+t1_GA <- system.time(g1_GA <- glmmadmb(y~x+(1|f)+(1|g),family="poisson",data=d1))
 
 save.image("multrand_batch.RData")
 ###############
 
 d2 <- simfun(nblock=15)
 t2_lme4 <- system.time(g2_lme4 <- glmer(y~x+(1|f)+(1|g),family="poisson",data=d2))
-t2_GA <- system.time(g2_GA <- glmm.admb(y~x+(1|f)+(1|g),family="poisson",data=d2))
+t2_GA <- system.time(g2_GA <- glmmadmb(y~x+(1|f)+(1|g),family="poisson",data=d2))
 save.image("multrand_batch.RData")
 
 ## with nblock=15: works, but takes 880 seconds

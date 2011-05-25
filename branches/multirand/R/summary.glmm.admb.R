@@ -1,7 +1,7 @@
 ## modeled after summary.glm, print.summary.glm 
-summary.glmm.admb <- function(object, ...) 
+summary.glmmadmb <- function(object, ...) 
 {
-  ## print.glmm.admb(object, ...)
+  ## print.glmmadmb(object, ...)
   ## calculate coef table
 
   ## for now, assume dispersion KNOWN
@@ -23,12 +23,12 @@ summary.glmm.admb <- function(object, ...)
   }
   ans <- c(object,
            list(coefficients=coef.table))
-  class(ans) <- "summary.glmm.admb"
+  class(ans) <- "summary.glmmadmb"
   ## modeled after summary.glm
   ans
 }
 
-print.summary.glmm.admb <- function(x, digits = max(3, getOption("digits") - 4),
+print.summary.glmmadmb <- function(x, digits = max(3, getOption("digits") - 4),
                               symbolic.cor = x$symbolic.cor,
                               signif.stars = getOption("show.signif.stars"),
                               ...)

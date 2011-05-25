@@ -12,7 +12,7 @@ d$eta <- with(d,0.2+0.5*x+r[f])
 d$mu <- plogis(d$eta)
 d$y <- rbeta(ntot,shape1=d$mu*phi,shape2=(1-d$mu)*phi)
 
-g1 <- glmm.admb(y~x+(1|f),data=d,family="beta")
+g1 <- glmmadmb(y~x+(1|f),data=d,family="beta")
 
 coef(g1)
 VarCorr(g1)

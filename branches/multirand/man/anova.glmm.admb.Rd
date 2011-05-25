@@ -1,12 +1,12 @@
-\name{anova.glmm.admb}
-\alias{anova.glmm.admb}
+\name{anova.glmmadmb}
+\alias{anova.glmmadmb}
 \title{Model Comparison Table}
 \description{Compute a model comparison (likelihood ratio test) table for a series of fitted models.}
 \usage{
-\method{anova}{glmm.admb}(object, \dots)
+\method{anova}{glmmadmb}(object, \dots)
 }
 \arguments{
-  \item{object}{a fitted \code{glmm.admb} model.}
+  \item{object}{a fitted \code{glmmadmb} model.}
   \item{\dots}{more fitted models, with the same random effects.}
 }
 \details{
@@ -19,16 +19,16 @@
   \code{"data.frame"}.
 }
 \seealso{
-  \code{\link{glmm.admb}}.
+  \code{\link{glmmadmb}}.
 
   \code{\link{glmmADMB-package}}.
 }
 \examples{
   data(epil2)
   epil2$subject <- factor(epil2$subject)
-  f1<-glmm.admb(y~Base*trt+Age+Visit+(Visit|subject),
+  f1 <- glmmadmb(y~Base*trt+Age+Visit+(Visit|subject),
                 data=epil2, family="nbinom")
-  f2<-glmm.admb(y~Base*trt+Age+(Visit|subject),
+  f2 <- glmmadmb(y~Base*trt+Age+(Visit|subject),
                 data=epil2, family="nbinom")
   anova(f2,f1)
 }

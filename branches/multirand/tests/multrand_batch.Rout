@@ -1,8 +1,8 @@
 
-R version 2.13.0 alpha (2011-03-18 r54865)
+R version 2.13.0 (2011-04-13)
 Copyright (C) 2011 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
-Platform: i686-pc-linux-gnu (32-bit)
+Platform: i486-pc-linux-gnu (32-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -18,7 +18,11 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
+Loading required package: utils
+[Previously saved workspace restored]
+
 > library(glmmADMB)  ## testing version
+Loading required package: MASS
 > 
 > ## make sure file doesn't automatically get run during testing ...
 > if (file.exists("multrand_batch.RData")) {
@@ -53,19 +57,19 @@ Type 'q()' to quit R.
 +                                
 + library(lme4)
 + ## kluge, for passing tests until I can get this sorted out
-+ setMethod("VarCorr", signature(x="glmm.admb"), glmmADMB:::VarCorr.glmm.admb)
-+ setMethod("VarCorr", signature(x="summary.glmm.admb"), glmmADMB:::VarCorr.glmm.admb)
++ setMethod("VarCorr", signature(x="glmmadmb"), glmmADMB:::VarCorr.glmmadmb)
++ setMethod("VarCorr", signature(x="summary.glmmadmb"), glmmADMB:::VarCorr.glmmadmb)
 + 
 + d1 <- simfun()
 + t1_lme4 <- system.time(g1_lme4 <- glmer(y~x+(1|f)+(1|g),family="poisson",data=d1))
-+ t1_GA <- system.time(g1_GA <- glmm.admb(y~x+(1|f)+(1|g),family="poisson",data=d1))
++ t1_GA <- system.time(g1_GA <- glmmadmb(y~x+(1|f)+(1|g),family="poisson",data=d1))
 + 
 + save.image("multrand_batch.RData")
 + ###############
 + 
 + d2 <- simfun(nblock=15)
 + t2_lme4 <- system.time(g2_lme4 <- glmer(y~x+(1|f)+(1|g),family="poisson",data=d2))
-+ t2_GA <- system.time(g2_GA <- glmm.admb(y~x+(1|f)+(1|g),family="poisson",data=d2))
++ t2_GA <- system.time(g2_GA <- glmmadmb(y~x+(1|f)+(1|g),family="poisson",data=d2))
 + save.image("multrand_batch.RData")
 + 
 + ## with nblock=15: works, but takes 880 seconds
@@ -73,25 +77,7 @@ Type 'q()' to quit R.
 + ##   Need to increase the maximum number of separable calls allowed to at least 20001
 + ##   Current value is 20000
 + }
-Loading required package: Matrix
-Loading required package: lattice
-
-Attaching package: 'Matrix'
-
-The following object(s) are masked from 'package:base':
-
-    det
-
-
-Attaching package: 'lme4'
-
-The following object(s) are masked from 'package:stats':
-
-    AIC, BIC
-
-in method for ‘VarCorr’ with signature ‘x="glmm.admb"’: no definition for class "glmm.admb"
-in method for ‘VarCorr’ with signature ‘x="summary.glmm.admb"’: no definition for class "summary.glmm.admb"
 > 
 > proc.time()
-    user   system  elapsed 
-1219.531   38.598 1258.950 
+   user  system elapsed 
+   4.92    0.76    5.69 

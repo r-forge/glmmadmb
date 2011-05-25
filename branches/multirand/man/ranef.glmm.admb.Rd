@@ -1,16 +1,16 @@
-\name{ranef.glmm.admb}
+\name{ranef.glmmadmb}
 \alias{ranef}
-\alias{ranef.glmm.admb}
+\alias{ranef.glmmadmb}
 \title{Extract Random Effects}
 \description{
-  Extract random effects from fittted \code{glmm.admb} models, and
+  Extract random effects from fittted \code{glmmadmb} models, and
   (optionally) their standard deviations.
 }
 \usage{
-\method{ranef}{glmm.admb}(object, sd=FALSE, \dots)
+\method{ranef}{glmmadmb}(object, sd=FALSE, \dots)
 }
 \arguments{
-  \item{object}{a fitted \code{glmm.admb} model.}
+  \item{object}{a fitted \code{glmmadmb} model.}
   \item{sd}{whether the standard deviations of the random effects should
     be returned, rather than point estimates.}
   \item{\dots}{further arguments (currently ignored).}
@@ -27,7 +27,7 @@
   A matrix of estimated random effects (or standard deviations).
 }
 \seealso{
-  \code{\link{glmm.admb}}.
+  \code{\link{glmmadmb}}.
 
   \code{\link{glmmADMB-package}}.
 }

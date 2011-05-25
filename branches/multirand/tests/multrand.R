@@ -5,8 +5,8 @@ load("multrand_batch.RData")
 
 
 ## kluge, for passing tests until I can get this sorted out
-setMethod("VarCorr", signature(x="glmm.admb"), glmmADMB:::VarCorr.glmm.admb)
-setMethod("VarCorr", signature(x="summary.glmm.admb"), glmmADMB:::VarCorr.glmm.admb)
+setMethod("VarCorr", signature(x="glmmadmb"), glmmADMB:::VarCorr.glmmadmb)
+setMethod("VarCorr", signature(x="summary.glmmadmb"), glmmADMB:::VarCorr.glmmadmb)
 
 sumfun <- function (x,times)
   UseMethod("sumfun")
@@ -18,7 +18,7 @@ tmpnamefun <- function(nn) {
 tmpsumfun <- function(x) c(min=min(x),mean=mean(x),max=max(x))
 
 ## will not work for 'old' glmmADMB (wrong ranef structure)
-sumfun.glmm.admb <- function(x,times) {
+sumfun.glmmadmb <- function(x,times) {
   fixed <- coef(x)
   ransum <- unlist(lapply(ranef(x),
                    function(z)

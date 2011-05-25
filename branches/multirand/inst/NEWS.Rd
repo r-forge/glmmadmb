@@ -9,12 +9,17 @@
     \item Changed formula to lme4-style: random effects, and offsets,
     included within the formula
     \item Allow multiple random effects
-    \item Turn off minimal zero-inflation in non-ZI models
+    \item Turn off minimal zero-inflation in non-ZI models (pz was
+    always 0.0001)
     \item Require grouping variables to be factors
-    \item Allow binomial responses with N>1
-    \item Allow alternative link functions (poorly tested)
+    \item New families: Binomial with N>1, Gamma, stub for Beta
+    \item Allow alternative link functions (poorly tested): logit,
+    probit, log
     \item new accessors: VarCorr(); ranef() [returns scaled random
-  effects]; updated summary method (includes Wald tests); vcov(); stdEr()
+    effects]; updated summary method (includes Wald tests); vcov();
+    stdEr()
+    \item Basic access to MCMC functionality
+    \item function and class name changed from glmm.admb to glmmadmb
 }}
 
 \section{Changes in version 0.4-1 (2010-10-26)}{

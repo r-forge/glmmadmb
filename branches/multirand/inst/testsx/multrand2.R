@@ -15,4 +15,4 @@ library(lme4)
 t1 <- system.time(g1 <- glmer(y~x+(1|f1/f2),data=d,family=poisson))
 
 library(glmmADMB)
-t2 <- system.time(g2 <- glmm.admb(y~x+(1|f1/f2),data=d,family="poisson"))
+t2 <- system.time(g2 <- glmmadmb(y~x+(1|f1/f2),data=d,family="poisson"))

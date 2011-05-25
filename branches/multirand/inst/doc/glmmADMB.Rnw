@@ -23,8 +23,9 @@
 <<setopts,echo=FALSE>>=
 Rver <- paste(R.version$major,R.version$minor,sep=".")
 options(continue=" ")
-## library(cacheSweave)
-## setCacheDir("glmmADMB_vignette")
+if (require(cacheSweave)) {
+  setCacheDir("glmmADMB_vignette")
+}
 @ 
 
 <<loaddat>>=
@@ -38,12 +39,12 @@ epil2 <- transform(epil,Base=log(base/4),Age=log(age),
 library(glmmADMB)
 @ 
 <<fit1,cache=TRUE>>=
-fm <- glmm.admb(y~Base*trt+Age+Visit+(Visit|subject),
+fm <- glmmadmb(y~Base*trt+Age+Visit+(Visit|subject),
                 data=epil2, family="nbinom")
 @ 
 
 <<fit2,cache=TRUE>>=
-fm2 <- glmm.admb(y~Base*trt+Age+Visit+(1|subject),
+fm2 <- glmmadmb(y~Base*trt+Age+Visit+(1|subject),
                 data=epil2, family="nbinom")
 
 @ 

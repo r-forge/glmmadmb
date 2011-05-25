@@ -1,5 +1,5 @@
 library(glmmADMB)
-## source("glmm.admb.R")
+## source("glmmadmb.R")
 
 set.seed(1002)
 nblock <- 10
@@ -12,11 +12,11 @@ d$eta <- with(d,0.2+0.5*x+r[f])
 d$mu <- exp(d$eta)
 d$y <- rpois(ntot,lambda=d$mu)
 
-g1 <- glmm.admb(y~x+(1|f),family="poisson",data=d)
+g1 <- glmmadmb(y~x+(1|f),family="poisson",data=d)
 coef(g1)
 VarCorr(g1)
 
-g1M <- glmm.admb(y~x+(1|f),family="poisson",data=d,mcmc=TRUE,
+g1M <- glmmadmb(y~x+(1|f),family="poisson",data=d,mcmc=TRUE,
                  mcmc.opts=mcmc.control(mcmc=100))
 library(coda)
 xyplot(as.mcmc(g1M$mcmc),layout=c(4,4),aspect="fill")

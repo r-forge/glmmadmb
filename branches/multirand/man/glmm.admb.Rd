@@ -1,5 +1,5 @@
-\name{glmm.admb}
-\alias{glmm.admb}
+\name{glmmadmb}
+\alias{glmmadmb}
 \title{Generalized Linear Mixed Models Using AD Model Builder}
 \description{
   Fits mixed-effects models to count data using binomial, Poisson, or
@@ -7,7 +7,7 @@
   Poisson and negative binomial distributions are supported.
 }
 \usage{
-glmm.admb(formula, data, family="poisson", link,
+glmmadmb(formula, data, family="poisson", link,
           corStruct="diag", impSamp=0, easyFlag=TRUE,
           zeroInflation=FALSE, ZI_kluge=FALSE, imaxfn=10,
           mcmc=FALSE,mcmc.opts=mcmc.control(),save.dir=tempdir(),
@@ -83,7 +83,7 @@ glmm.admb(formula, data, family="poisson", link,
   \code{easyFlag=FALSE}.
 }
 \value{
-  An object of class \code{"glmm.admb"} representing the model fit:
+  An object of class \code{"glmmadmb"} representing the model fit:
   \item{b}{vector of fixed effects.}
   \item{S}{covariance matrix of random effects.}
   \item{alpha}{parameter in negative binomial distribution (only when
@@ -106,12 +106,12 @@ glmm.admb(formula, data, family="poisson", link,
 }
 \examples{
   epil2$subject <- factor(epil2$subject)
-  (fm <- glmm.admb(y~Base*trt+Age+Visit+(Visit|subject),
+  (fm <- glmmadmb(y~Base*trt+Age+Visit+(Visit|subject),
                   data=epil2, family="nbinom"))
 \dontrun{
 data(Owls)
 Owls$offset <- log(Owls$BroodSize) 
- om <- glmm.admb(SiblingNegotiation~FoodTreatment*SexParent+
+ om <- glmmadmb(SiblingNegotiation~FoodTreatment*SexParent+
            (1|Nest)+offset(offset),
 ## FIXME: would like to be able to use offset(log(BroodSize))
           zeroInflation=TRUE,family="nbinom",data=Owls)
