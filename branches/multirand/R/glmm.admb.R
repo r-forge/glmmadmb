@@ -47,11 +47,12 @@ glmm.admb <- function(formula, data, family="poisson", link,
   if (missing(link)) {
     link <- switch(family, binomial=, beta="logit", nbinom=, poisson=, gamma="log")
   }
-  linkfun <- switch(link,log=log,logit=qlogis,probit=qnorm,
+  linkfun <- switch(link,log=log,logit=qlogis,probit=qnorm,inverse=function(x) 1/x,
+                    cloglog=NA,
                     stop("unknown link function"))
-  ilinkfun <- switch(link,log=exp,logit=plogis,probit=pnorm)
+  ilinkfun <- switch(link,log=exp,logit=plogis,probit=pnorm, inverse=function(x) 1/x)
 
-  link_type_flag <- switch(link,log=0,logit=1,probit=2,inverse=3)
+  link_type_flag <- switch(link,log=0,logit=1,probit=2,inverse=3,cloglog=4)
   
   ## from glm()
   ## extract x, y, etc from the model formula and frame
@@ -73,6 +74,8 @@ glmm.admb <- function(formula, data, family="poisson", link,
   n <- nrow(y)
   p_y <- ncol(y)
 
+  ## BMB: nobs() method? model.matrix, model.frame, terms methods?
+
   offset <- as.vector(model.offset(mf))
   has_offset <- !is.null(offset)
   if (!has_offset) offset <- rep(0,n)
@@ -82,15 +85,27 @@ glmm.admb <- function(formula, data, family="poisson", link,
 
   if (has_rand) {
     REmat <- process_randformula(formula,data=data)
+
+    ## kluge: replicate elements
+    if (any(REmat$nterms>1)) {
+      tmpind <- rep(seq_along(REmat$mmats),REmat$nterms)
+      REmat$mmats <- REmat$mmats[tmpind]
+      REmat$codes <-
+        unlist(lapply(REmat$codes,
+                      function(x) lapply(as.list(as.data.frame(x)),matrix)),
+               recursive=FALSE)
+      ## split into a list of single matrices
+    }
+    
     ## Number of random effects within each crossed term
     m <- sapply(REmat$mmats, ncol)
     ## Number of crossed terms
     M <- length(m)
     ## Number of levels of each crossed term
-    q <- sapply(REmat$codes, function(x) length(unique(x)))
-    names(q) <- names(REmat$mmats)
+    q <- sapply(REmat$levels,length)
 
     ## Construct design matrix (Z) for random effects
+
 
     Z <- do.call(cbind,REmat$mmats)
     colnames(Z) <- paste(rep(names(REmat$mmat),m),
@@ -253,7 +268,7 @@ glmm.admb <- function(formula, data, family="poisson", link,
     uvec <- tmp[tmpindex=="u",3]
     ulist <- split(uvec,rep(1:length(q),q))
     dn <- mapply(list,
-                 lapply(REmat$mmat,attr,which="levels"),
+                 REmat$levels, ## lapply(REmat$mmat,attr,which="levels"),
                  parnames,
                  SIMPLIFY=FALSE)
     out$U <- mapply(matrix,

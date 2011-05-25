@@ -20,7 +20,7 @@ get_fixedformula <- function(f) {
   } 
   rchar <- gsub("\\([^)]+\\)","",rchar) ## parentheses
   rchar <- gsub("(\\+ *\\+ *)+","+",rchar) ## duplicated +
-  rchar <- gsub(" *\\+ *$","",rchar) ## terminating +
+  rchar <- gsub(" *\\++ *$","",rchar) ## terminating + (possibly multiple)
   as.formula(paste(lchar,"~",rchar,offsetstr))
 }
 
@@ -54,19 +54,57 @@ process_randformula <- function(f,data) {
                                    gsub(" ","",randbits)))))
   groups <- gsub("^ +","",lapply(splitbits,"[",2))
 
-  nonfactors <- groups[!sapply(data[groups],inherits,"factor")]
-  if (length(nonfactors)>0)
+  ## expand formulae
+
+  tL <- lapply(as.list(groups),
+         function(x) {
+           tt <- terms(formula(paste("~",x,sep="")),data=data)
+         })
+
+  ## list of ATOMIC factors
+  groupL <- lapply(tL,
+                   function(z) {
+                     x <- eval(attr(z,"variables"),data)
+                     names(x) <-rownames(attr(z,"factors"))
+                     x
+                   })
+
+  nterms <- sapply(tL,function(x) length(attr(x,"term.labels")))
+                 
+
+  dgroupL <- lapply(tL,
+                   function(z) {
+                     ff <- as.list(colnames(attr(z,"factors")))
+                     ## DANGER WILL ROBINSON: eval(parse(...)) !
+                     lapply(ff,function(x) eval(parse(text=x),data))
+                   })
+  
+  ## flat group list
+  fgroupL <- unlist(groupL,recursive=FALSE)
+
+  
+  ## nonfactors <- groupL[!sapply(data[groups],inherits,"factor")]
+  ## FIXME: want to be able to have valid formulas
+  ##  (e.g. a/b/c) on RHS of | ...
+  if (any(!sapply(fgroupL,inherits,"factor")))
     stop("all grouping variables must be factors")
-  ## FIXME: say which ones
+  ## FIXME: identify which variables are non-factors
   
   LHS <- gsub("^ +","",lapply(splitbits,"[",1))
-  
+
+  ngroupfac <- sapply(groupL,length)
+  ## if (any(ngroupfac>1)) {
+  ## LHS <- rep(LHS,ngroupfac)
+  ## }
+
   L <- list(mmats=lapply(LHS,cfun,mdata=data),
-       codes=lapply(groups,rfun,rdata=data))
-  for (i in seq_along(L$mmats)) {
-    attr(L$mmats[[i]],"levels") <- levels(with(data,get(groups[i])))
-  }
-  names(L$mmats) <- groups
+            codes=lapply(groups,rfun,rdata=data),
+            levels=lapply(unlist(dgroupL,recursive=FALSE),levels),
+            nterms=nterms)  ## num. derived terms per RE mat
+  ## for (i in seq_along(L$mmats)) {
+  ##   attr(L$mmats[[i]],"levels") <- levels(fgroupL[[1]])
+  ## }
+  names(L$mmats) <- groups ## names(fgroupL)
   names(L$codes) <- termnames
   L
 }
