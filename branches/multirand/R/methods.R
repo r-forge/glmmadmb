@@ -81,3 +81,7 @@ setMethod("VarCorr", signature(x="summary.glmm.admb"), VarCorr.glmm.admb)
 ##      for terms, do we want to save model frame? save_frame
 ##          (or save.frame or saveFrame) ?
 
+
+predict.glmm.admb <- function(object,...) {
+
+}
