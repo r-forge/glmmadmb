@@ -18,11 +18,16 @@ get_fixedformula <- function(f) {
     offsetstr <- gsub(".*(\\+ *offset\\([^)]+\\)).*","\\1",rchar)
     rchar <- gsub("offset\\([^)]+\\)","",rchar)
   } 
-  rchar <- gsub("\\([^)]+\\)","",rchar) ## parentheses
+  rchar <- gsub("\\([^)|]+\\|[^)|]+\\)","",rchar) ## parentheses containing |
   rchar <- gsub("(\\+ *\\+ *)+","+",rchar) ## duplicated +
   rchar <- gsub(" *\\++ *$","",rchar) ## terminating + (possibly multiple)
   as.formula(paste(lchar,"~",rchar,offsetstr))
 }
+
+## test strings
+## get_fixedformula(y~Base*trt+Age+Visit+(Visit|subject))
+## get_fixedformula(y~Base*trt+Age+Visit+poly(a,b,c)+(Visit|subject))
+## get_fixedformula(y~Base*trt+Age+Visit+poly(a,b,c)+(Visit|subject)+(1|zzz))
 
 process_randformula <- function(f,data) {
   rchar <- as.character(f[3]) ## RHS
