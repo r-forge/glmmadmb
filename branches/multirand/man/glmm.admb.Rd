@@ -10,7 +10,7 @@
 glmmadmb(formula, data, family="poisson", link,
           corStruct="diag", impSamp=0, easyFlag=TRUE,
           zeroInflation=FALSE, ZI_kluge=FALSE, imaxfn=10,
-          mcmc=FALSE,mcmc.opts=mcmc.control(),save.dir=tempdir(),
+          mcmc=FALSE,mcmc.opts=mcmc.control(),save.dir,
           verbose=FALSE)
 }
 \arguments{
@@ -58,8 +58,9 @@ glmmadmb(formula, data, family="poisson", link,
     and parameter variance-covariance matrix}
   \item{mcmc.opts}{list of options for MCMC run: see \code{\link{mcmc.control}}}
   \item{save.dir}{Optionally, a directory name where all ADMB output
-    files are saved. If \code{save.dir} is not specified, all ADMB input and output files
-    are deleted after ADMB is run and the results are read into R.}
+    files are saved. If \code{save.dir} is not specified, a temporary
+    directory is created (with \code{\link{tempfile}}) and all ADMB input
+    and output files are deleted after the ADMB run finishes and the results are read into R.}
   \item{verbose}{(logical) Print interim output from AD Model Builder run?}
 }
 \details{
