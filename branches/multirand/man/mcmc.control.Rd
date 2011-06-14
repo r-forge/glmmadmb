@@ -9,11 +9,14 @@
   estimate) and parameter variance-covariance matrix
 }
 \usage{
-mcmc.control(mcmc = 1000, mcsave, mcnoscale = FALSE, mcgrope = FALSE, mcmult = 1)
+mcmc.control(mcmc = 1000, mcmc2=0, mcsave, mcnoscale = FALSE, mcgrope = FALSE, mcmult = 1)
 }
 \arguments{
   \item{mcmc}{
     Total number of MCMC steps
+  }
+  \item{mcmc2}{
+    MCMC2 steps (see ADMB-RE manual)
   }
   \item{mcsave}{
     Thinning interval.  Default is \code{pmax(1,floor(mcmc/1000))},

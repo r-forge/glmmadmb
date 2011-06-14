@@ -1,11 +1,11 @@
 inst/bin/linux32/glmmadmb
 inst/bin/linux64/glmmadmb
-inst/bin/windows32/glmmadmb
-inst/bin/windows64/glmmadmb
+inst/bin/windows32/glmmadmb.exe
+inst/bin/windows64/glmmadmb.exe
 inst/bin/macos/glmmadmb
 ## for SVN
 inst/bin/linux32/.svn/text-base/glmmadmb.svn-base
 inst/bin/linux64/.svn/text-base/glmmadmb.svn-base
-inst/bin/windows32/.svn/text-base/glmmadmb.svn-base
-inst/bin/windows64/.svn/text-base/glmmadmb.svn-base
+inst/bin/windows32/.svn/text-base/glmmadmb.exe.svn-base
+inst/bin/windows64/.svn/text-base/glmmadmb.exe.svn-base
 inst/bin/macos/.svn/text-base/glmmadmb.svn-base

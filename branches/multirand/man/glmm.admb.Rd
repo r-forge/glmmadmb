@@ -11,7 +11,7 @@ glmmadmb(formula, data, family="poisson", link,
           corStruct="diag", impSamp=0, easyFlag=TRUE,
           zeroInflation=FALSE, ZI_kluge=FALSE, imaxfn=10,
           mcmc=FALSE,mcmc.opts=mcmc.control(),save.dir,
-          verbose=FALSE)
+          verbose=FALSE,extra.args)
 }
 \arguments{
   \item{formula}{a two-sided linear formula describing the 
@@ -61,7 +61,10 @@ glmmadmb(formula, data, family="poisson", link,
     files are saved. If \code{save.dir} is not specified, a temporary
     directory is created (with \code{\link{tempfile}}) and all ADMB input
     and output files are deleted after the ADMB run finishes and the results are read into R.}
-  \item{verbose}{(logical) Print interim output from AD Model Builder run?}
+  \item{verbose}{(logical) Print interim output from AD Model Builder
+    run?}
+  \item{extra.args}{(character) extra arguments to AD Model Builder (see
+    ADMB manual)}
 }
 \details{
   Parameterization of the negative binomial distribution:

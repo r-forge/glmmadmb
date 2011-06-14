@@ -1,27 +1,34 @@
 mcmc.control <- function(mcmc=1000,
+                         mcmc2=0,
                          mcsave,
                          mcnoscale=FALSE,
                          mcgrope=FALSE,
                          mcmult=1) {
   if (missing(mcsave)) mcsave <- pmax(1,floor(mcmc/1000))
-  list(mcmc=mcmc,mcsave=mcsave,mcnoscale=mcnoscale,mcgrope=mcgrope,mcmult=mcmult)
+  if (mcmc>0 && mcmc2>0) stop("may not specify both mcmc and mcmc2>0")
+  r <- list(mcsave=mcsave,mcnoscale=mcnoscale,mcgrope=mcgrope,mcmult=mcmult)
+  if (mcmc>0) c(list(mcmc=mcmc),r) else c(list(mcmc2=mcmc2,r))
 }
 
 mcmc.args <- function(L) {
   argstr <- mapply(function(n,val) {
-    if (is.numeric(val)) paste("-",n," ",val,sep="") else
-    if (isTRUE(val)) paste("-",val,sep="")
+    if (is.numeric(val)) {
+      paste("-",n," ",val,sep="")
+    } else {
+      if (isTRUE(val)) paste("-",val,sep="")
+    }
   },names(L),L)
   paste(unlist(argstr),collapse=" ")
 }
 
 glmmadmb <- function(formula, data, family="poisson", link,
-                      corStruct="diag", impSamp=0, easyFlag=TRUE,
-                      zeroInflation=FALSE, ZI_kluge=FALSE,
-                      imaxfn=10,
-                      mcmc=FALSE,
-                      mcmc.opts=mcmc.control(),
-                      save.dir, verbose=FALSE)
+                     corStruct="diag", impSamp=0, easyFlag=TRUE,
+                     zeroInflation=FALSE, ZI_kluge=FALSE,
+                     imaxfn=10,
+                     mcmc=FALSE,
+                     mcmc.opts=mcmc.control(),
+                     save.dir, verbose=FALSE,
+                     extra.args)
 {
   ## FIXME: removed commented code after checking
   ## FIXME: make this an R temp directory? begin with a . for invisibility?
@@ -153,6 +160,7 @@ glmmadmb <- function(formula, data, family="poisson", link,
   cmdoptions = "-maxfn 500"
   if(impSamp>0) cmdoptions <- paste(cmdoptions,"-is",impSamp)
   if (mcmc) cmdoptions <- paste(cmdoptions,mcmc.args(mcmc.opts))
+  if (!missing(extra.args)) cmdoptions <- paste(cmdoptions,extra.args)
   dat_list = list(n=n, p_y=p_y,
     y=y, p=p, X=X, M=M, q=q, m=m, ncolZ=ncol(Z),Z=Z, II=II, 
     cor_flag=rep(0,M),
