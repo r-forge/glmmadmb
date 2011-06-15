@@ -3,6 +3,7 @@
 \alias{dat_write}
 \alias{par_read}
 \alias{pin_write}
+\alias{pkgname}
 \title{Internal glmmADMB Functions}
 \description{Internal glmmADMB functions}
 \details{

@@ -1,5 +1,8 @@
-glmm.admb <- function(fixed, random, group, data, family="poisson", link, corStruct="diag", impSamp=0, easyFlag=TRUE,
-                      zeroInflation=FALSE, imaxfn=10, save.dir=NULL, offset, verbose=FALSE)
+pkgname <- "glmmADMB"
+
+glmm.admb <- function(fixed, random, group, data,
+                      family="poisson", link, corStruct="diag", impSamp=0, easyFlag=TRUE,
+                      zeroInflation=FALSE, imaxfn=10, save.dir=NULL, offset, verbose=FALSE, extra.args)
 {
   dirname <- if(is.null(save.dir)) "_glmm_ADMB_temp_dir_" else save.dir
   if(!file_test("-d",dirname))
@@ -40,6 +43,7 @@ glmm.admb <- function(fixed, random, group, data, family="poisson", link, corStr
   q <- length(unique(II))
 
   cmdoptions <- paste("-maxfn 500", if(impSamp==0) "" else paste("-is",impSamp))
+  if (!missing(extra.args)) cmdoptions <- paste(cmdoptions,extra.args)
   dat_list <- list(n=n, y=y, p=p, X=X, q=q, m=m, Z=Z, group_d=group_d, II=II, cor_flag=if(corStruct=="full") 1 else 0,
                    like_type_flag=as.numeric(family=="poisson"||(family=="binomial"&&link=="logit")),
                    no_rand_flag=as.numeric(missing(random)), easy_flag=as.numeric(easyFlag),
@@ -73,7 +77,7 @@ glmm.admb <- function(fixed, random, group, data, family="poisson", link, corStr
 
   if(.Platform$OS.type == "windows")
   {
-    cmd <- paste("\"",system.file("bin","windows",paste(file_name,".exe",sep=""),package="glmmADMB"), "\"", " ", cmdoptions, sep="")
+    cmd <- paste("\"",system.file("bin","windows",paste(file_name,".exe",sep=""),package=pkgname), "\"", " ", cmdoptions, sep="")
     shell(cmd, invisible=TRUE)
   } else  {
     if (substr(R.version$os,1,6)=="darwin") {
@@ -81,9 +85,9 @@ glmm.admb <- function(fixed, random, group, data, family="poisson", link, corStr
       ## http://tolstoy.newcastle.edu.au/R/e2/help/07/01/8497.html
       ## do we really need to copy the binaries over to the temp directory, or can we
       ##   run them in situ?
-      file.copy(system.file("bin","macos",file_name,package="glmmADMB"),".")
+      file.copy(system.file("bin","macos",file_name,package=pkgname),".")
     } else if (R.version$os=="linux-gnu") {
-      file.copy(system.file("bin","linux",file_name,package="glmmADMB"),".")
+      file.copy(system.file("bin","linux",file_name,package=pkgname),".")
     } else stop("unknown OS detected")
     Sys.chmod(file_name,mode="0755") ## file.copy strips executable permissions????
     cmd2 <- paste("./", file_name, " ", cmdoptions, sep="")
