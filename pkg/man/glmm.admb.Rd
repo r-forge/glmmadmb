@@ -10,7 +10,7 @@
 glmm.admb(fixed, random, group, data, family="poisson", link,
           corStruct="diag", impSamp=0, easyFlag=TRUE,
           zeroInflation=FALSE, imaxfn=10, save.dir=NULL, offset,
-          verbose=FALSE)
+          verbose=FALSE, extra.args)
 }
 \arguments{
   \item{fixed}{a two-sided linear formula describing the fixed-effects
@@ -49,7 +49,10 @@ glmm.admb(fixed, random, group, data, family="poisson", link,
 be specified as the name of the offset variable (which should
 be on the scale of the linear predictor, and included in the
 data frame: see example below).}
-  \item{verbose}{(logical) Print interim output from AD Model Builder run?}
+  \item{verbose}{(logical) Print interim output from AD Model Builder
+    run?}
+  \item{extra.args}{(character) extra arguments to pass to AD Model
+    Builder (see the AD Model Builder manual)}
 }
 \details{
   Currently, the \code{"binomial"} family only accepts Bernoulli
