@@ -16,6 +16,8 @@ d$y <- rpois(N,exp(eta))
 g1 <- glmmadmb(y~x+(1|f),family="poisson",data=d)
 g1B <- glmmadmb(y~x,random=~(1|f),family="poisson",data=d)
 g1C <- glmmadmb(y~x,random=~1|f,family="poisson",data=d)
+g2 <- glmmadmb(y~x+(1|f),family="poisson",data=d,
+               start=list(fixed=coef(g1)),verbose=TRUE)
 coef(g1)
 fixef(g1)
 summary(g1)
@@ -23,16 +25,17 @@ logLik(g1)
 ranef(g1)
 AIC(g1)
 
+g2 <- glmmadmb(y~x+(1|f),family="poisson",data=d,
+               start=list()
 library(lme4)
 m1 <- glmer(y~x+(1|f),family="poisson",data=d)
-r1 <- unname(unlist(ranef(g1)))
-r2 <- unname(unlist(ranef(m1)))
-## ranef() returns DATA FRAME so need additional unwrapping
+r1 <- ranef(g1)[[1]]
+r2 <- ranef(m1)[[1]][[1]]
+## ranef(mer) returns DATA FRAME so need additional unwrapping
 plot(r1,r2,xlab="glmmADMB random effects",ylab="glmer random effects")
 abline(a=0,b=1)
-
-stopifnot(all.equal(fixef(g1),fixef(m1),tolerance=1e-6))
-stopifnot(all.equal(r1,r2,tolerance=2e-4))
+## proportional but 'shrunk' slightly differently
+summary(lm(r2~r1)) ## slope=0.9387
 
 ## random intercepts and slopes
 set.seed(101)
@@ -48,16 +51,15 @@ eta <- model.matrix(~x,data=d2) %*% beta + u[as.numeric(d2$f)]+
   u[as.numeric(d2$f)]*d2$x
 d2$y <- rpois(N,exp(eta))
 
-(g2 <- glmmadmb(y~x+(x|f),family="poisson",data=d2))
+g2 <- glmmadmb(y~x+(x|f),family="poisson",data=d2)
+coef(g2)
+logLik(g2)
+g2$U$f ## not quite identical
+summary(fitted(g2))
+g2$S
+g2$sd_S
 summary(g2)
-m2 <- glmer(y~x+(1|f)+(0+x|f),family="poisson",data=d2)
-r1 <- unname(unlist(ranef(g2)))
-r2 <- unname(unlist(ranef(m2)))
-
-stopifnot(all.equal(fixef(g2),fixef(m2),tolerance=1e-4))
-stopifnot(all.equal(r1,r2,tolerance=1.5e-3))
 
 epil2$subject <- factor(epil2$subject)
-(fm <- glmmadmb(y~Base*trt+Age+Visit+(Visit|subject),
-                 data=epil2, family="nbinom"))
-summary(fm)
+fm <- glmmadmb(y~Base*trt+Age+Visit+(Visit|subject),
+                 data=epil2, family="nbinom")

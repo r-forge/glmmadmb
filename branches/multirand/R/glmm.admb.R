@@ -21,7 +21,7 @@ mcmc.args <- function(L) {
   paste(unlist(argstr),collapse=" ")
 }
 
-glmmadmb <- function(formula, data, family="poisson", link,
+glmmadmb <- function(formula, data, family="poisson", link,start,
                      random,
                      corStruct="diag", impSamp=0, easyFlag=TRUE,
                      zeroInflation=FALSE, ZI_kluge=FALSE,
@@ -178,10 +178,36 @@ glmmadmb <- function(formula, data, family="poisson", link,
     intermediate_maxfn=10, 
     has_offset=as.numeric(has_offset), 
     offset=offset)
-  ## BMB: pz=0.0001 should be clearly specified, possibly made into a control parameter
-  pin_list = list(pz=if(zeroInflation) 0.02 else 0.0001, b=numeric(p), tmpL=0.25+numeric(sum(m)),
-    tmpL1=0.0001+numeric(numb_cor_params), log_alpha=1.0, u=rep(0,sum(m*q)))
 
+  
+  ## BMB: pz=0.0001 should be clearly specified, possibly made into a control parameter
+  pin_list = list(pz=if(zeroInflation) 0.02 else 0.0001,  ## ZI
+    b=numeric(p),                                         ## fixed effects
+    tmpL=0.25+numeric(sum(m)),                            ## log-std dev of RE
+    tmpL1=0.0001+numeric(numb_cor_params),                ## off-diag of cholesky factor of corr matrix
+    log_alpha=1.0,                                        ## overdispersion param
+    u=rep(0,sum(m*q)))  
+
+
+  rnames <- list(c("fixed","b"),
+                 c("RE_sd","tmpL"),
+                 c("RE_cor","tmpL1"))
+  if (!missing(start)) {
+    for (i in seq_along(rnames)) {
+      names(start)[names(start)==rnames[[i]][1]] <- rnames[[i]][2]
+    }
+    ns <- names(start)
+    for (i in seq_along(start)) {
+      pp <- pin_list[[ns[i]]]
+      if (is.null(pp)) {
+        stop("unmatched start component",ns[i])
+      }
+      if (length(pp) != length(start[[i]])) {
+        stop("length mismatch in start component",ns[i])
+      }
+      start[[i]] <- pp
+    }
+  }
 
   file_name <- "glmmadmb"
 
