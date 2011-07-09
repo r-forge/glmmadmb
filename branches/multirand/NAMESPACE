@@ -1,16 +1,18 @@
 
 export(glmmadmb,mcmc.control)
 
-importFrom(nlme,ranef,VarCorr)
+importFrom(nlme,ranef,VarCorr,fixef)
 ## importMethodsFrom("nlme",ranef,VarCorr)
 export(ranef) ## needs to be explicit despite generic exportPattern above
 export(stdEr)
 export(VarCorr)
+export(fixef)
 
 S3method(print,glmmadmb)
 S3method(summary,glmmadmb)
 S3method(print,summary.glmmadmb)
 S3method(coef,glmmadmb)
+S3method(fixef,glmmadmb)
 S3method(ranef,glmmadmb)
 S3method(residuals,glmmadmb)
 S3method(fitted,glmmadmb)

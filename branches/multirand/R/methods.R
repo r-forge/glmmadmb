@@ -3,6 +3,11 @@ coef.glmmadmb <- function(object, ...) {
   object$b
 }
 
+## for lme4/nlme compatibility
+fixef.glmmadmb <- function(object, ...) {
+  object$b
+}
+
 ## need to make sure that this plays nicely with
 ##  lme4 (S4 methods).  Not sure how.
 

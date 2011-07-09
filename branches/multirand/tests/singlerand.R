@@ -13,8 +13,15 @@ beta <- c(1,2)
 eta <- model.matrix(~x,data=d) %*% beta + u[as.numeric(d$f)]
 d$y <- rpois(N,exp(eta))
 
-(g1 <- glmmadmb(y~x+(1|f),family="poisson",data=d))
+g1 <- glmmadmb(y~x+(1|f),family="poisson",data=d)
+g1B <- glmmadmb(y~x,random=~(1|f),family="poisson",data=d)
+g1C <- glmmadmb(y~x,random=~1|f,family="poisson",data=d)
+coef(g1)
+fixef(g1)
 summary(g1)
+logLik(g1)
+ranef(g1)
+AIC(g1)
 
 library(lme4)
 m1 <- glmer(y~x+(1|f),family="poisson",data=d)

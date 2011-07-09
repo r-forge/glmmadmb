@@ -8,6 +8,7 @@
 }
 \usage{
 glmmadmb(formula, data, family="poisson", link,
+          random,
           corStruct="diag", impSamp=0, easyFlag=TRUE,
           zeroInflation=FALSE, ZI_kluge=FALSE, imaxfn=10,
           mcmc=FALSE,mcmc.opts=mcmc.control(),save.dir,
@@ -27,15 +28,22 @@ glmmadmb(formula, data, family="poisson", link,
     Grouping variables must be factors.
     The model may include an offset term, which must be specified on the
     scale of the linear predictor and included in \code{data}:
-    see \code{\link{offset}}.}
+    see \code{\link{offset}}.
+    Alternatively, the random effects terms may be specified
+  separately: see \code{random} below.}
   \item{data}{a data frame containing the variables named in
     \code{formula}.}
   \item{family}{a string determining the response distribution:
-    \code{"poisson"}, \code{"binom"}, and \code{"nbinom"}
-     are currently implemented.}
+         currently implemented options are
+	 \code{"poisson"}, \code{"binomial"}, \code{"nbinom"},
+	 \code{"gamma"}, and \code{"beta"}.}
   \item{link}{a string specifying the shape of the link function:
-    (\code{"log"}, \code{"logit"}, and \code{"probit"} are
-    currently implemented.}
+    currently implemented options are
+    \code{"log"}, \code{"logit"}, and \code{"probit"}.}
+  \item{random}{a formula specifying the random effects.
+    A single random effect may be specified as \code{~x|g},
+    but parentheses must be used if more than one random
+    effect is specified (e.g., \code{~(x1|g1)+(x2|g2)}).}
   \item{corStruct}{a string specifying the covariance structure of the
     random effects vector. Two types of covariance matrices are
     currently implemented: \code{"diag"} (diagonal matrix) and
