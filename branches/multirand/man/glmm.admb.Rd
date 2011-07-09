@@ -7,7 +7,7 @@
   Poisson and negative binomial distributions are supported.
 }
 \usage{
-glmmadmb(formula, data, family="poisson", link,
+glmmadmb(formula, data, family="poisson", link,start,
           random,
           corStruct="diag", impSamp=0, easyFlag=TRUE,
           zeroInflation=FALSE, ZI_kluge=FALSE, imaxfn=10,
@@ -40,6 +40,15 @@ glmmadmb(formula, data, family="poisson", link,
   \item{link}{a string specifying the shape of the link function:
     currently implemented options are
     \code{"log"}, \code{"logit"}, and \code{"probit"}.}
+  \item{start}{an (optional) named list specifying starting values, with
+    (optional) components \code{fixed} (fixed-effect parameters: default
+    0);
+    \code{pz} (zero-inflation probability: default 0.02);
+    \code{log_alpha} (log of dispersion parameter: default 1);
+    \code{RE_sd} (standard deviations of random effects: default 0.25);
+    \code{RE_cor} (off-diagonal elements of Cholesky decomposition of
+    random-effect correlation matrix: default 0.0001);
+    \code{u} (random effects: default 0)}
   \item{random}{a formula specifying the random effects.
     A single random effect may be specified as \code{~x|g},
     but parentheses must be used if more than one random
