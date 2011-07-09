@@ -29,12 +29,24 @@ get_fixedformula <- function(f) {
 ## get_fixedformula(y~Base*trt+Age+Visit+poly(a,b,c)+(Visit|subject))
 ## get_fixedformula(y~Base*trt+Age+Visit+poly(a,b,c)+(Visit|subject)+(1|zzz))
 
-process_randformula <- function(f,data) {
+process_randformula <- function(f,random,data) {
   rchar <- as.character(f[3]) ## RHS
-  ## drop bits before first/after last parenthesis
-  rchar <- gsub("^[^()]*\\(","",
-                gsub(")[^()]*$","",rchar))
+  if (!missing(random)) {
+    if (grepl("\\(.+\\|.+\\)",rchar))
+      stop("must specify random effects *either* as part of 'formula' *or* in 'random'")
+    rchar <- as.character(random[2])
+  } else {
+    ## drop bits before first/after last parenthesis
+    rchar <- gsub("^[^()]*\\(","",
+                  gsub(")[^()]*$","",rchar))
+  }
+
   randbits <- grep("\\|",strsplit(rchar,"[()]")[[1]],value=TRUE)
+  
+
+  ## FIXME: test whether this works with fixed effects embedded
+  ##   between random effects??
+  
   splitbits <- strsplit(randbits,"\\|")
                               
   cfun <- function(lbit,mdata) {
@@ -42,7 +54,7 @@ process_randformula <- function(f,data) {
     m
   }
 
-  ## here we want to expand RHS and provide a list of indices
+  ## expand RHS and provide a list of indices
   ## into the appropriate factor:
   rfun <- function(rbit,rdata) {
     f <- as.formula(paste("~",rbit,"-1"))

@@ -22,6 +22,7 @@ mcmc.args <- function(L) {
 }
 
 glmmadmb <- function(formula, data, family="poisson", link,
+                     random,
                      corStruct="diag", impSamp=0, easyFlag=TRUE,
                      zeroInflation=FALSE, ZI_kluge=FALSE,
                      imaxfn=10,
@@ -46,7 +47,7 @@ glmmadmb <- function(formula, data, family="poisson", link,
   ##    effects in order?
   if(!(corStruct %in% c("diag","full")))
     stop("Argument \"corStruct\" must be either \"diag\" or \"full\"")
-  has_rand <- length(grep("\\|",as.character(formula)[3]))>0
+  has_rand <- !missing(random) || length(grep("\\|",as.character(formula)[3]))>0
   if (!has_rand && (!missing(impSamp) || !missing(corStruct)))
     stop("No random effects specified: neither \"impSamp\" or \"corStruct\" make sense")
 
@@ -99,7 +100,7 @@ glmmadmb <- function(formula, data, family="poisson", link,
   p <- ncol(X)
 
   if (has_rand) {
-    REmat <- process_randformula(formula,data=data)
+    REmat <- process_randformula(formula,random,data=data)
 
     ## kluge: replicate elements
     if (any(REmat$nterms>1)) {

@@ -1,6 +1,8 @@
 \name{print.glmmadmb}
 \alias{print.glmmadmb}
 \alias{coef.glmmadmb}
+\alias{fixef}
+\alias{fixef.glmmadmb}
 \alias{residuals.glmmadmb}
 \alias{fitted.glmmadmb}
 \alias{vcov.glmmadmb}
@@ -16,8 +18,10 @@
   print, retrieve coefficients, etc.}
 \usage{
 stdEr(x,\ldots)
+fixef(object,\ldots)
 \method{print}{glmmadmb}(x,\dots)
 \method{coef}{glmmadmb}(object,\dots)
+\method{fixef}{glmmadmb}(object,\dots)
 \method{residuals}{glmmadmb}(object,type=c("pearson", "response"),\dots)
 \method{fitted}{glmmadmb}(object,\dots)
 \method{vcov}{glmmadmb}(object,\dots)
@@ -41,7 +45,8 @@ stdEr(x,\ldots)
 \itemize{
 \item \code{coef} extracts (fixed-effect) coefficients from a
 \code{glmmadmb} object, or the coefficient table (estimate, standard
-error, Z-score, p-value) from a \code{summary.glmmadmb} object
+error, Z-score, p-value) from a \code{summary.glmmadmb} object;
+\code{fixef} is a synonym, for \code{nlme}/\code{lme4} compatibility
 \item \code{vcov} extracts the approximate variance-covariance matrix
  of the fixed-effect parameters, based on the information matrix
 \item \code{stdEr} extracts the approximate standard errors of the
