@@ -25,8 +25,8 @@ logLik(g1)
 ranef(g1)
 AIC(g1)
 
-g2 <- glmmadmb(y~x+(1|f),family="poisson",data=d,
-               start=list()
+##g2 <- glmmadmb(y~x+(1|f),family="poisson",data=d,
+##                start=list()
 library(lme4)
 m1 <- glmer(y~x+(1|f),family="poisson",data=d)
 r1 <- ranef(g1)[[1]]
