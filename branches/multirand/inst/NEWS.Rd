@@ -4,6 +4,12 @@
 \title{glmmADMB News}
 \encoding{UTF-8}
 
+\section{Changes in devel}{
+  \itemize{
+    \item include sd of zero-inflation in output and summary
+  }
+}
+
 \section{Changes in version 0.6.1 (2011-07-08)}{
   \itemize{
     \item Allow random effects to be specified separately in 'random'

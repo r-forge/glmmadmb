@@ -259,8 +259,10 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   out <- list(n=n, q=q, formula=formula, call=call,
               family=family, corStruct=corStruct, impSamp=impSamp,
               easyFlag=easyFlag, zeroInflation=zeroInflation)
-  if(zeroInflation)
+  if(zeroInflation) {
     out$pz <- as.numeric(tmp[tmpindex=="pz", 3])
+    out$sd_pz <- as.numeric(tmp[tmpindex=="pz", 4])
+  }
   out$b <- as.numeric(tmp[tmpindex=="real_beta", 3])
   out$stdbeta <- as.numeric(tmp[tmpindex=="real_beta", 4])
   names(out$stdbeta) <- names(out$b) <- colnames(X)

@@ -62,8 +62,9 @@ print.summary.glmmadmb <- function(x, digits = max(3, getOption("digits") - 4),
           sep="")
     }
 
-    if (!is.null(x$pz))
-      cat("Zero-inflation:",x$pz,"\n")
+    if (!is.null(x$pz)) {
+      cat("Zero-inflation:",x$pz," (std. err.: ",x$sd_pz,")\n")
+    }
 
     cat("\nLog-likelihood:",x$loglik,"\n")
     ## offset
