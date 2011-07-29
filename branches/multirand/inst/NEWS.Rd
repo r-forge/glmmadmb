@@ -4,9 +4,11 @@
 \title{glmmADMB News}
 \encoding{UTF-8}
 
-\section{Changes in devel}{
+\section{Changes in version 0.6.2}{
   \itemize{
     \item include sd of zero-inflation in output and summary
+    \item include buildbot binaries
+    \item more information when failing to find binaries
   }
 }
 
