@@ -237,7 +237,8 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   ##  output in the directory in which the binary lives rather than the
   ##  current working directory (feel like I struggled with this earlier
   ##  but have now forgotten -- ADMB mailing list archives??)
-  if (nchar(bin_loc)==0) stop("glmmadmb binary should be available, but isn't")
+  if (nchar(bin_loc)==0) stop(
+             sprintf("glmmadmb binary should be available, but isn't (%s, %d bits)",platform,nbits))
   if (platform=="windows") {
     cmd <- paste("\"",bin_loc, "\"", " ", cmdoptions, sep="")
     shell(cmd, invisible=TRUE)
