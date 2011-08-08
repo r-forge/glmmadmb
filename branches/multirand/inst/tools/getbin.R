@@ -1,17 +1,27 @@
-RELEASE <- "r107"
-buildbot_base <- "http://www.admb-project.org/buildbot/glmmadmb/glmmadmb-"
+RELEASE <- "r123"
+buildbot_base <- "http://www.admb-project.org/buildbot/glmmadmb/glmmadmb-admb-"
 ## assume are starting from the root of the package directory
-platform_str <- c(linux32="linux-gcc4.5.2-32bit",
-                  linux64="linux-gcc4.5.2-64bit",
-                  macos32="macos10.6.7-xcode3.2.6-32bit",
-                  macos64="macos10.6.7-xcode3.2.6-64bit")
+platform_str <- c(linux32="ubuntu11-gcc4.5-32bit-",
+                  linux64="ubuntu11-gcc4.5-64bit-",
+                  macos32="macos10.6-xcode3.2-32bit-",
+                  macos64="macos10.6-xcode3.2-64bit-",
+                  windows32="windows7-borland-32bit-",
+                  windows64="windows7-vc10-64bit-")
+  ## c(linux32="linux-gcc4.5.2-32bit",
+  ##   linux64="linux-gcc4.5.2-64bit",
+  ##   macos32="macos10.6.7-xcode3.2.6-32bit",
+  ##   macos64="macos10.6.7-xcode3.2.6-64bit")
 if (!file.exists("inst/bin"))
   stop("can't find bin directory -- are you in the package root?")
 setwd("inst/bin")
 for (i in names(platform_str)) {
   setwd(i)
-  download.file(paste(buildbot_base,RELEASE,"-",platform_str[i],sep=""),
-                destfile="glmmadmb")
+  srcext <- if (grepl("windows",i)) ".exe" else ".bin"
+  destext <- if (grepl("windows",i)) ".exe" else ""
+  fn <- paste(buildbot_base,platform_str[i],RELEASE,
+                      srcext,sep="")
+  download.file(fn,
+                destfile=paste("glmmadmb",destext,sep=""))
   setwd("..")
 }
   
