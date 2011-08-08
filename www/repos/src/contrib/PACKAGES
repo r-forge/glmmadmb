@@ -1,5 +1,5 @@
 Package: glmmADMB
-Version: 0.6.2
+Version: 0.6.3
 Depends: methods, MASS
 Imports: stats, nlme
 Suggests: lattice, lme4, coda, mlmRev
