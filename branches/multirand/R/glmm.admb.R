@@ -51,8 +51,18 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   if (!has_rand && (!missing(impSamp) || !missing(corStruct)))
     stop("No random effects specified: neither \"impSamp\" or \"corStruct\" make sense")
 
+  nbinom1_flag <- 0
+  if (family=="nbinom1") {
+    family <- "nbinom"
+    nbinom1_flag <- 1
+  } else if (family=="nbinom2") {  ## synonym for "nbinom"
+    family <- "nbinom"
+  }
+  
   like_type_flag <- switch(family,poisson=0,binomial=1,nbinom=2,gamma=3,beta=4,
                            stop("unknown family"))
+
+
 
   if (missing(link)) {
     link <- switch(family, binomial=, beta="logit", nbinom=, poisson=, gamma="log")
@@ -175,6 +185,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
     no_rand_flag=as.numeric(!has_rand),
     zi_flag=as.numeric(zeroInflation),
     zi_kluge=as.numeric(ZI_kluge),
+    nbinom1_flag=as.numeric(nbinom1_flag),
     intermediate_maxfn=10, 
     has_offset=as.numeric(has_offset), 
     offset=offset)
@@ -205,7 +216,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
       if (length(pp) != length(start[[i]])) {
         stop("length mismatch in start component",ns[i])
       }
-      start[[i]] <- pp
+      pin_list[[ns[i]]] <- start[[i]]
     }
   }
 
@@ -268,7 +279,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   out$stdbeta <- as.numeric(tmp[tmpindex=="real_beta", 4])
   names(out$stdbeta) <- names(out$b) <- colnames(X)
 
-  if(family %in% c("nbinom","gamma","beta"))
+  if(family %in% c("nbinom","nbinom1","gamma","beta"))
     {
       out$alpha <- as.numeric(tmp[tmpindex=="alpha", 3])
       out$sd_alpha <- as.numeric(tmp[tmpindex=="alpha", 4])
