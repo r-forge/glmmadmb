@@ -85,6 +85,7 @@ PARAMETER_SECTION
   int rand_phase = no_rand_flag==0 ? pctr++ : -1;    // Right after zi
   int cor_phase = (rand_phase>0) && (sum(cor_flag)>0) ? pctr++ : -1 ; // Right after rand_phase
   ivector ncolS(1,M);
+  double log_alpha_lowerbound = nbinom1_flag==1 ? 0.001 : -5.0 ;
   ncolS = m;                                            // Uncorrelated random effects
   for (int i=1;i<=M;i++)                                // Modifies the correlated ones
     if(cor_flag(i))
@@ -97,7 +98,7 @@ PARAMETER_SECTION
   sdreport_vector real_beta(1,p)     
   init_bounded_vector tmpL(1,ncolZ,-10,10.5,rand_phase)		// Log standard deviations of random effects
   init_bounded_vector tmpL1(1,numb_cor_params,-10,10.5,cor_phase)	// Offdiagonal elements of cholesky-factor of correlation matrix
-  init_bounded_number log_alpha(-5.,6.,alpha_phase)	
+  init_bounded_number log_alpha(log_alpha_lowerbound,6.,alpha_phase)	
   sdreport_number alpha
   sdreport_vector S(1,nS)
   random_effects_vector u(1,sum_mq,rand_phase)    // Pool of random effects 

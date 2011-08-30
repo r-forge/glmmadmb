@@ -32,18 +32,17 @@ logLik(g1)
 g3 <- glmmadmb(y~1,family="nbinom")
 g4 <- glmmadmb(y~1,family="nbinom",zeroInflation=TRUE)
 
-if (FALSE) {
-  library(bbmle)
-  m2 <- mle2(y~dzinbinom(mu=mu,size=alpha,zprob=zprob),
-             method="L-BFGS-B",
-             start=list(mu=2,alpha=0.5,zprob=0.2),
-             lower=rep(0.002,3),
-             upper=c(mu=Inf,alpha=Inf,zprob=0.998),
-             data=data.frame(y))
+##  library(bbmle)
+##  m2 <- mle2(y~dzinbinom(mu=mu,size=alpha,zprob=zprob),
+##             method="L-BFGS-B",
+##             start=list(mu=2,alpha=0.5,zprob=0.2),
+##             lower=rep(0.002,3),
+##             upper=c(mu=Inf,alpha=Inf,zprob=0.998),
+##             data=data.frame(y))
 
-  m2P <- profile(m2,which="zprob",std.err=0.025)
-  plot(m2P,show.points=TRUE)
-}
+##  m2P <- profile(m2,which="zprob",std.err=0.025)
+##  plot(m2P,show.points=TRUE)
+
 m4 <- fitdistr(y,dzinbinom,start=list(mu=2,size=0.5,zprob=0.5))
 
 ae <- function(x,y,tolerance=1e-2) {

@@ -4,11 +4,19 @@
 \title{glmmADMB News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.6.4 (2011-08-30)}{
+  \itemize{
+    \item new binaries
+  }
+}
 
 \section{Changes in version 0.6.3 (2011-08-08)}{
   \itemize{
     \item include more buildbot binaries
+    \item added nbinom1 option
+    \item fixed phase bugs in nbinom
   }
+}
 
 \section{Changes in version 0.6.2}{
   \itemize{
