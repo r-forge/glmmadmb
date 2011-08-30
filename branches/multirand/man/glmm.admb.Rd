@@ -36,6 +36,7 @@ glmmadmb(formula, data, family="poisson", link,start,
   \item{family}{a string determining the response distribution:
          currently implemented options are
 	 \code{"poisson"}, \code{"binomial"}, \code{"nbinom"},
+	 \code{"nbinom1"} (negative binomial ``type 1'': see Details)
 	 \code{"gamma"}, and \code{"beta"}.}
   \item{link}{a string specifying the shape of the link function:
     currently implemented options are
@@ -84,33 +85,42 @@ glmmadmb(formula, data, family="poisson", link,start,
     ADMB manual)}
 }
 \details{
-  Parameterization of the negative binomial distribution:
-
-  \deqn{\mathrm{Var}(Y) = E(Y) \left[1 +
-  \frac{E(Y)}{\alpha}\right]}{Var(Y) = E(Y) * (1 + E(Y)/alpha)}
-
-  Zero-inflation: With probability \eqn{1-pz}, \eqn{Y} comes from a
-  Poisson (or negative binomial) distribution, and with probability
-  \eqn{pz}, \eqn{Y} is zero (Bohning et al. 1999). Only available with
-  "poisson" and "nbinom" response.
-
-  Parameters are estimated by maximum likelihood, using the Laplace
-  approximation to evaluate the marginal likelihood. When \code{impSamp
-  > 0}, importance sampling is used to improve the Laplace approximation
-  (Skaug and Fournier 2006).
-
-  If the message \code{'Proper convergence could not be reached'}
-  occurs, try to increase the parameter \code{imaxfn} and to set
-  \code{easyFlag=FALSE}.
+  \itemize{
+    \item Parameterization of the negative binomial distribution:
+    \itemize{
+      \item for \code{family=="nbinom"}:
+      \deqn{\mathrm{Var}(Y) = E(Y) \left[1 +
+	\frac{E(Y)}{\alpha}\right]}{Var(Y) = E(Y) * (1 + E(Y)/alpha)}
+      (i.e. Hardin and Hilbe NB2; \code{alpha} corresponds to the \code{size} parameter in
+      \code{\link{dnbinom}})
+      \item for \code{family=="nbinom1"}:
+      \deqn{\mathrm{Var}(Y) = E(Y) \cdot \alpha}{Var(Y) = E(Y) * alpha}
+      (i.e. Hardin and Hilbe NB1: \code{alpha} corresponds to the scale
+      parameter in a quasi-Poisson model)
+    }
+    \item Zero-inflation: With probability \eqn{1-pz}, \eqn{Y} comes from a
+    Poisson (or negative binomial) distribution, and with probability
+    \eqn{pz}, \eqn{Y} is zero (Bohning et al. 1999).
+    
+    \item Parameters are estimated by maximum likelihood, using the Laplace
+    approximation to evaluate the marginal likelihood.
+    When \code{impSamp >0}, 
+    importance sampling is used to improve the Laplace approximation
+    (Skaug and Fournier 2006).
+    
+    \item If the message \code{'Proper convergence could not be reached'}
+    occurs, try to increase the parameter \code{imaxfn} and to set
+    \code{easyFlag=FALSE}.
+  }
 }
 \value{
   An object of class \code{"glmmadmb"} representing the model fit:
-  \item{b}{vector of fixed effects.}
-  \item{S}{covariance matrix of random effects.}
-  \item{alpha}{parameter in negative binomial distribution (only when
-  \code{family="poisson"}).}
+  \item{b}{vector of fixed effects}
+  \item{S}{covariance matrix of random effects}
+  \item{alpha}{scale/overdispersion parameter
+    (negative binomial, Gamma, beta)}
   \item{pz}{Zero-inflation parameter (only when
-    \code{zeroInflation=TRUE}).}
+    \code{zeroInflation=TRUE})}
 }
 \references{
   Bohning, D., E. Dietz, and P. Schlattmann. 1999. The zero-inflated
