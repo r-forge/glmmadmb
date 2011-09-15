@@ -28,9 +28,15 @@ if (require(cacheSweave)) {
 }
 @ 
 
+Load data on epilepsy from the \code{MASS} package
+(the \code{glmmADMB} package contains a copy of
+this information as well).
+
 <<loaddat>>=
 library(MASS)
-epil2 <- transform(epil,Base=log(base/4),Age=log(age),
+epil2 <- transform(epil,
+                   Base=log(base/4),
+                   Age=log(age),
                    Visit=scale(period,center=TRUE,scale=5),
                    subject=factor(subject))
 @ 
@@ -38,6 +44,21 @@ epil2 <- transform(epil,Base=log(base/4),Age=log(age),
 <<loadglmmadmb>>=
 library(glmmADMB)
 @ 
+
+<<>>=
+library(ggplot2)
+theme_update(theme_bw())
+zspace <- opts(panel.margin=unit(0,"lines"))
+@ 
+
+
+<<fig=TRUE>>=
+print(ggplot(epil2,aes(x=base,y=log(1+y),colour=trt))+
+       stat_sum(aes(size=factor(..n..)),alpha=0.5)+
+  facet_wrap(~period)+
+  scale_x_log10()+geom_smooth()+zspace)
+@ 
+
 <<fit1,cache=TRUE>>=
 fm <- glmmadmb(y~Base*trt+Age+Visit+(Visit|subject),
                 data=epil2, family="nbinom")
@@ -49,6 +70,10 @@ fm2 <- glmmadmb(y~Base*trt+Age+Visit+(1|subject),
 
 @ 
 
+<<>>=
+glm0 <- glm(y ~ lbase*trt + lage + V4, family = poisson,
+            data = epil)
+@ 
 <<eval=FALSE>>=
 ## stuff taken from help("epil",package="MASS")
 ## figure out what's going on here?  work this
