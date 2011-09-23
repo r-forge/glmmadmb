@@ -1,3 +1,11 @@
+admb.control <- function(impSamp=0,
+                         maxfn=500,
+                         imaxfn=500,
+                         noinit=TRUE,
+                         shess=TRUE) {
+  list(impSamp=impSamp,maxfn=maxfn,imaxfn=imaxfn)
+}
+  
 mcmc.control <- function(mcmc=1000,
                          mcmc2=0,
                          mcsave,
@@ -21,20 +29,29 @@ mcmc.args <- function(L) {
   paste(unlist(argstr),collapse=" ")
 }
 
+glmm.admb <- function(...) {
+  warning("'glmm.admb' has been renamed to 'glmmadmb' in the new version; please modify your code")
+  glmmadmb(...)
+}
+
 glmmadmb <- function(formula, data, family="poisson", link,start,
                      random,
-                     corStruct="diag", impSamp=0, easyFlag=TRUE,
+                     corStruct="diag",  easyFlag=TRUE,
                      zeroInflation=FALSE, ZI_kluge=FALSE,
-                     imaxfn=10,
+                     admb.opts=admb.control(),
                      mcmc=FALSE,
                      mcmc.opts=mcmc.control(),
                      save.dir, verbose=FALSE,
-                     extra.args)
+                     extra.args="")
 {
   ## FIXME: removed commented code after checking
   ## FIXME: make this an R temp directory? begin with a . for invisibility?
   ## dirname <- if(is.null(save.dir)) "_glmm_ADMB_temp_dir_" else save.dir
 
+  impSamp <- admb.opts$impSamp
+  maxfn <- admb.opts$maxfn
+  imaxfn <- admb.opts$imaxfn
+  
   if (use_tmp_dir <- missing(save.dir)) save.dir <- paste(tempfile(),"glmmADMB",sep="_")
   if (newdir <- !file_test("-d",save.dir)) {
     dir.create(save.dir)
@@ -168,7 +185,9 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
     cor_block_start <- cor_block_stop <- 1
     numb_cor_params <- 1
   }
-  cmdoptions = "-maxfn 500"
+  cmdoptions <- paste("-maxfn",maxfn)
+  if (admb.opts$noinit) cmdoptions <- paste(cmdoptions,"-noinit")
+  if (admb.opts$shess) cmdoptions <- paste(cmdoptions,"-shess")
   if(impSamp>0) cmdoptions <- paste(cmdoptions,"-is",impSamp)
   if (mcmc) cmdoptions <- paste(cmdoptions,mcmc.args(mcmc.opts))
   if (!missing(extra.args)) cmdoptions <- paste(cmdoptions,extra.args)
@@ -186,7 +205,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
     zi_flag=as.numeric(zeroInflation),
     zi_kluge=as.numeric(ZI_kluge),
     nbinom1_flag=as.numeric(nbinom1_flag),
-    intermediate_maxfn=10, 
+    intermediate_maxfn=imaxfn, 
     has_offset=as.numeric(has_offset), 
     offset=offset)
 
@@ -284,6 +303,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
       out$alpha <- as.numeric(tmp[tmpindex=="alpha", 3])
       out$sd_alpha <- as.numeric(tmp[tmpindex=="alpha", 4])
     } 
+
   
   ## if(!missing(link))
   out$link <- link

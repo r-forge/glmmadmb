@@ -1,5 +1,6 @@
 \name{glmmadmb}
 \alias{glmmadmb}
+\alias{glmm.admb}
 \title{Generalized Linear Mixed Models Using AD Model Builder}
 \description{
   Fits mixed-effects models to count data using binomial, Poisson, or
@@ -10,9 +11,10 @@
 glmmadmb(formula, data, family="poisson", link,start,
           random,
           corStruct="diag", impSamp=0, easyFlag=TRUE,
-          zeroInflation=FALSE, ZI_kluge=FALSE, imaxfn=10,
+          zeroInflation=FALSE, ZI_kluge=FALSE, imaxfn=500,
           mcmc=FALSE,mcmc.opts=mcmc.control(),save.dir,
           verbose=FALSE,extra.args)
+glmm.admb(\dots)  ## deprecated
 }
 \arguments{
   \item{formula}{a two-sided linear formula describing the 
@@ -83,8 +85,10 @@ glmmadmb(formula, data, family="poisson", link,start,
     run?}
   \item{extra.args}{(character) extra arguments to AD Model Builder (see
     ADMB manual)}
+  \item{\dots}{arguments to pass through to \code{glmmadmb}}
 }
 \details{
+<<<<<<< .mine
   \itemize{
     \item Parameterization of the negative binomial distribution:
     \itemize{
@@ -111,6 +115,11 @@ glmmadmb(formula, data, family="poisson", link,start,
     \item If the message \code{'Proper convergence could not be reached'}
     occurs, try to increase the parameter \code{imaxfn} and to set
     \code{easyFlag=FALSE}.
+
+    \item At present, offsets cannot be computed "on the fly", but
+      must be present in the data frame -- i.e., use
+     \code{data$logarea <- log(data$area); glmmadmb(...+offset(logarea)...)}
+     rather than \code{glmmadmb(...+offset(log(area))}
   }
 }
 \value{
@@ -121,6 +130,10 @@ glmmadmb(formula, data, family="poisson", link,start,
     (negative binomial, Gamma, beta)}
   \item{pz}{Zero-inflation parameter (only when
     \code{zeroInflation=TRUE})}
+}
+\note{
+\code{glmm.admb} is defined for backward compatibility; it
+will be removed in a future version.
 }
 \references{
   Bohning, D., E. Dietz, and P. Schlattmann. 1999. The zero-inflated
