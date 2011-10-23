@@ -31,14 +31,13 @@
   binomial loglinear mixed models. Statistical Modelling 3:179--191.
 }
 \seealso{
-  \code{\link{glmm.admb}}.
+  \code{\link{glmmadmb}}.
 
   \code{\link{glmmADMB-package}}.
 }
 \examples{
 epil2$subject <- factor(epil2$subject)
-fm <- glmm.admb(y~Base*trt+Age+Visit, random=~Visit, group="subject",
-                data=epil2, family="nbinom")
-fm
+(fm <- glmmadmb(y~Base*trt+Age+Visit+(Visit|subject),
+                data=epil2, family="nbinom"))
 }
 \keyword{datasets}

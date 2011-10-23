@@ -1,0 +1,26 @@
+export(glmmadmb,glmm.admb,admbControl,mcmcControl)
+
+importFrom(nlme,ranef,fixef,VarCorr)
+## importMethodsFrom("nlme",ranef,VarCorr)
+export(ranef) ## needs to be explicit despite generic exportPattern above
+export(fixef)
+export(stdEr)
+export(VarCorr)
+
+S3method(print,glmmadmb)
+S3method(summary,glmmadmb)
+S3method(print,summary.glmmadmb)
+S3method(coef,glmmadmb)
+S3method(ranef,glmmadmb)
+S3method(fixef,glmmadmb)
+S3method(VarCorr,glmmadmb)
+S3method(VarCorr,summary.glmmadmb)
+S3method(residuals,glmmadmb)
+S3method(fitted,glmmadmb)
+S3method(stdEr,glmmadmb)
+S3method(vcov,glmmadmb)
+S3method(anova,glmmadmb)
+S3method(logLik,glmmadmb)
+
+## wait for 2.13 to be released ... or work around it
+## S3method(nobs,glmmadmb)

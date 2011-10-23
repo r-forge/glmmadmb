@@ -1,0 +1,242 @@
+% \VignetteIndexEntry{basic examples of glmmADMB usage}
+\documentclass{article}
+%\usepackage{lineno}
+\usepackage[utf8]{inputenc}
+\usepackage[usenames]{color}
+\usepackage[american]{babel}
+\newcommand{\R}{{\sf R}}
+\newcommand{\Splus}{{\sf S-PLUS}}
+%\newcommand{\fixme}[1]{\textbf{FIXME: #1}}
+\newcommand{\fixme}[1]{\color{red} #1 \color{black}}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{alltt}
+\newcommand{\code}[1]{{\tt #1}}
+\bibliographystyle{plain}
+
+\title{Getting started with the \code{glmmADMB} package}
+\author{Ben Bolker, Hans Skaug, Arni Magnusson, Anders Nielsen}
+\date{\today}
+\begin{document}
+\maketitle
+
+%\linenumbers
+
+<<setopts,echo=FALSE>>=
+Rver <- paste(R.version$major,R.version$minor,sep=".")
+options(continue=" ")
+##if (require(cacheSweave)) {
+##  setCacheDir("glmmADMB_vignette")
+##}
+@ 
+<<graphopts,echo=FALSE>>=
+library(ggplot2)
+theme_update(theme_bw())
+zspace <- opts(panel.margin=unit(0,"lines"))
+@ 
+
+
+\section{Introduction/quick start}
+
+\code{glmmADMB} is a package, built on 
+the open source
+\href{http://admb-project.org}{AD Model Builder}
+nonlinear fitting engine, for fitting generalized
+linear mixed models and extensions.
+
+\begin{itemize}
+  \item response distributions: Poisson, binomial, negative binomial (NB1 and NB2 parameterizations), Gamma, Beta
+  \item link functions: log, logit, probit
+  \item zero-inflation (models with a constant zero-inflation value only)
+  \item single, nested, or crossed random effects
+  \item offsets
+  \item post-fit MCMC chain for characterizing uncertainty
+\end{itemize}
+
+As of version 0.6-5, the package has been greatly revised to
+allow a wider range of response and link functions and to allow
+models with multiple random effects.  For now, the resulting package
+is slower than the old (single-random-effect version), but we hope
+to increase its speed in the future.
+
+\section{Owls data}
+
+These data, taken from \cite{zuur_mixed_2009} and ultimately
+from \cite{roulinbersier_2007}, quantify
+the number of begging attempts by owlets (owl chicks)
+in different nests as a function of food treatment
+(deprived or satiated), the sex of the parent, and
+arrival time.  The total number of calls from the
+nest is recorded, along with the total brood size, which
+is used as an offset to allow the use of a Poisson response.
+
+Since the same nests are measured repeatedly, the nest is used as
+a random effect.
+The model can be expressed as a zero-inflated generalized
+linear mixed model (ZIGLMM).
+
+<<>>=
+library(glmmADMB)
+Owls <- transform(Owls,
+  Nest=reorder(Nest,NegPerChick),
+  logBroodSize=log(BroodSize),
+  NCalls=SiblingNegotiation,
+  obs=seq(nrow(Owls)))
+@ 
+\setkeys{Gin}{width=\textwidth}
+<<fig=TRUE>>=
+G0 <- ggplot(Owls,aes(x=reorder(Nest,NegPerChick),
+                      y=NegPerChick))+
+  xlab("Nest")+ylab("Negotiations per chick")+coord_flip()+
+  facet_grid(FoodTreatment~SexParent)
+print(G0+stat_sum(aes(size=..n..),alpha=0.5)+zspace+
+      scale_size_continuous(name="# obs",
+                            breaks=seq(1,9,by=2)))
+@ 
+
+The basic \code{glmmadmb} fit --- a zero-inflated Poisson model.
+<<glmmadmbfit,cache=TRUE>>=
+gt1 <- system.time(gfit1 <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*
+                                     SexParent+
+                                     offset(logBroodSize)+(1|Nest),
+                                     data=Owls,
+                                     zeroInflation=TRUE,
+                                     family="poisson"))
+@
+
+<<>>=
+summary(gfit1)
+@ 
+
+<<coefplotmg1,fig=TRUE,width=8>>=
+library(coefplot2)
+coefplot2(gfit1)
+@ 
+
+We can also try a standard zero-inflated negative binomial model;
+the default is the ``NB2'' parameterization (variance = $\mu(1+\mu/k)$).
+<<glmmadmbnbinomfit,cache=TRUE>>=
+gt2 <- system.time(gfit2 <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
+                                     offset(logBroodSize)+(1|Nest),
+                                     data=Owls,
+                                     zeroInflation=TRUE,
+                                     family="nbinom"))
+@
+
+This takes a little longer than the Poisson model 
+(\Sexpr{round(gt2[3],1)} seconds).
+
+Alternatively, use an ``NB1'' fit (variance = $\phi \mu$).
+<<glmmadmbnbinom1fit,cache=TRUE>>=
+gt3 <- system.time(gfit3 <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
+                                     offset(logBroodSize)+(1|Nest),
+                                     data=Owls,
+                                     zeroInflation=TRUE,
+                                     family="nbinom1"))
+@ 
+
+Relax the assumption that total number of calls is strictly proportional
+to brood size (i.e. using log(brood size) as an offset):
+<<glmmadmbnbinom1vfit,cache=TRUE>>=
+gt4 <- system.time(gfit4 <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
+                                     BroodSize+(1|Nest),
+                                     data=Owls,
+                                     zeroInflation=TRUE,
+                                     family="nbinom1"))
+@ 
+
+Every change we have made so far improves the fit --- changing distributions
+improves it enormously, while changing the role of brood size makes only
+a modest (-1 AIC unit) difference:
+<<>>=
+AIC(gfit1,gfit2,gfit3,gfit4)
+@ 
+
+The standard set of accessors is available:
+extract coefficients
+(\code{coef}), fixed effects
+(\code{fixef} --- a synonym for \code{coef}), 
+random effects (\code{ranef}),
+residuals (\code{residuals}), 
+fitted values (\code{fitted}),
+log-likelihood (\code{logLik}),
+summary (\code{summary}), 
+standard errors (\code{stdEr}), 
+variance-covariance matrix of coefficients (\code{vcov}),
+variance-covariance matrices of random effects (\code{VarCorr}),
+confidence intervals (\code{confint}) \ldots
+
+<<>>=
+methods(class="glmmadmb")
+@ 
+
+%%  AFTER HERE: stuff that's not really finished
+%Load data on epilepsy from the \code{MASS} package
+%(the \code{glmmADMB} package contains a copy of
+%this information as well).
+
+<<loaddat,echo=FALSE,eval=FALSE>>=
+library(MASS)
+epil2 <- transform(epil,
+                   Base=log(base/4),
+                   Age=log(age),
+                   Visit=scale(period,center=TRUE,scale=5),
+                   subject=factor(subject))
+@ 
+
+<<echo=FALSE,eval=FALSE>>=
+print(ggplot(epil2,aes(x=base,y=log(1+y),colour=trt))+
+       stat_sum(aes(size=factor(..n..)),alpha=0.5)+
+  facet_wrap(~period)+
+  scale_x_log10()+geom_smooth()+zspace)
+@ 
+
+<<fit1,echo=FALSE,eval=FALSE>>=
+fm <- glmmadmb(y~Base*trt+Age+Visit+(Visit|subject),
+                data=epil2, family="nbinom")
+@ 
+
+<<fit2,echo=FALSE,eval=FALSE>>=
+fm2 <- glmmadmb(y~Base*trt+Age+Visit+(1|subject),
+                data=epil2, family="nbinom")
+
+@ 
+
+<<echo=FALSE,eval=FALSE>>=
+glm0 <- glm(y ~ lbase*trt + lage + V4, family = poisson,
+            data = epil)
+@ 
+<<echo=FALSE,eval=FALSE>>=
+## stuff taken from help("epil",package="MASS")
+## figure out what's going on here?  work this
+## up into a reasonable comparison ...
+
+## basic GLM analysis
+summary(glm(y ~ lbase*trt + lage + V4, family = poisson,
+            data = epil), cor = FALSE)
+epil3 <- subset(epil,period == 1)
+epil3["period"] <- rep(0, 59); epil3["y"] <- epil3["base"]
+epil["time"] <- 1; epil3["time"] <- 4
+epil3 <- rbind(epil, epil3)
+epil3$pred <- unclass(epil3$trt) * (epil3$period > 0)
+epil3$subject <- factor(epil3$subject)
+epil3 <- aggregate(epil3, list(epil3$subject, epil3$period > 0),
+                   function(x) if(is.numeric(x)) sum(x) else x[1])
+epil3$pred <- factor(epil3$pred,
+                     labels = c("base", "placebo", "drug"))
+
+contrasts(epil3$pred) <- structure(contr.sdif(3),
+                                   dimnames = list(NULL, 
+                                     c("placebo-base", "drug-placebo")))
+summary(glm(y ~ pred + factor(subject) + offset(log(time)),
+            family = poisson, data = epil3), cor = FALSE)
+
+summary(glmmPQL(y ~ lbase*trt + lage + V4,
+                random = ~ 1 | subject,
+                family = poisson, data = epil))
+summary(glmmPQL(y ~ pred, random = ~1 | subject,
+                family = poisson, data = epil3))
+     
+@ 
+\bibliography{glmmadmb}
+\end{document}

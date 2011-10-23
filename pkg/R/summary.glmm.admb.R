@@ -1,7 +1,7 @@
 ## modeled after summary.glm, print.summary.glm 
-summary.glmm.admb <- function(object, ...) 
+summary.glmmadmb <- function(object, ...) 
 {
-  ## print.glmm.admb(object, ...)
+  ## print.glmmadmb(object, ...)
   ## calculate coef table
 
   ## for now, assume dispersion KNOWN
@@ -23,12 +23,12 @@ summary.glmm.admb <- function(object, ...)
   }
   ans <- c(object,
            list(coefficients=coef.table))
-  class(ans) <- "summary.glmm.admb"
+  class(ans) <- "summary.glmmadmb"
   ## modeled after summary.glm
   ans
 }
 
-print.summary.glmm.admb <- function(x, digits = max(3, getOption("digits") - 4),
+print.summary.glmmadmb <- function(x, digits = max(3, getOption("digits") - 4),
                               symbolic.cor = x$symbolic.cor,
                               signif.stars = getOption("show.signif.stars"),
                               ...)
@@ -47,16 +47,24 @@ print.summary.glmm.admb <- function(x, digits = max(3, getOption("digits") - 4),
     coefs <- x$coefficients
     printCoefmat(coefs, digits=digits, signif.stars=signif.stars,
                  na.print="NA", ...)
-    cat("\n",x$n," total observations; ",x$q," groups (",x$group,
-        ")\n",sep="")
-    if (!is.null(x$S))
-      cat("Random effect variance (",x$group,"): ",x$S," (std. err.: ",x$sd_S,")\n",
+    cat("\n","Number of observations: total=",x$n,", ",sep="")
+    cat(paste(names(x$q),x$q,sep="=",collapse=", "),"\n")
+    if (!is.null(x$S)) {
+      cat("Random effect variance(s):\n")
+      print(VarCorr(x))
+      ## FIXME: prettier? standard errors?
+    }
+    if (!is.null(x$alpha)) {
+      label <- switch(x$family,nbinom="Negative binomial dispersion parameter",
+                      gamma="Gamma shape parameter",
+                      beta="Beta dispersion parameter")
+      cat(label,": ",x$alpha," (std. err.: ",x$sd_alpha,")\n",
           sep="")
-    if (!is.null(x$alpha))
-      cat("Negative binomial alpha: ",x$alpha," (std. err.: ",x$sd_alpha,")\n",
-        sep="")
-    if (!is.null(x$pz))
-      cat("Zero-inflation:",x$pz,"\n")
+    }
+
+    if (!is.null(x$pz)) {
+      cat("Zero-inflation:",x$pz," (std. err.: ",x$sd_pz,")\n")
+    }
 
     cat("\nLog-likelihood:",x$loglik,"\n")
     ## offset
