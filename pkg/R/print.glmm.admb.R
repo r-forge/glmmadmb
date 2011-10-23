@@ -1,4 +1,4 @@
-print.glmm.admb <- function(x, ...)
+print.glmmadmb <- function(x, ...)
 {
   object <- x
 
@@ -18,14 +18,14 @@ print.glmm.admb <- function(x, ...)
   cat("\nFixed effects:\n")
   cat("  Log-likelihood:", object$loglik, "\n")
   cat("  AIC:", AIC(object), "\n")
-  cat("  Formula:", deparse(object$fixed), "\n")
+  cat("  Formula:", deparse(object$formula), "\n")
   print(object$b)
 
   if(!is.null(object$random))
   {
     cat("\nRandom effects:\n")
-    cat("  Grouping factor:", object$group, "\n")
-    cat("  Formula:", deparse(object$random), "\n")
+    ## cat("  Grouping factor:", object$group, "\n")
+    ## cat("  Formula:", deparse(object$random), "\n")
     if(object$corStruct == "full")
     {
       cat("Structure: General positive-definite\n")

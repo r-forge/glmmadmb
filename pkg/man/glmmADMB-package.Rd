@@ -11,16 +11,16 @@
 \details{
   \emph{Main function:}
   \tabular{ll}{
-    \code{\link{glmm.admb}} \tab fit a model
+    \code{\link{glmmadmb}} \tab fit a model
   }
   \emph{Methods:}
   \tabular{ll}{
-    \code{\link{anova.glmm.admb}}   \tab anova\cr
-    \code{\link{logLik.glmm.admb}}  \tab log likelihood\cr
-    \code{\link{plot.glmm.admb}}    \tab plot\cr
-    \code{\link{print.glmm.admb}}   \tab print\cr
-    \code{\link{ranef.glmm.admb}}   \tab random effects\cr
-    \code{\link{summary.glmm.admb}} \tab summary
+    \code{\link{anova.glmmadmb}}   \tab anova\cr
+    \code{\link{logLik.glmmadmb}}  \tab log likelihood\cr
+    \code{\link{plot.glmmadmb}}    \tab plot\cr
+    \code{\link{print.glmmadmb}}   \tab print\cr
+    \code{\link{ranef.glmmadmb}}   \tab random effects\cr
+    \code{\link{summary.glmmadmb}} \tab summary
   }
   \emph{Example data:}
   \tabular{ll}{
@@ -30,13 +30,9 @@
 \note{
   If you find that the \pkg{glmmADMB} package does not do exactly what
   you want, you may want to modify the underlying ADMB \file{.tpl} files
-  being called by the \code{glmm.admb} function:
+  being called by the \code{glmmadmb} function, which can be found via
+  \code{system.file("tpl","glmmadmb.tpl",package="glmmADMB")}.
 
-  Poisson and negative binomial -
-  \url{http://admb-project.googlecode.com/svn/trunk/examples/admb-re/glmmadmb/nbmm.tpl}.
-
-  Bernoulli -
-  \url{http://admb-project.googlecode.com/svn/trunk/examples/admb-re/glmmadmb/bvprobit.tpl}.
 }
 \author{
   Hans Skaug, Dave Fournier, Anders Nielsen, Arni Magnusson, and Ben
