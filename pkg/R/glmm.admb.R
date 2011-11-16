@@ -36,6 +36,24 @@ glmm.admb <- function(...) {
   glmmadmb(...)
 }
 
+get_bin_loc <- function(file_name) {
+   nbits <- 8 * .Machine$sizeof.pointer
+   platform <- if (.Platform$OS.type == "windows") "windows" else {
+     ## MacOS detection OK?
+     ## http://tolstoy.newcastle.edu.au/R/e2/help/07/01/8497.html
+     if (substr(R.version$os,1,6)=="darwin") "macos" else {
+       if (R.version$os=="linux-gnu") "linux" else {
+         stop("glmmadmb binary not available for this OS")
+         ## FIXME: allow user to supply their own binary?
+       }
+     }
+   }
+   execname <- if (platform=="windows") paste(file_name,"exe",sep=".") else file_name
+   bin_loc <- system.file("bin",paste(platform,nbits,sep=""),
+                          execname,
+                          package="glmmADMB")
+ }
+
 glmmadmb <- function(formula, data, family="poisson", link,start,
                      random,
                      corStruct="diag",  easyFlag=TRUE,
@@ -44,11 +62,16 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
                      mcmc=FALSE,
                      mcmc.opts=mcmcControl(),
                      save.dir, verbose=FALSE,
-                     extra.args="")
+                     extra.args="",
+                     bin_loc=NULL)
 {
   ## FIXME: removed commented code after checking
   ## FIXME: make this an R temp directory? begin with a . for invisibility?
   ## dirname <- if(is.null(save.dir)) "_glmm_ADMB_temp_dir_" else save.dir
+
+  file_name <- "glmmadmb"
+  
+  if (is.null(bin_loc)) bin_loc <- get_bin_loc(file_name)
 
   impSamp <- admb.opts$impSamp
   maxfn <- admb.opts$maxfn
@@ -243,29 +266,12 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
     }
   }
 
-  file_name <- "glmmadmb"
-
   dat_write(file_name, dat_list)
   pin_write(file_name, pin_list)
   std_file <- paste(file_name, ".std", sep="")
   if(file.exists(std_file))
     file.remove(std_file)
 
-  nbits <- 8 * .Machine$sizeof.pointer
-  platform <- if (.Platform$OS.type == "windows") "windows" else {
-    ## MacOS detection OK?
-    ## http://tolstoy.newcastle.edu.au/R/e2/help/07/01/8497.html
-    if (substr(R.version$os,1,6)=="darwin") "macos" else {
-      if (R.version$os=="linux-gnu") "linux" else {
-        stop("glmmadmb binary not available for this OS")
-        ## FIXME: allow user to supply their own binary?
-      }
-    }
-  }
-  execname <- if (platform=="windows") paste(file_name,"exe",sep=".") else file_name
-  bin_loc <- system.file("bin",paste(platform,nbits,sep=""),
-                         execname,
-                         package="glmmADMB")
   ## FIXME: for what platforms do we really need to copy the binary?
   ##  can't we just run it in place?  Or does it do something silly and produce
   ##  output in the directory in which the binary lives rather than the

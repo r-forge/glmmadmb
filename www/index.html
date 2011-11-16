@@ -15,37 +15,32 @@
 
 <h1>glmmADMB</h1>
 
-<p>Please visit the following webpages for information about the <tt>glmmADMB</tt> package (<em>please note the latter two are somewhat out of date,
-although they may still contain useful information</em>):
+<p>Please visit the following webpages for information about the <tt>glmmADMB</tt> package 
+(<em>please note the latter is somewhat out of date,
+although it may still contain useful information</em>):
 
 <ul>
   <li><a href="http://r-forge.r-project.org/projects/glmmadmb/">R-Forge</a> (current development)
   <li><a href="http://admb-project.org/examples/r-stuff/glmmadmb">ADMB Project</a> (recent homepage)
-  <li><a href="http://otter-rsch.com/admbre/examples/glmmadmb/glmmADMB.html">Otter Research</a> (old homepage)
 </ul>
 
 <p>To install, run:
-<pre>install.packages("glmmADMB", repos="http://r-forge.r-project.org")</pre>
-
-<p>If you catch the R-Forge package server on a bad day, so the normal installation doesn't work, try:
-<pre>install.packages("glmmADMB", repos="http://r-forge.r-project.org", type="source")</pre>
-
+<pre>install.packages("glmmADMB", repos="http://r-forge.r-project.org",type="source")</pre>
+(technically speaking, <code>type="source"</code> should not be necessary, but if you're
+try to install from not-the-very-latest-version of R, or if R-forge is having a bad day,
+it will help ...)
+</p>
 <p>
-You can also install an <strong>alpha</strong> release of a new version of glmmADMB as follows:
-<pre>install.packages("glmmADMB",repos="http://glmmadmb.r-forge.r-project.org/repos",type="source")
 </pre>
-The new version of <tt>glmmADMB</tt> has the following major changes:
+New versions of <tt>glmmADMB</tt> (>0.6.4) have the following major changes:
 <ul>
 <li>new formula format, similar to that of the <tt>lme4</tt> package, where random and fixed effects are specified as part of a single formula (<tt>random</tt> can also be specified separately, as in <tt>lme</tt>)</li>
 <li>multiple grouping variables (random effects) are allowed</li>
 <li>wider range of distributions and link functions supported (e.g. binomial with <em>N</em>&gt; 1)</li>
 </ul>
-The alpha release gives practically identical answers to the previous (stable) releases; however, for the time being it is somewhat slower than the stable release.
+The new release is somewhat slower (for the time being) than older (pre-0.5.2) versions: if you 
+have a desperate need for a copy of an old version, please contact the package maintainers.
 </p>
-
-<hr>
-<p>Note that glmmADMB, like all R-Forge packages, requires the latest version of R (especially in
-<a href="http://cran.r-project.org/bin/windows/base/">Windows</a>).
 
 </body>
 </html>

@@ -393,6 +393,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   
   lambda <- ilinkfun(eta)
 
+  ## FIXME: check this! could be leftover/wrong
   if(family == "binomial")
     out$fitted <- lambda / (1+lambda)
   else
