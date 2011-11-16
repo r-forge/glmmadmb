@@ -14,7 +14,8 @@ glmmadmb(formula, data, family="poisson", link,start,
           zeroInflation=FALSE, ZI_kluge=FALSE,
           admb.opts=admbControl(),
           mcmc=FALSE,mcmc.opts=mcmcControl(),save.dir,
-          verbose=FALSE,extra.args)
+          verbose=FALSE,extra.args="",
+          bin.loc=NULL)
 glmm.admb(\dots)  ## deprecated
 }
 \arguments{
@@ -82,6 +83,8 @@ glmm.admb(\dots)  ## deprecated
     run?}
   \item{extra.args}{(character) extra arguments to AD Model Builder (see
     ADMB manual)}
+  \item{bin_loc}{location of \code{glmmadmb} binary file (normally determined automatically by
+              \code{glmmADMB:::get_bin_loc})}
   \item{\dots}{arguments to pass through to \code{glmmadmb}}
 }
 \details{
