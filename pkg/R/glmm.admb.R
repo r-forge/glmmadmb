@@ -4,8 +4,10 @@ admbControl <- function(impSamp=0,
                          maxfn=500,
                          imaxfn=500,
                          noinit=TRUE,
-                         shess=TRUE) {
-  list(impSamp=impSamp,maxfn=maxfn,imaxfn=imaxfn,noinit=noinit,shess=shess)
+                         shess=TRUE,
+                         ZI_kluge=FALSE) {
+  list(impSamp=impSamp,maxfn=maxfn,imaxfn=imaxfn,noinit=noinit,shess=shess,
+       ZI_kluge=ZI_kluge)
 }
   
 mcmcControl <- function(mcmc=1000,
@@ -36,7 +38,7 @@ glmm.admb <- function(...) {
   glmmadmb(...)
 }
 
-get_bin_loc <- function(file_name) {
+get_bin_loc <- function(file_name,debug=FALSE) {
    nbits <- 8 * .Machine$sizeof.pointer
    platform <- if (.Platform$OS.type == "windows") "windows" else {
      ## MacOS detection OK?
@@ -48,16 +50,21 @@ get_bin_loc <- function(file_name) {
        }
      }
    }
+   if (debug) cat("platform:",platform,nbits,"\n")
    execname <- if (platform=="windows") paste(file_name,"exe",sep=".") else file_name
+   if (debug) cat("executable name:",execname,"\n")
    bin_loc <- system.file("bin",paste(platform,nbits,sep=""),
                           execname,
                           package="glmmADMB")
+   if (nchar(bin_loc)==0) stop(
+              sprintf("glmmadmb binary should be available, but isn't (%s, %d bits)",platform,nbits))
+   list(bin_loc=bin_loc,platform=platform)
  }
 
 glmmadmb <- function(formula, data, family="poisson", link,start,
                      random,
                      corStruct="diag",  easyFlag=TRUE,
-                     zeroInflation=FALSE, ZI_kluge=FALSE,
+                     zeroInflation=FALSE,
                      admb.opts=admbControl(),
                      mcmc=FALSE,
                      mcmc.opts=mcmcControl(),
@@ -70,8 +77,12 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   ## dirname <- if(is.null(save.dir)) "_glmm_ADMB_temp_dir_" else save.dir
 
   file_name <- "glmmadmb"
+
+  if (!missing(easyFlag)) warning("easyFlag argument ignored")
   
-  if (is.null(bin_loc)) bin_loc <- get_bin_loc(file_name)
+  res <- get_bin_loc(file_name)
+  platform <- res$platform
+  if (is.null(bin_loc)) bin_loc <- res$bin_loc
 
   impSamp <- admb.opts$impSamp
   maxfn <- admb.opts$maxfn
@@ -102,27 +113,35 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   } else if (family=="nbinom2") {  ## synonym for "nbinom"
     family <- "nbinom"
   }
-  
-  like_type_flag <- switch(family,poisson=0,binomial=1,nbinom=2,gamma=3,beta=4,
+  if (family=="gaussian") stop("gaussian family not yet debugged")
+    
+  like_type_flag <- switch(tolower(family),poisson=0,binomial=1,nbinom=2,gamma=3,beta=4,gaussian=5,
                            stop("unknown family"))
 
 
 
   if (missing(link)) {
-    link <- switch(family, binomial=, beta="logit", nbinom=, poisson=, gamma="log")
+    link <- switch(family, binomial=, beta="logit", nbinom=, poisson=, gamma="log",gaussian="identity")
   }
-  linkfun <- switch(link,log=log,logit=qlogis,probit=qnorm,inverse=function(x) 1/x,
-                    cloglog=NA,
+  linkfun <- switch(link,log=log,logit=qlogis,probit=qnorm,inverse=function(x) {1/x},
+                    cloglog=function(x) {log(-log(1-x))},
+                    identity=identity,
                     stop("unknown link function"))
-  ilinkfun <- switch(link,log=exp,logit=plogis,probit=pnorm, inverse=function(x) 1/x)
+  ilinkfun <- switch(link,log=exp,logit=plogis,probit=pnorm, inverse=function(x) {1/x},
+                     cloglog=function(x) {
+                       pmax(pmin(-expm1(-exp(x)),
+                                 1 - .Machine$double.eps), .Machine$double.eps)
+                       },
+                       identity=identity
+                     )
 
-  link_type_flag <- switch(link,log=0,logit=1,probit=2,inverse=3,cloglog=4)
+
+  link_type_flag <- switch(link,log=0,logit=1,probit=2,inverse=3,cloglog=4,identity=5)
   
   ## from glm()
   ## extract x, y, etc from the model formula and frame
   if (missing(data)) 
     data <- environment(formula)
-  
   mf <- match.call(expand.dots = FALSE)
   m <- match(c("formula", "data", "subset", "na.action", 
                "offset"), names(mf), 0L)
@@ -226,11 +245,11 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
     numb_cor_params=numb_cor_params,
     like_type_flag=like_type_flag,
     link_type_flag=link_type_flag,
-    rlinkflag=1L,   ## always robust
+    rlinkflag=1L,   ## always robust (for now)
     ## as.numeric(family=="poisson"||(family=="binomial"&&link=="logit")),
     no_rand_flag=as.numeric(!has_rand),
     zi_flag=as.numeric(zeroInflation),
-    zi_kluge=as.numeric(ZI_kluge),
+    zi_kluge=as.numeric(admb.opts$ZI_kluge),
     nbinom1_flag=as.numeric(nbinom1_flag),
     intermediate_maxfn=imaxfn, 
     has_offset=as.numeric(has_offset), 
@@ -277,8 +296,6 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   ##  output in the directory in which the binary lives rather than the
   ##  current working directory (feel like I struggled with this earlier
   ##  but have now forgotten -- ADMB mailing list archives??)
-  if (nchar(bin_loc)==0) stop(
-             sprintf("glmmadmb binary should be available, but isn't (%s, %d bits)",platform,nbits))
   if (platform=="windows") {
     cmd <- paste("\"",bin_loc, "\"", " ", cmdoptions, sep="")
     shell(cmd, invisible=TRUE)
@@ -297,7 +314,11 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   ##   ... otherwise to read .par file or binary versions ...
   ## BMB: if 'std dev' were written without a space we could use header=TRUE
   tmpindex <- tmp[,2]
-  out <- list(n=n, q=q, formula=formula, call=call,
+  out <- list(n=n, q=q, formula=formula,
+              fixed = get_fixedformula(formula),
+              call=call,
+              frame=mf,
+              terms=mt,
               family=family, corStruct=corStruct, impSamp=impSamp,
               easyFlag=easyFlag, zeroInflation=zeroInflation)
   if(zeroInflation) {
@@ -317,6 +338,8 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   
   ## if(!missing(link))
   out$link <- link
+  out$linkfun <- linkfun
+  out$ilinkfun <- ilinkfun
   
   if(has_rand) {
     ## BMB: fixme! make sure this works for multiple random effects

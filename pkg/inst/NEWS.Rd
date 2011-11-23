@@ -4,6 +4,20 @@
 \title{glmmADMB News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.6.6 (2011-11-23)}{
+  \itemize{
+    \item SVN rev ??
+    \item add identity, cloglog links
+    \item stub for gaussian family (not yet working!)
+    \item use tolower() on family
+    \item add (experimental) predict() function
+    \item comment on easyFlag
+    \item move ZI_kluge to admbControl
+    \item fix name assignment bug for random effect levels
+    
+  }
+}
+  
 \section{Changes in version 0.6.5 (2011-10-22)}{
   \itemize{
     \item SVN rev 142

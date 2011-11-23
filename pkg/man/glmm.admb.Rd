@@ -11,11 +11,11 @@
 glmmadmb(formula, data, family="poisson", link,start,
           random,
           corStruct="diag", easyFlag=TRUE,
-          zeroInflation=FALSE, ZI_kluge=FALSE,
+          zeroInflation=FALSE, 
           admb.opts=admbControl(),
           mcmc=FALSE,mcmc.opts=mcmcControl(),save.dir,
           verbose=FALSE,extra.args="",
-          bin.loc=NULL)
+          bin_loc=NULL)
 glmm.admb(\dots)  ## deprecated
 }
 \arguments{
@@ -63,14 +63,11 @@ glmm.admb(\dots)  ## deprecated
     currently implemented: \code{"diag"} (diagonal matrix) and
     \code{"full"} (positive definite matrix with all elements being
     estimated).}
-  \item{easyFlag}{whether a faster but less robust optimization
+  \item{easyFlag}{(\emph{currently inactive}: whether a faster but less robust optimization
     algorithm should be employed (only \code{"poisson"} and
     \code{"nbinom"} families).}
   \item{zeroInflation}{whether a zero-inflated model should be fitted
     (only \code{"poisson"} and \code{"nbinom"} families).}
-  \item{ZI_kluge}{whether to retain a zero-inflation term of 0.001
-    even when \code{zeroInflation=FALSE} (for backward
-    compatibility/testing; deprecated)}
   \item{admb.opts}{options for AD Model Builder: see \code{\link{admbControl}}}
   \item{mcmc}{(logical) run MCMC after fitting, based on estimated mode
     and parameter variance-covariance matrix}

@@ -121,7 +121,7 @@ process_randformula <- function(f,random,data) {
   ## for (i in seq_along(L$mmats)) {
   ##   attr(L$mmats[[i]],"levels") <- levels(fgroupL[[1]])
   ## }
-  names(L$mmats) <- groups ## names(fgroupL)
+  names(L$mmats) <- names(L$levels) <- groups ## names(fgroupL)
   names(L$codes) <- termnames
   L
 }

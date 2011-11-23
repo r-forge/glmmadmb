@@ -7,7 +7,8 @@
   Determines options for running AD Model Builder
 }
 \usage{
-admbControl(impSamp=0,maxfn=500,imaxfn=500,noinit=TRUE,shess=TRUE)
+admbControl(impSamp=0,maxfn=500,imaxfn=500,noinit=TRUE,shess=TRUE,
+ ZI_kluge=FALSE)
 }
 \arguments{
   \item{impSamp}{
@@ -24,6 +25,10 @@ admbControl(impSamp=0,maxfn=500,imaxfn=500,noinit=TRUE,shess=TRUE)
   \item{shess}{
     See ADMB reference manual
   }
+  \item{ZI_kluge}{whether to retain a zero-inflation term of 0.001
+    even when \code{zeroInflation=FALSE} (for backward
+    compatibility/testing; deprecated)}
+
 }
 \details{
   See the AD Model Builder reference manual
