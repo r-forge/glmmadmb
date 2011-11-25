@@ -34,7 +34,7 @@ options(continue=" ")
 <<graphopts,echo=FALSE>>=
 library(ggplot2)
 theme_update(theme_bw())
-zspace <- opts(panel.margin=unit(0,"lines"))
+zmargin <- opts(panel.margin=unit(0,"lines"))
 @ 
 
 
@@ -55,7 +55,7 @@ linear mixed models and extensions.
   \item post-fit MCMC chain for characterizing uncertainty
 \end{itemize}
 
-As of version 0.6-5, the package has been greatly revised to
+As of version 0.6.5, the package has been greatly revised to
 allow a wider range of response and link functions and to allow
 models with multiple random effects.  For now, the resulting package
 is slower than the old (single-random-effect version), but we hope
@@ -72,37 +72,42 @@ than by manipulating sums of squares).
 In order to fit a model in \code{glmmADMB} you need to:
 \begin{itemize}
 \item specify a model for the fixed effects, in the standard
-  R (Wilkinson-Rogers) formula notation. Formulae can also
-  include \emph{offsets}.
+  R (Wilkinson-Rogers) formula notation (see \code{?formula}
+  or Section 11.1 of the \href{http://cran.r-project.org/doc/manuals/R-intro.pdf}{Introduction to R}. 
+  Formulae can also include \emph{offsets}.
 \item specify a model for the random effects, in the notation
   that is common to the \code{nlme} and \code{lme4} packages.
   Random effects are specified as \code{e|g}, where \code{e}
-  is an effect (e.g. \code{1} for a random-intercept model
-  or \code{time} for a model with random variation in slopes
-  through time across \ldots  Random effects can be specified
+  is an effect and \code{g} is a grouping factor (which must
+  be a factor variable, or a nesting of/interaction among factor variables).
+  For example, the formula would be \code{1|block} for a random-intercept model
+  or \code{time|block} for a model with random variation in slopes
+  through time across groups specified by \code{block}. A model
+  of nested random effects (block within site) would be
+  \code{1|site/block}; a model of crossed random effects
+  (block and year) would be \code{(1|block)+(1|year)}.
+  
+  Random effects can be specified
   either in a separate \code{random} argument (as in \code{nlme})
-  or as part of the model formula (as in \code{lme4})
-\item specify a family (as a string: e.g. \code{"poisson"}
-  or \code{"binomial"})
-\item optionally specify a link function,
-  as a string (default link functions
-  for families are the canonical links (e.g. binomial=\code{"logit"},
-  Poisson and negative binomial=\code{"log"}) except that the
-  default link for the Gamma in \code{glmmADMB} is \code{"log"}
-  not the canonical inverse link
+  or as part of the model formula (as in \code{lme4}).
+\item choose the error distribution by specifying the family 
+  (as a string: e.g. \code{"poisson"}  or \code{"binomial"})
+\item specify a link function (as a string: e.g. 
+  \code{"logit"} or \code{"log"}.
 \item optionally specify that zero-inflation is present
-  \code{zeroInflation=TRUE}; in the current version, zero-inflation
+  \code{zeroInflation=TRUE}. In the current version, zero-inflation
   can only be specified as a single constant term across the
   entire model --- i.e. it cannot vary across groups or
-  with covariates
+  with covariates.
 \end{itemize}
     
 \section{Owls data}
 
 These data, taken from \cite{zuur_mixed_2009} and ultimately
 from \cite{roulinbersier_2007}, quantify
-the number of begging attempts by owlets (owl chicks)
-in different nests as a function of food treatment
+the number of negotiations among owlets (owl chicks)
+in different nests \emph{prior} to the arrival
+of a provisioning parent as a function of food treatment
 (deprived or satiated), the sex of the parent, and
 arrival time.  The total number of calls from the
 nest is recorded, along with the total brood size, which
@@ -113,37 +118,69 @@ a random effect.
 The model can be expressed as a zero-inflated generalized
 linear mixed model (ZIGLMM).
 
+First we draw some pictures (Figures~\ref{fig:owl1}, \ref{fig:owl2}).
+
+Load the \code{glmmADMB} package to get access to the \code{Owls}
+data set; load the \code{ggplot2} graphics package.
 <<>>=
 library(glmmADMB)
+library(ggplot2)
+@ 
+
+Various small manipulations of the data set:
+(1) reorder nests by mean negotiations per chick, for plotting
+purposes; (2) add log brood size variable (for offset);
+(3) rename response variable.
+<<>>=
 Owls <- transform(Owls,
   Nest=reorder(Nest,NegPerChick),
   logBroodSize=log(BroodSize),
-  NCalls=SiblingNegotiation,
-  obs=seq(nrow(Owls)))
+  NCalls=SiblingNegotiation)
 @ 
+
+\begin{figure}
 \setkeys{Gin}{width=\textwidth}
-<<owlplot1,fig=TRUE>>=
+<<owlplot1,fig=TRUE,echo=FALSE>>=
 G0 <- ggplot(Owls,aes(x=reorder(Nest,NegPerChick),
                       y=NegPerChick))+
   xlab("Nest")+ylab("Negotiations per chick")+coord_flip()+
   facet_grid(FoodTreatment~SexParent)
-print(G0+stat_sum(aes(size=..n..),alpha=0.5)+zspace+
+print(G0+stat_sum(aes(size=..n..),alpha=0.5)+zmargin+
       scale_size_continuous(name="# obs",
                             breaks=seq(1,9,by=2)))
 @ 
+\caption{Basic view of owl data (arrival time not shown).}
+\label{fig:owl1}
+\end{figure}
+
+\begin{figure}
+<<owlplot2,fig=TRUE,echo=FALSE>>=
+G1 <- ggplot(Owls,aes(x=ArrivalTime,
+                      y=NegPerChick,colour=FoodTreatment,
+                      linetype=SexParent,
+                      shape=SexParent))
+print(G1+stat_sum(aes(size=factor(..n..)),alpha=0.5)+geom_smooth()+
+      ## facet_grid(.~SexParent)+zmargin+
+      labs(x="Arrival time",y="Negotiations per chick")+
+      scale_size_discrete(name="# obs",
+                          breaks=c("1","2")))
+@ 
+\caption{Basic view of owl data, \#2 (nest identity not shown)}
+\label{fig:owl2}
+\end{figure}
+
+Now fit some models:
 
 The basic \code{glmmadmb} fit --- a zero-inflated Poisson model.
 <<time1,echo=FALSE,cache=TRUE>>=
-gt1 <- system.time(glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*
-                                     SexParent+
+gt1 <- system.time(glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
                                      offset(logBroodSize)+(1|Nest),
                                      data=Owls,
                                      zeroInflation=TRUE,
                                      family="poisson"))
 @ 
 <<glmmadmbfit,cache=TRUE>>=
-gfit1 <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*
-                                     SexParent+
+fit_zipoiss <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
                                      offset(logBroodSize)+(1|Nest),
                                      data=Owls,
                                      zeroInflation=TRUE,
@@ -151,30 +188,29 @@ gfit1 <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*
 @
 
 <<>>=
-summary(gfit1)
+summary(fit_zipoiss)
 @ 
+
+The \code{coefplot2} package knows about \code{glmmadmb} fits:
 
 <<coefplotmg1,fig=TRUE,width=8>>=
 library(coefplot2)
-coefplot2(gfit1)
+coefplot2(fit_zipoiss)
 @ 
 
 We can also try a standard zero-inflated negative binomial model;
 the default is the ``NB2'' parameterization (variance = $\mu(1+\mu/k)$).
 <<glmmadmbnbinomfit,cache=TRUE>>=
-gfit2 <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
+fit_zinbinom <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
                   offset(logBroodSize)+(1|Nest),
                   data=Owls,
                   zeroInflation=TRUE,
                   family="nbinom")
 @
 
-%This takes a little longer than the Poisson model 
-% (\Sexpr{round(gt2[3],1)} seconds).
-
 Alternatively, use an ``NB1'' fit (variance = $\phi \mu$).
 <<glmmadmbnbinom1fit,cache=TRUE>>=
-gfit3 <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
+fit_zinbinom1 <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
                                      offset(logBroodSize)+(1|Nest),
                                      data=Owls,
                                      zeroInflation=TRUE,
@@ -184,7 +220,7 @@ gfit3 <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
 Relax the assumption that total number of calls is strictly proportional
 to brood size (i.e. using log(brood size) as an offset):
 <<glmmadmbnbinom1vfit,cache=TRUE>>=
-gfit4 <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
+fit_zinbinom1_bs <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
                                      BroodSize+(1|Nest),
                                      data=Owls,
                                      zeroInflation=TRUE,
@@ -195,26 +231,44 @@ Every change we have made so far improves the fit --- changing distributions
 improves it enormously, while changing the role of brood size makes only
 a modest (-1 AIC unit) difference:
 <<>>=
-AIC(gfit1,gfit2,gfit3,gfit4)
+library(bbmle)
+AICtab(fit_zipoiss,fit_zinbinom,fit_zinbinom1,fit_zinbinom1_bs)
+@ 
+
+Compare the parameter estimates:
+<<cplot2,fig=TRUE>>=
+vn <- c("food","arrivaltime","sex","food:sex","arrival:sex","broodsize")
+coefplot2(list(ZIP=fit_zipoiss,
+               ZINB=fit_zinbinom,
+               ZINB1=fit_zinbinom1,
+               ZINB1_brood=fit_zinbinom1_bs),
+          varnames=vn,
+          legend=TRUE)
 @ 
 
 The standard set of accessors is available:
-extract coefficients
-(\code{coef}), fixed effects
-(\code{fixef} --- a synonym for \code{coef}), 
-random effects (\code{ranef}),
-residuals (\code{residuals}), 
-fitted values (\code{fitted}),
-log-likelihood (\code{logLik}),
-summary (\code{summary}), 
-standard errors (\code{stdEr}), 
-variance-covariance matrix of coefficients (\code{vcov}),
-variance-covariance matrices of random effects (\code{VarCorr}),
-confidence intervals (\code{confint}) \ldots
+\begin{description}
+  \item[\code{coef}] extract (fixed-effect) coefficients
+  \item[\code{fixef}] a synonym for \code{coef}, for consistency
+    with \code{nlme}/\code{lme4}
+  \item[\code{ranef}] extract random effect coefficients
+    (``BLUPs'' or ``conditional modes'')
+  \item[\code{residuals}] extract (Pearson) residuals
+  \item[\code{fitted}] fitted values
+  \item[\code{predict}] predicted values
+    (\emph{based only on fixed effects, not on random effects}),
+    possibly with standard errors (\emph{based only on 
+      uncertainty of fixed effects}), possibly for new data
+  \item[\code{logLik}] extract log-likelihood
+  \item[\code{AIC}] extract AIC
+  \item[\code{summary}] print summary
+  \item[\code{stdEr}] extract standard errors of coefficients
+  \item[\code{vcov}] extract estimated variance-covariance matrix of coefficients
+  \item[\code{VarCorr}] extract variance-covariance matrices of random effects
+  \item[\code{confint}] extract confidence intervals of fixed-effect coefficients
+\end{description} 
 
-<<>>=
-methods(class="glmmadmb")
-@ 
+\textbf{Missing}: specifying starting values; MCMC
 
 %%  AFTER HERE: stuff that's not really finished
 %Load data on epilepsy from the \code{MASS} package

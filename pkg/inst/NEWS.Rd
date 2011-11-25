@@ -6,7 +6,7 @@
 
 \section{Changes in version 0.6.6 (2011-11-23)}{
   \itemize{
-    \item SVN rev ??
+    \item SVN rev 147
     \item add identity, cloglog links
     \item stub for gaussian family (not yet working!)
     \item use tolower() on family
