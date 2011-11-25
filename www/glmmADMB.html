@@ -7,7 +7,7 @@
 <meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)"> 
 <!-- html --> 
 <meta name="src" content="glmmADMB.tex"> 
-<meta name="date" content="2011-11-15 02:39:00"> 
+<meta name="date" content="2011-11-25 16:13:00"> 
 <link rel="stylesheet" type="text/css" href="glmmADMB.css"> 
 </head><body 
 >
@@ -23,7 +23,7 @@
 <div class="author" ><span 
 class="aer12-">Ben Bolker, Hans Skaug, Arni Magnusson, Anders Nielsen</span></div><br />
 <div class="date" ><span 
-class="aer12-">November 15, 2011</span></div>
+class="aer12-">November 25, 2011</span></div>
    </div>
    <h3 class="sectionHead"><span class="titlemark">1   </span> <a 
  id="x1-10001"></a>Introduction/quick start</h3>
@@ -33,9 +33,9 @@ href="http://admb-project.org" >AD Model Builder</a> nonlinear fitting
 engine, for fitting generalized linear mixed models and extensions.
      <ul class="itemize1">
      <li class="itemize">response  distributions:  Poisson,  binomial,  negative  binomial  (NB1  and
-     NB2 parameterizations), Gamma, Beta
+     NB2 parameterizations), Gamma, Beta; Gaussian coming soon
      </li>
-     <li class="itemize">link functions: log, logit, probit
+     <li class="itemize">link functions: log, logit, probit, cloglog, inverse, identity
      </li>
      <li class="itemize">zero-inflation (models with a constant zero-inflation value only)
      </li>
@@ -44,28 +44,95 @@ engine, for fitting generalized linear mixed models and extensions.
      <li class="itemize">offsets
      </li>
      <li class="itemize">post-fit MCMC chain for characterizing uncertainty</li></ul>
-<!--l. 47--><p class="indent" >   As of version 0.6-5, the package has been greatly revised to allow a wider range of
+<!--l. 47--><p class="indent" >   As of version 0.6.5, the package has been greatly revised to allow a wider range of
 response and link functions and to allow models with multiple random effects. For
 now, the resulting package is slower than the old (single-random-effect version), but
 we hope to increase its speed in the future.
                                                                   
 
                                                                   
-<!--l. 53--><p class="noindent" >
+<!--l. 53--><p class="indent" >   In order to use <span 
+class="aett-10">glmmADMB </span>effectively you should already be reasonably familiar
+with generalized linear mixed models (GLMMs), which in turn requires familiarity
+with (i) generalized linear models (e.g. the special cases of logistic, binomial,
+and Poisson regression) and (ii) &#8216;modern&#8217; mixed models (those working via
+maximization of the marginal likelihood rather than by manipulating sums of
+squares).
+<!--l. 61--><p class="indent" >   In order to fit a model in <span 
+class="aett-10">glmmADMB </span>you need to:
+     <ul class="itemize1">
+     <li class="itemize">specify a model for the fixed effects, in the standard R (Wilkinson-Rogers)
+     formula notation (see <span 
+class="aett-10">?formula </span>or Section 11.1 of the <a 
+href="http://cran.r-project.org/doc/manuals/R-intro.pdf" >Introduction to R</a>.
+     Formulae can also include <span 
+class="aeti-10">offsets</span>.
+     </li>
+     <li class="itemize">specify a model for the random effects, in the notation that is common to
+     the <span 
+class="aett-10">nlme </span>and <span 
+class="aett-10">lme4 </span>packages. Random effects are specified as <span 
+class="aett-10">e|g</span>, where
+     <span 
+class="aett-10">e </span>is an effect and <span 
+class="aett-10">g </span>is a grouping factor (which must be a factor variable,
+     or  a  nesting  of/interaction  among  factor  variables).  For  example,  the
+     formula would be <span 
+class="aett-10">1|block </span>for a random-intercept model or <span 
+class="aett-10">time|block</span>
+     for a model with random variation in slopes through time across groups
+     specified by <span 
+class="aett-10">block</span>. A model of nested random effects (block within site)
+     would be <span 
+class="aett-10">1|site/block</span>; a model of crossed random effects (block and
+     year) would be <span 
+class="aett-10">(1|block)+(1|year)</span>.
+     <!--l. 79--><p class="noindent" >Random effects can be specified either in a separate <span 
+class="aett-10">random </span>argument (as
+     in <span 
+class="aett-10">nlme</span>) or as part of the model formula (as in <span 
+class="aett-10">lme4</span>).
+     </li>
+     <li class="itemize">choose the error distribution by specifying the family (as a string: e.g.
+     <span 
+class="aett-10">"poisson" </span>or <span 
+class="aett-10">"binomial"</span>)
+     </li>
+     <li class="itemize">specify a link function (as a string: e.g. <span 
+class="aett-10">"logit" </span>or <span 
+class="aett-10">"log"</span>.
+     </li>
+     <li class="itemize">optionally specify that zero-inflation is present <span 
+class="aett-10">zeroInflation=TRUE</span>. In
+     the current version, zero-inflation can only be specified as a single constant
+     term across the entire model &#8212; i.e. it cannot vary across groups or with
+     covariates.</li></ul>
+<!--l. 93--><p class="noindent" >
    <h3 class="sectionHead"><span class="titlemark">2   </span> <a 
  id="x1-20002"></a>Owls data</h3>
-<!--l. 55--><p class="noindent" >These data, taken from <span class="cite">[<a 
+<!--l. 95--><p class="noindent" >These data, taken from <span class="cite">[<a 
 href="#Xzuur_mixed_2009">2</a>]</span> and ultimately from <span class="cite">[<a 
 href="#Xroulinbersier_2007">1</a>]</span>, quantify the number of
-begging attempts by owlets (owl chicks) in different nests as a function of
-food treatment (deprived or satiated), the sex of the parent, and arrival
-time. The total number of calls from the nest is recorded, along with the
-total brood size, which is used as an offset to allow the use of a Poisson
-response.
-<!--l. 64--><p class="indent" >   Since the same nests are measured repeatedly, the nest is used as a random effect.
+negotiations among owlets (owl chicks) in different nests <span 
+class="aeti-10">prior </span>to the arrival of a
+provisioning parent as a function of food treatment (deprived or satiated), the sex of
+the parent, and arrival time. The total number of calls from the nest is recorded,
+                                                                  
+
+                                                                  
+along with the total brood size, which is used as an offset to allow the use of a
+Poisson response.
+<!--l. 105--><p class="indent" >   Since the same nests are measured repeatedly, the nest is used as a random effect.
 The model can be expressed as a zero-inflated generalized linear mixed model
 (ZIGLMM).
-<!--l. 70--><p class="indent" >
+<!--l. 110--><p class="indent" >   First we draw some pictures (Figures&#x00A0;<a 
+href="#x1-20131">1<!--tex4ht:ref: fig:owl1 --></a>, <a 
+href="#x1-20142">2<!--tex4ht:ref: fig:owl2 --></a>).
+<!--l. 112--><p class="indent" >   Load the <span 
+class="aett-10">glmmADMB </span>package to get access to the <span 
+class="aett-10">Owls </span>data set; load the <span 
+class="aett-10">ggplot2</span>
+graphics package.
    <div class="fancyvrb" id="fancyvrb1">
 <a 
  id="x1-2002r1"></a><span 
@@ -76,204 +143,96 @@ class="aesltt-10">&#x00A0;library(glmmADMB)</span>
  id="x1-2004r2"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;&#x003E;</span><span 
+class="aesltt-10">&#x00A0;library(ggplot2)</span>
+   </div>
+<!--l. 121--><p class="indent" >   Various small manipulations of the data set: (1) reorder nests by mean
+negotiations per chick, for plotting purposes; (2) add log brood size variable (for
+offset); (3) rename response variable.
+   <div class="fancyvrb" id="fancyvrb2">
+<a 
+ id="x1-2006r1"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;&#x003E;</span><span 
 class="aesltt-10">&#x00A0;Owls</span><span 
 class="aesltt-10">&#x00A0;&#x003C;-</span><span 
 class="aesltt-10">&#x00A0;transform(Owls,</span>
 <br class="fancyvrb" /><a 
- id="x1-2006r3"></a><span 
+ id="x1-2008r2"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;Nest=reorder(Nest,NegPerChick),</span>
 <br class="fancyvrb" /><a 
- id="x1-2008r4"></a><span 
+ id="x1-2010r3"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;logBroodSize=log(BroodSize),</span>
 <br class="fancyvrb" /><a 
- id="x1-2010r5"></a><span 
+ id="x1-2012r4"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;NCalls=SiblingNegotiation,</span>
-<br class="fancyvrb" /><a 
- id="x1-2012r6"></a><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;obs=seq(nrow(Owls)))</span>
+class="aesltt-10">&#x00A0;NCalls=SiblingNegotiation)</span>
    </div>
-<!--l. 81--><p class="noindent" >
-   <div class="fancyvrb" id="fancyvrb2">
-<a 
- id="x1-2014r1"></a><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;&#x003E;</span><span 
-class="aesltt-10">&#x00A0;G0</span><span 
-class="aesltt-10">&#x00A0;&#x003C;-</span><span 
-class="aesltt-10">&#x00A0;ggplot(Owls,aes(x=reorder(Nest,NegPerChick),</span>
-<br class="fancyvrb" /><a 
- id="x1-2016r2"></a><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;y=NegPerChick))+</span>
-<br class="fancyvrb" /><a 
- id="x1-2018r3"></a><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;xlab("Nest")+ylab("Negotiations</span><span 
-class="aesltt-10">&#x00A0;per</span><span 
-class="aesltt-10">&#x00A0;chick")+coord_flip()+</span>
-<br class="fancyvrb" /><a 
- id="x1-2020r4"></a><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;facet_grid(FoodTreatment~SexParent)</span>
-<br class="fancyvrb" /><a 
- id="x1-2022r5"></a><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;&#x003E;</span><span 
-class="aesltt-10">&#x00A0;print(G0+stat_sum(aes(size=..n..),alpha=0.5)+zspace+</span>
-<br class="fancyvrb" /><a 
- id="x1-2024r6"></a><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;scale_size_continuous(name="#</span><span 
-class="aesltt-10">&#x00A0;obs",</span>
-<br class="fancyvrb" /><a 
- id="x1-2026r7"></a><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;breaks=seq(1,9,by=2)))</span>
-   </div>
+<!--l. 134--><p class="indent" >   <hr class="figure"><div class="figure" 
+>
                                                                   
 
                                                                   
-<!--l. 91--><p class="noindent" ><img 
+<a 
+ id="x1-20131"></a>
+                                                                  
+
+                                                                  
+<!--l. 136--><p class="noindent" ><img 
 src="glmmADMB0x.png" alt="PIC" class="graphics" width="345.0pt" height="345.01822pt" ><!--tex4ht:graphics  
 name="glmmADMB0x.png" src="glmmADMB-owlplot1.eps"  
 -->
-<!--l. 93--><p class="indent" >   The basic <span 
+<br /> <div class="caption" 
+><span class="id">Figure&#x00A0;1: </span><span  
+class="content">Basic view of owl data (arrival time not shown).</span></div><!--tex4ht:label?: x1-20131 -->
+                                                                  
+
+                                                                  
+<!--l. 139--><p class="indent" >   </div><hr class="endfigure">
+<!--l. 141--><p class="indent" >   <hr class="figure"><div class="figure" 
+>
+                                                                  
+
+                                                                  
+<a 
+ id="x1-20142"></a>
+                                                                  
+
+                                                                  
+<!--l. 142--><p class="noindent" ><img 
+src="glmmADMB1x.png" alt="PIC" class="graphics" width="276.00105pt" height="276.01457pt" ><!--tex4ht:graphics  
+name="glmmADMB1x.png" src="glmmADMB-owlplot2.eps"  
+-->
+<br /> <div class="caption" 
+><span class="id">Figure&#x00A0;2: </span><span  
+class="content">Basic view of owl data, #2 (nest identity not shown)</span></div><!--tex4ht:label?: x1-20142 -->
+                                                                  
+
+                                                                  
+<!--l. 145--><p class="indent" >   </div><hr class="endfigure">
+<!--l. 147--><p class="indent" >   Now fit some models:
+<!--l. 149--><p class="indent" >   The basic <span 
 class="aett-10">glmmadmb </span>fit &#8212; a zero-inflated Poisson model.
    <div class="fancyvrb" id="fancyvrb3">
 <a 
- id="x1-2028r1"></a><span 
+ id="x1-2016r1"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;&#x003E;</span><span 
-class="aesltt-10">&#x00A0;gt1</span><span 
+class="aesltt-10">&#x00A0;fit_zipoiss</span><span 
 class="aesltt-10">&#x00A0;&#x003C;-</span><span 
-class="aesltt-10">&#x00A0;system.time(gfit1</span><span 
-class="aesltt-10">&#x00A0;&#x003C;-</span><span 
-class="aesltt-10">&#x00A0;glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*</span>
+class="aesltt-10">&#x00A0;glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+</span>
 <br class="fancyvrb" /><a 
- id="x1-2030r2"></a><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;SexParent+</span>
-<br class="fancyvrb" /><a 
- id="x1-2032r3"></a><span 
+ id="x1-2018r2"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
@@ -315,7 +274,7 @@ class="aesltt-10">&#x00A0;</span><span
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;offset(logBroodSize)+(1|Nest),</span>
 <br class="fancyvrb" /><a 
- id="x1-2034r4"></a><span 
+ id="x1-2020r3"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
@@ -357,7 +316,7 @@ class="aesltt-10">&#x00A0;</span><span
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;data=Owls,</span>
 <br class="fancyvrb" /><a 
- id="x1-2036r5"></a><span 
+ id="x1-2022r4"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
@@ -399,7 +358,7 @@ class="aesltt-10">&#x00A0;</span><span
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;zeroInflation=TRUE,</span>
 <br class="fancyvrb" /><a 
- id="x1-2038r6"></a><span 
+ id="x1-2024r5"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
@@ -439,27 +398,22 @@ class="aesltt-10">&#x00A0;</span><span
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;family="poisson"))</span>
+class="aesltt-10">&#x00A0;family="poisson")</span>
    </div>
-<!--l. 106--><p class="indent" >
    <div class="fancyvrb" id="fancyvrb4">
 <a 
- id="x1-2040r1"></a><span 
+ id="x1-2026r1"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;&#x003E;</span><span 
-class="aesltt-10">&#x00A0;summary(gfit1)</span>
+class="aesltt-10">&#x00A0;summary(fit_zipoiss)</span>
    </div>
-<!--l. 109--><p class="noindent" >
-                                                                  
-
-                                                                  
-   <div class="fancyvrb" id="fancyvrb5">
+<div class="fancyvrb" id="fancyvrb5">
 <a 
- id="x1-2042r1"></a><span 
+ id="x1-2028r1"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;Call:</span>
 <br class="fancyvrb" /><a 
- id="x1-2044r2"></a><span 
+ id="x1-2030r2"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;glmmadmb(formula</span><span 
 class="aett-10">&#x00A0;=</span><span 
@@ -472,7 +426,7 @@ class="aett-10">&#x00A0;*</span><span
 class="aett-10">&#x00A0;SexParent</span><span 
 class="aett-10">&#x00A0;+</span>
 <br class="fancyvrb" /><a 
- id="x1-2046r3"></a><span 
+ id="x1-2032r3"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;</span><span 
@@ -490,7 +444,7 @@ class="aett-10">&#x00A0;family</span><span
 class="aett-10">&#x00A0;=</span><span 
 class="aett-10">&#x00A0;"poisson",</span>
 <br class="fancyvrb" /><a 
- id="x1-2048r4"></a><span 
+ id="x1-2034r4"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;</span><span 
@@ -500,19 +454,19 @@ class="aett-10">&#x00A0;zeroInflation</span><span
 class="aett-10">&#x00A0;=</span><span 
 class="aett-10">&#x00A0;TRUE)</span>
 <br class="fancyvrb" /><a 
- id="x1-2050r5"></a><span 
+ id="x1-2036r5"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;</span>
 <br class="fancyvrb" /><a 
- id="x1-2052r6"></a><span 
+ id="x1-2038r6"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;</span>
 <br class="fancyvrb" /><a 
- id="x1-2054r7"></a><span 
+ id="x1-2040r7"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;Coefficients:</span>
 <br class="fancyvrb" /><a 
- id="x1-2056r8"></a><span 
+ id="x1-2042r8"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;</span><span 
@@ -557,7 +511,7 @@ class="aett-10">&#x00A0;z</span><span
 class="aett-10">&#x00A0;value</span><span 
 class="aett-10">&#x00A0;Pr(&#x003E;|z|)</span>
 <br class="fancyvrb" /><a 
- id="x1-2058r9"></a><span 
+ id="x1-2044r9"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;(Intercept)</span><span 
 class="aett-10">&#x00A0;</span><span 
@@ -600,7 +554,7 @@ class="aett-10">&#x00A0;</span><span
 class="aett-10">&#x00A0;1.6e-13</span><span 
 class="aett-10">&#x00A0;***</span>
 <br class="fancyvrb" /><a 
- id="x1-2060r10"></a><span 
+ id="x1-2046r10"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;FoodTreatmentSatiated</span><span 
 class="aett-10">&#x00A0;</span><span 
@@ -631,7 +585,7 @@ class="aett-10">&#x00A0;</span><span
 class="aett-10">&#x00A0;1.8e-07</span><span 
 class="aett-10">&#x00A0;***</span>
 <br class="fancyvrb" /><a 
- id="x1-2062r11"></a><span 
+ id="x1-2048r11"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;ArrivalTime</span><span 
 class="aett-10">&#x00A0;</span><span 
@@ -672,7 +626,7 @@ class="aett-10">&#x00A0;</span><span
 class="aett-10">&#x00A0;2.3e-07</span><span 
 class="aett-10">&#x00A0;***</span>
 <br class="fancyvrb" /><a 
- id="x1-2064r12"></a><span 
+ id="x1-2050r12"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;SexParentMale</span><span 
 class="aett-10">&#x00A0;</span><span 
@@ -715,7 +669,7 @@ class="aett-10">&#x00A0;</span><span
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;0.42</span>
 <br class="fancyvrb" /><a 
- id="x1-2066r13"></a><span 
+ id="x1-2052r13"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;FoodTreatmentSatiated:SexParentMale</span><span 
 class="aett-10">&#x00A0;</span><span 
@@ -736,7 +690,7 @@ class="aett-10">&#x00A0;</span><span
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;0.33</span>
 <br class="fancyvrb" /><a 
- id="x1-2068r14"></a><span 
+ id="x1-2054r14"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;ArrivalTime:SexParentMale</span><span 
 class="aett-10">&#x00A0;</span><span 
@@ -765,11 +719,11 @@ class="aett-10">&#x00A0;</span><span
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;0.29</span>
 <br class="fancyvrb" /><a 
- id="x1-2070r15"></a><span 
+ id="x1-2056r15"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;---</span>
 <br class="fancyvrb" /><a 
- id="x1-2072r16"></a><span 
+ id="x1-2058r16"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;Signif.</span><span 
 class="aett-10">&#x00A0;codes:</span><span 
@@ -787,29 +741,29 @@ class="aett-10">&#x00A0;&#8216;</span><span
 class="aett-10">&#x00A0;&#8217;</span><span 
 class="aett-10">&#x00A0;1</span>
 <br class="fancyvrb" /><a 
- id="x1-2074r17"></a><span 
+ id="x1-2060r17"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;</span>
 <br class="fancyvrb" /><a 
- id="x1-2076r18"></a><span 
+ id="x1-2062r18"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;Number</span><span 
 class="aett-10">&#x00A0;of</span><span 
 class="aett-10">&#x00A0;observations:</span><span 
 class="aett-10">&#x00A0;total=599,</span><span 
-class="aett-10">&#x00A0;=27</span>
+class="aett-10">&#x00A0;Nest=27</span>
 <br class="fancyvrb" /><a 
- id="x1-2078r19"></a><span 
+ id="x1-2064r19"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;Random</span><span 
 class="aett-10">&#x00A0;effect</span><span 
 class="aett-10">&#x00A0;variance(s):</span>
 <br class="fancyvrb" /><a 
- id="x1-2080r20"></a><span 
+ id="x1-2066r20"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;$Nest</span>
 <br class="fancyvrb" /><a 
- id="x1-2082r21"></a><span 
+ id="x1-2068r21"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;</span><span 
@@ -825,7 +779,7 @@ class="aett-10">&#x00A0;</span><span
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;(Intercept)</span>
 <br class="fancyvrb" /><a 
- id="x1-2084r22"></a><span 
+ id="x1-2070r22"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;(Intercept)</span><span 
 class="aett-10">&#x00A0;</span><span 
@@ -834,11 +788,11 @@ class="aett-10">&#x00A0;</span><span
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;0.14001</span>
 <br class="fancyvrb" /><a 
- id="x1-2086r23"></a><span 
+ id="x1-2072r23"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;</span>
 <br class="fancyvrb" /><a 
- id="x1-2088r24"></a><span 
+ id="x1-2074r24"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;Zero-inflation:</span><span 
 class="aett-10">&#x00A0;0.25833</span><span 
@@ -849,36 +803,38 @@ class="aett-10">&#x00A0;</span><span
 class="aett-10">&#x00A0;0.018107</span><span 
 class="aett-10">&#x00A0;)</span>
 <br class="fancyvrb" /><a 
- id="x1-2090r25"></a><span 
+ id="x1-2076r25"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;</span>
 <br class="fancyvrb" /><a 
- id="x1-2092r26"></a><span 
+ id="x1-2078r26"></a><span 
 class="aett-10">&#x00A0;</span><span 
 class="aett-10">&#x00A0;Log-likelihood:</span><span 
 class="aett-10">&#x00A0;-1985.3</span>
    </div>
-<!--l. 140--><p class="indent" >
+<!--l. 194--><p class="indent" >   The <span 
+class="aett-10">coefplot2 </span>package knows about <span 
+class="aett-10">glmmadmb </span>fits:
+                                                                  
+
+                                                                  
    <div class="fancyvrb" id="fancyvrb6">
 <a 
- id="x1-2094r1"></a><span 
+ id="x1-2080r1"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;&#x003E;</span><span 
 class="aesltt-10">&#x00A0;library(coefplot2)</span>
 <br class="fancyvrb" /><a 
- id="x1-2096r2"></a><span 
+ id="x1-2082r2"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;&#x003E;</span><span 
-class="aesltt-10">&#x00A0;coefplot2(gfit1)</span>
+class="aesltt-10">&#x00A0;coefplot2(fit_zipoiss)</span>
    </div>
-                                                                  
-
-                                                                  
-<!--l. 145--><p class="noindent" ><img 
-src="glmmADMB1x.png" alt="PIC" class="graphics" width="345.0pt" height="258.74547pt" ><!--tex4ht:graphics  
-name="glmmADMB1x.png" src="glmmADMB-coefplotmg1.eps"  
+<!--l. 202--><p class="noindent" ><img 
+src="glmmADMB2x.png" alt="PIC" class="graphics" width="276.00105pt" height="206.9977pt" ><!--tex4ht:graphics  
+name="glmmADMB2x.png" src="glmmADMB-coefplotmg1.eps"  
 -->
-<!--l. 147--><p class="indent" >   We can also try a standard zero-inflated negative binomial model; the default is
+<!--l. 204--><p class="indent" >   We can also try a standard zero-inflated negative binomial model; the default is
 the &#8220;NB2&#8221; parameterization (variance = <span 
 class="cmmi-10">&#x03BC;</span><span 
 class="cmr-10">(1 + </span><span 
@@ -886,35 +842,14 @@ class="cmmi-10">&#x03BC;&#x2215;k</span><span
 class="cmr-10">)</span>).
    <div class="fancyvrb" id="fancyvrb7">
 <a 
- id="x1-2098r1"></a><span 
+ id="x1-2084r1"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;&#x003E;</span><span 
-class="aesltt-10">&#x00A0;gt2</span><span 
-class="aesltt-10">&#x00A0;&#x003C;-</span><span 
-class="aesltt-10">&#x00A0;system.time(gfit2</span><span 
+class="aesltt-10">&#x00A0;fit_zinbinom</span><span 
 class="aesltt-10">&#x00A0;&#x003C;-</span><span 
 class="aesltt-10">&#x00A0;glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+</span>
 <br class="fancyvrb" /><a 
- id="x1-2100r2"></a><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
+ id="x1-2086r2"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
@@ -937,26 +872,7 @@ class="aesltt-10">&#x00A0;</span><span
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;offset(logBroodSize)+(1|Nest),</span>
 <br class="fancyvrb" /><a 
- id="x1-2102r3"></a><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
+ id="x1-2088r3"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
@@ -979,26 +895,7 @@ class="aesltt-10">&#x00A0;</span><span
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;data=Owls,</span>
 <br class="fancyvrb" /><a 
- id="x1-2104r4"></a><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
+ id="x1-2090r4"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
@@ -1021,7 +918,7 @@ class="aesltt-10">&#x00A0;</span><span
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;zeroInflation=TRUE,</span>
 <br class="fancyvrb" /><a 
- id="x1-2106r5"></a><span 
+ id="x1-2092r5"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
@@ -1042,42 +939,20 @@ class="aesltt-10">&#x00A0;</span><span
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;family="nbinom"))</span>
+class="aesltt-10">&#x00A0;family="nbinom")</span>
    </div>
-<!--l. 159--><p class="indent" >   This takes a little longer than the Poisson model (14.5 seconds).
-<!--l. 162--><p class="indent" >   Alternatively, use an &#8220;NB1&#8221; fit (variance = <span 
+<!--l. 216--><p class="indent" >   Alternatively, use an &#8220;NB1&#8221; fit (variance = <span 
 class="cmmi-10">&#x03D5;&#x03BC;</span>).
    <div class="fancyvrb" id="fancyvrb8">
 <a 
- id="x1-2108r1"></a><span 
+ id="x1-2094r1"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;&#x003E;</span><span 
-class="aesltt-10">&#x00A0;gt3</span><span 
-class="aesltt-10">&#x00A0;&#x003C;-</span><span 
-class="aesltt-10">&#x00A0;system.time(gfit3</span><span 
+class="aesltt-10">&#x00A0;fit_zinbinom1</span><span 
 class="aesltt-10">&#x00A0;&#x003C;-</span><span 
 class="aesltt-10">&#x00A0;glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+</span>
 <br class="fancyvrb" /><a 
- id="x1-2110r2"></a><span 
+ id="x1-2096r2"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
@@ -1119,7 +994,7 @@ class="aesltt-10">&#x00A0;</span><span
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;offset(logBroodSize)+(1|Nest),</span>
 <br class="fancyvrb" /><a 
- id="x1-2112r3"></a><span 
+ id="x1-2098r3"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
@@ -1161,7 +1036,7 @@ class="aesltt-10">&#x00A0;</span><span
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;data=Owls,</span>
 <br class="fancyvrb" /><a 
- id="x1-2114r4"></a><span 
+ id="x1-2100r4"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
@@ -1203,7 +1078,7 @@ class="aesltt-10">&#x00A0;</span><span
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;zeroInflation=TRUE,</span>
 <br class="fancyvrb" /><a 
- id="x1-2116r5"></a><span 
+ id="x1-2102r5"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
@@ -1243,25 +1118,23 @@ class="aesltt-10">&#x00A0;</span><span
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;family="nbinom1"))</span>
+class="aesltt-10">&#x00A0;family="nbinom1")</span>
    </div>
-<!--l. 173--><p class="indent" >   Relax the assumption that total number of calls is strictly proportional to brood
+<!--l. 227--><p class="indent" >   Relax the assumption that total number of calls is strictly proportional to brood
 size (i.e. using log(brood size) as an offset):
+   <div class="fancyvrb" id="fancyvrb9">
                                                                   
 
                                                                   
-   <div class="fancyvrb" id="fancyvrb9">
 <a 
- id="x1-2118r1"></a><span 
+ id="x1-2104r1"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;&#x003E;</span><span 
-class="aesltt-10">&#x00A0;gt4</span><span 
-class="aesltt-10">&#x00A0;&#x003C;-</span><span 
-class="aesltt-10">&#x00A0;system.time(gfit4</span><span 
+class="aesltt-10">&#x00A0;fit_zinbinom1_bs</span><span 
 class="aesltt-10">&#x00A0;&#x003C;-</span><span 
 class="aesltt-10">&#x00A0;glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+</span>
 <br class="fancyvrb" /><a 
- id="x1-2120r2"></a><span 
+ id="x1-2106r2"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
@@ -1303,7 +1176,7 @@ class="aesltt-10">&#x00A0;</span><span
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;BroodSize+(1|Nest),</span>
 <br class="fancyvrb" /><a 
- id="x1-2122r3"></a><span 
+ id="x1-2108r3"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
@@ -1345,7 +1218,7 @@ class="aesltt-10">&#x00A0;</span><span
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;data=Owls,</span>
 <br class="fancyvrb" /><a 
- id="x1-2124r4"></a><span 
+ id="x1-2110r4"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
@@ -1387,7 +1260,7 @@ class="aesltt-10">&#x00A0;</span><span
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;zeroInflation=TRUE,</span>
 <br class="fancyvrb" /><a 
- id="x1-2126r5"></a><span 
+ id="x1-2112r5"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
@@ -1427,165 +1300,266 @@ class="aesltt-10">&#x00A0;</span><span
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;</span><span 
-class="aesltt-10">&#x00A0;family="nbinom1"))</span>
+class="aesltt-10">&#x00A0;family="nbinom1")</span>
    </div>
-<!--l. 185--><p class="indent" >   Every change we have made so far improves the fit &#8212; changing distributions
+<!--l. 239--><p class="indent" >   Every change we have made so far improves the fit &#8212; changing distributions
 improves it enormously, while changing the role of brood size makes only a modest
 (-1 AIC unit) difference:
    <div class="fancyvrb" id="fancyvrb10">
 <a 
+ id="x1-2114r1"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;&#x003E;</span><span 
+class="aesltt-10">&#x00A0;library(bbmle)</span>
+<br class="fancyvrb" /><a 
+ id="x1-2116r2"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;&#x003E;</span><span 
+class="aesltt-10">&#x00A0;AICtab(fit_zipoiss,fit_zinbinom,fit_zinbinom1,fit_zinbinom1_bs)</span>
+   </div>
+<div class="fancyvrb" id="fancyvrb11">
+<a 
+ id="x1-2118r1"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;dAIC</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;df</span>
+<br class="fancyvrb" /><a 
+ id="x1-2120r2"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;fit_zinbinom1_bs</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.0</span><span 
+class="aett-10">&#x00A0;10</span>
+<br class="fancyvrb" /><a 
+ id="x1-2122r3"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;fit_zinbinom1</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;1.2</span><span 
+class="aett-10">&#x00A0;9</span>
+<br class="fancyvrb" /><a 
+ id="x1-2124r4"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;fit_zinbinom</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;68.7</span><span 
+class="aett-10">&#x00A0;9</span>
+<br class="fancyvrb" /><a 
+ id="x1-2126r5"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;fit_zipoiss</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;637.0</span><span 
+class="aett-10">&#x00A0;8</span>
+   </div>
+<!--l. 256--><p class="indent" >   Compare the parameter estimates:
+   <div class="fancyvrb" id="fancyvrb12">
+<a 
  id="x1-2128r1"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;&#x003E;</span><span 
-class="aesltt-10">&#x00A0;AIC(gfit1,gfit2,gfit3,gfit4)</span>
-   </div>
-<!--l. 192--><p class="noindent" >
-   <div class="fancyvrb" id="fancyvrb11">
-<a 
- id="x1-2130r1"></a><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;df</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;AIC</span>
+class="aesltt-10">&#x00A0;vn</span><span 
+class="aesltt-10">&#x00A0;&#x003C;-</span><span 
+class="aesltt-10">&#x00A0;c("food","arrivaltime","sex","food:sex","arrival:sex","broodsize")</span>
 <br class="fancyvrb" /><a 
- id="x1-2132r2"></a><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;gfit1</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;8</span><span 
-class="aett-10">&#x00A0;3986.60</span>
-<br class="fancyvrb" /><a 
- id="x1-2134r3"></a><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;gfit2</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;9</span><span 
-class="aett-10">&#x00A0;3418.28</span>
-<br class="fancyvrb" /><a 
- id="x1-2136r4"></a><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;gfit3</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;9</span><span 
-class="aett-10">&#x00A0;3350.76</span>
-<br class="fancyvrb" /><a 
- id="x1-2138r5"></a><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;gfit4</span><span 
-class="aett-10">&#x00A0;10</span><span 
-class="aett-10">&#x00A0;3349.60</span>
-   </div>
-<!--l. 201--><p class="indent" >   The standard set of accessors is available: extract coefficients (<span 
-class="aett-10">coef</span>), fixed
-effects (<span 
-class="aett-10">fixef </span>&#8212; a synonym for <span 
-class="aett-10">coef</span>), random effects (<span 
-class="aett-10">ranef</span>), residuals
-(<span 
-class="aett-10">residuals</span>), fitted values (<span 
-class="aett-10">fitted</span>), log-likelihood (<span 
-class="aett-10">logLik</span>), summary (<span 
-class="aett-10">summary</span>),
-standard errors (<span 
-class="aett-10">stdEr</span>), variance-covariance matrix of coefficients (<span 
-class="aett-10">vcov</span>),
-variance-covariance matrices of random effects (<span 
-class="aett-10">VarCorr</span>), confidence intervals
-(<span 
-class="aett-10">confint</span>) &#x2026;
-<!--l. 216--><p class="indent" >
-   <div class="fancyvrb" id="fancyvrb12">
-<a 
- id="x1-2140r1"></a><span 
+ id="x1-2130r2"></a><span 
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;&#x003E;</span><span 
-class="aesltt-10">&#x00A0;methods(class="glmmadmb")</span>
-   </div>
-<!--l. 219--><p class="noindent" >
-   <div class="fancyvrb" id="fancyvrb13">
-<a 
- id="x1-2142r1"></a><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;[1]</span><span 
-class="aett-10">&#x00A0;anova.glmmadmb*</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;coef.glmmadmb*</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;fitted.glmmadmb*</span>
+class="aesltt-10">&#x00A0;coefplot2(list(ZIP=fit_zipoiss,</span>
 <br class="fancyvrb" /><a 
- id="x1-2144r2"></a><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;[4]</span><span 
-class="aett-10">&#x00A0;fixef.glmmadmb*</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;logLik.glmmadmb*</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;print.glmmadmb*</span>
+ id="x1-2132r3"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;ZINB=fit_zinbinom,</span>
 <br class="fancyvrb" /><a 
- id="x1-2146r3"></a><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;[7]</span><span 
-class="aett-10">&#x00A0;ranef.glmmadmb*</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;residuals.glmmadmb*</span><span 
-class="aett-10">&#x00A0;stdEr.glmmadmb*</span>
+ id="x1-2134r4"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;ZINB1=fit_zinbinom1,</span>
 <br class="fancyvrb" /><a 
- id="x1-2148r4"></a><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;[10]</span><span 
-class="aett-10">&#x00A0;summary.glmmadmb*</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;VarCorr.glmmadmb*</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;vcov.glmmadmb*</span>
+ id="x1-2136r5"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;ZINB1_brood=fit_zinbinom1_bs),</span>
 <br class="fancyvrb" /><a 
- id="x1-2150r5"></a><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span>
+ id="x1-2138r6"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;varnames=vn,</span>
 <br class="fancyvrb" /><a 
- id="x1-2152r6"></a><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;</span><span 
-class="aett-10">&#x00A0;Non-visible</span><span 
-class="aett-10">&#x00A0;functions</span><span 
-class="aett-10">&#x00A0;are</span><span 
-class="aett-10">&#x00A0;asterisked</span>
+ id="x1-2140r7"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;legend=TRUE)</span>
    </div>
                                                                   
 
                                                                   
-<!--l. 1--><p class="noindent" >
+<!--l. 268--><p class="noindent" ><img 
+src="glmmADMB3x.png" alt="PIC" class="graphics" width="276.00105pt" height="276.01457pt" ><!--tex4ht:graphics  
+name="glmmADMB3x.png" src="glmmADMB-cplot2.eps"  
+-->
+<!--l. 270--><p class="indent" >   The standard set of accessors is available:
+     <dl class="description"><dt class="description">
+<span 
+class="aett-10">coef</span> </dt><dd 
+class="description">extract (fixed-effect) coefficients
+     </dd><dt class="description">
+<span 
+class="aett-10">fixef</span> </dt><dd 
+class="description">a synonym for <span 
+class="aett-10">coef</span>, for consistency with <span 
+class="aett-10">nlme</span>/<span 
+class="aett-10">lme4</span>
+     </dd><dt class="description">
+<span 
+class="aett-10">ranef</span> </dt><dd 
+class="description">extract random effect coefficients (&#8220;BLUPs&#8221; or &#8220;conditional modes&#8221;)
+     </dd><dt class="description">
+<span 
+class="aett-10">residuals</span> </dt><dd 
+class="description">extract (Pearson) residuals
+     </dd><dt class="description">
+<span 
+class="aett-10">fitted</span> </dt><dd 
+class="description">fitted values
+     </dd><dt class="description">
+<span 
+class="aett-10">predict</span> </dt><dd 
+class="description">predicted values (<span 
+class="aeti-10">based only on fixed effects, not on random effects</span>),
+     possibly with standard errors (<span 
+class="aeti-10">based only on uncertainty of fixed effects</span>),
+     possibly for new data
+     </dd><dt class="description">
+<span 
+class="aett-10">logLik</span> </dt><dd 
+class="description">extract log-likelihood
+                                                                  
+
+                                                                  
+     </dd><dt class="description">
+<span 
+class="aett-10">AIC</span> </dt><dd 
+class="description">extract AIC
+     </dd><dt class="description">
+<span 
+class="aett-10">summary</span> </dt><dd 
+class="description">print summary
+     </dd><dt class="description">
+<span 
+class="aett-10">stdEr</span> </dt><dd 
+class="description">extract standard errors of coefficients
+     </dd><dt class="description">
+<span 
+class="aett-10">vcov</span> </dt><dd 
+class="description">extract estimated variance-covariance matrix of coefficients
+     </dd><dt class="description">
+<span 
+class="aett-10">VarCorr</span> </dt><dd 
+class="description">extract variance-covariance matrices of random effects
+     </dd><dt class="description">
+<span 
+class="aett-10">confint</span> </dt><dd 
+class="description">extract confidence intervals of fixed-effect coefficients</dd></dl>
+<!--l. 292--><p class="indent" >   <span 
+class="aebx-10">Missing</span>: specifying starting values; MCMC
    <h3 class="likesectionHead"><a 
  id="x1-30002"></a>References</h3>
 <!--l. 1--><p class="noindent" >
