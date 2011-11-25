@@ -10,6 +10,6 @@ LazyData: yes
 Description: Fits mixed-effects models to count data using a variety of distributions
 Imports: stats, nlme
 Depends: R (>= 2.13), methods, MASS
-Suggests: lattice, lme4, coda, mlmRev, scapeMCMC, ggplot2, coefplot2
+Suggests: lattice, lme4, coda, mlmRev, scapeMCMC, ggplot2, coefplot2, bbmle
 License: BSD
 URL: http://glmmadmb.r-forge.r-project.org, http://admb-project.org

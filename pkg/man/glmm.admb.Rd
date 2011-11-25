@@ -44,7 +44,8 @@ glmm.admb(\dots)  ## deprecated
 	 \code{"gamma"}, and \code{"beta"}.}
   \item{link}{a string specifying the shape of the link function:
     currently implemented options are
-    \code{"log"}, \code{"logit"}, and \code{"probit"}.}
+    \code{"log"}, \code{"logit"}, \code{"probit"}, \code{"cloglog"},
+    and \code{"identity"}.}
   \item{start}{an (optional) named list specifying starting values, with
     (optional) components \code{fixed} (fixed-effect parameters: default
     0);
