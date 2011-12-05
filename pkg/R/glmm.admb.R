@@ -56,6 +56,7 @@ get_bin_loc <- function(file_name,debug=FALSE) {
    bin_loc <- system.file("bin",paste(platform,nbits,sep=""),
                           execname,
                           package="glmmADMB")
+   if (debug) cat("bin_loc:",bin_loc,"\n")
    if (nchar(bin_loc)==0) stop(
               sprintf("glmmadmb binary should be available, but isn't (%s, %d bits)",platform,nbits))
    list(bin_loc=bin_loc,platform=platform)
@@ -70,7 +71,8 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
                      mcmc.opts=mcmcControl(),
                      save.dir, verbose=FALSE,
                      extra.args="",
-                     bin_loc=NULL)
+                     bin_loc=NULL,
+                     debug=FALSE)
 {
   ## FIXME: removed commented code after checking
   ## FIXME: make this an R temp directory? begin with a . for invisibility?
@@ -80,7 +82,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
 
   if (!missing(easyFlag)) warning("easyFlag argument ignored")
   
-  res <- get_bin_loc(file_name)
+  res <- get_bin_loc(file_name,debug=debug)
   platform <- res$platform
   if (is.null(bin_loc)) bin_loc <- res$bin_loc
 
@@ -88,12 +90,32 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   maxfn <- admb.opts$maxfn
   imaxfn <- admb.opts$imaxfn
   
-  if (use_tmp_dir <- missing(save.dir)) save.dir <- paste(tempfile(),"glmmADMB",sep="_")
+  if (use_tmp_dir <- missing(save.dir)) {
+    repeat {
+      save.dir <- paste(tempfile(pattern="glmmADMB"))
+      if (!file.exists(save.dir)) {
+        if (debug) cat("using temp directory",save.dir,"\n")
+        break
+      }
+    }
+  }
   if (newdir <- !file_test("-d",save.dir)) {
+    if (debug) cat("creating temp directory\n")
     dir.create(save.dir)
   }
-  owd <- setwd(save.dir); on.exit(setwd(owd))
-  if (use_tmp_dir) on.exit(unlink(save.dir,recursive=TRUE), add=TRUE)
+  owd <- setwd(save.dir)
+  if (debug) cat("changed working directory to",getwd(),"\n")
+  on.exit({
+    setwd(owd)
+    if (debug) cat("changed working directory to",getwd(),"\n")
+  })
+  if (use_tmp_dir) {
+    on.exit({
+      unlink(save.dir,recursive=TRUE)
+      if (debug) cat("removed temp directory",save.dir,"\n")
+    },
+            add=TRUE)
+  }
 
   call <- match.call()
   ## FIXME: corStruct could be a vector, corresponding to the random
