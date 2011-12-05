@@ -14,11 +14,11 @@ DATA_SECTION
   init_int ncolZ
   init_matrix Z(1,n,1,ncolZ)			// Design matrix for random effects
   init_imatrix I(1,n,1,ncolZ)			// Index vectors into joint RE vector "u" for each
-  init_ivector cor_flag(1,M)			// Indicator for wether each RE block should be correlated
+  init_ivector cor_flag(1,M)			// Indicator for whether each RE block should be correlated
   init_ivector cor_block_start(1,M) 		// Indices for blocks of correlated random effects
   init_ivector cor_block_stop(1,M) 
   init_int numb_cor_params			// Total number of correlation parameters to be estimated
-  init_int like_type_flag   			// 0 poisson 1 binomial 2 negative binomial 3 Gamma 4 beta 5 gaussian
+  init_int like_type_flag   			// 0 poisson 1 binomial 2 negative binomial 3 Gamma 4 beta 5 gaussian 6 truncated poisson
   init_int link_type_flag   			// 0 log 1 logit 2 probit 3 inverse 4 cloglog 5 identity
   init_int rlinkflag                            // robust link function?
   init_int no_rand_flag   			// 0 have random effects 1 no random effects
@@ -318,13 +318,15 @@ SEPARABLE_FUNCTION void log_lik(int _i,const dvar_vector& tmpL,const dvar_vector
        ad_exit(1);
   }
 
-  // FIXME: can implement 'nbinom1' by modifying next line:
-  //     nbinom var = mu*tau
   dvariable  tau = nbinom1_flag ? alpha : 1.0 + e1 + lambda/alpha ;
-  // dvariable tau = 1.0+e1+lambda/alpha;
   dvariable tmpl; 				// Log likelihood
 
   int cph=current_phase();
+
+  // FIXME: does having lots of choices (for like_type_flag and link_flag) slow things down?
+  // Is there any advantage to doing this stuff in a vectorized way?
+  // Is there some other better approach to the per-point switch() ?
+
   switch(like_type_flag)
   {
     case 0:   // Poisson
@@ -358,6 +360,14 @@ SEPARABLE_FUNCTION void log_lik(int _i,const dvar_vector& tmpL,const dvar_vector
       break;
     case 5: // Gaussian
       tmpl = 0.5*(log(2.0*M_PI*square(alpha)))+square((y(_i,1)-lambda)/alpha);
+      break;
+    case 6:   // truncated Poisson
+      // FIXME: check somewhere (here, or preferably in R code) for trunc poisson + not ZI + 0 in response
+      if (value(lambda) > 1.0e-10) {
+          tmpl = log_density_poisson(y(_i,1),lambda)-log(1.0-exp(-lambda));
+      } else {
+          tmpl = log_density_poisson(y(_i,1),lambda)-log(lambda);
+      }
       break;
     default:
       cerr << "Illegal value for like_type_flag" << endl;
