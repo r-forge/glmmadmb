@@ -15,7 +15,7 @@ glmmadmb(formula, data, family="poisson", link,start,
           admb.opts=admbControl(),
           mcmc=FALSE,mcmc.opts=mcmcControl(),save.dir,
           verbose=FALSE,extra.args="",
-          bin_loc=NULL)
+          bin_loc=NULL,debug=FALSE)
 glmm.admb(\dots)  ## deprecated
 }
 \arguments{
@@ -41,7 +41,7 @@ glmm.admb(\dots)  ## deprecated
          currently implemented options are
 	 \code{"poisson"}, \code{"binomial"}, \code{"nbinom"},
 	 \code{"nbinom1"} (negative binomial ``type 1'': see Details)
-	 \code{"gamma"}, and \code{"beta"}.}
+	 \code{"gamma"}, \code{"beta"}, and \code{"truncpoiss"} (experimental).}
   \item{link}{a string specifying the shape of the link function:
     currently implemented options are
     \code{"log"}, \code{"logit"}, \code{"probit"}, \code{"cloglog"},
@@ -83,6 +83,7 @@ glmm.admb(\dots)  ## deprecated
     ADMB manual)}
   \item{bin_loc}{location of \code{glmmadmb} binary file (normally determined automatically by
               \code{glmmADMB:::get_bin_loc})}
+  \item{debug}{(logical) print debugging statements?}
   \item{\dots}{arguments to pass through to \code{glmmadmb}}
 }
 \details{
