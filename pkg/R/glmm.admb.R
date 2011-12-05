@@ -136,8 +136,10 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
     family <- "nbinom"
   }
   if (family=="gaussian") stop("gaussian family not yet debugged")
+  if (family=="truncpoiss") stop("truncated Poisson support is EXPERIMENTAL/may not be supported other than on linux-32")
     
   like_type_flag <- switch(tolower(family),poisson=0,binomial=1,nbinom=2,gamma=3,beta=4,gaussian=5,
+                           truncpoiss=6,
                            stop("unknown family"))
 
 
