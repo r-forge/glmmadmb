@@ -4,13 +4,14 @@
 \title{glmmADMB News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.6.7 (2011-12-05)}{
+\section{Changes in version 0.6.7.1 (2011-12-05)}{
   \itemize{
     \item SVN rev 148 (+?)
     \item added debug flag, debugging statements
     \item attempt to avoid temporary-directory collisions
     \item TPL file adds truncated Poisson (untested)
     \item update saved OwlModel
+    \item added 'run' option to admbControl
   }
 }
 
