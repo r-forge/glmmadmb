@@ -10,7 +10,8 @@ predict.glmmadmb <- function(object, newdata=NULL, se.fit=FALSE,
   type <- match.arg(type)
   ## Construct model matrix, nobs x np
   if (is.null(newdata)) newdata <- object$frame
-  X <- model.matrix(object$fixed, data=newdata)
+  form <- as.formula(as.character(object$fixed)[-2])
+  X <- model.matrix(form, data=newdata)
   beta <- as.vector(object$b)
   phat <- X %*% beta
   offset <- rep(0, nrow(X))
