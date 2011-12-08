@@ -8,7 +8,7 @@
 }
 \usage{
 admbControl(impSamp=0,maxfn=500,imaxfn=500,noinit=TRUE,shess=TRUE,
- ZI_kluge=FALSE, run=TRUE)
+  run=TRUE, ZI_kluge=FALSE)
 }
 \arguments{
   \item{impSamp}{
@@ -28,9 +28,11 @@ admbControl(impSamp=0,maxfn=500,imaxfn=500,noinit=TRUE,shess=TRUE,
   \item{ZI_kluge}{whether to retain a zero-inflation term of 0.001
     even when \code{zeroInflation=FALSE} (for backward
     compatibility/testing; deprecated)}
-  \item{run}{Whether to run ADMB at all. (If this option is chosen,
-    the files \code{glmmadmb.\{std,bar,par,cor\}} should exist
-    in the appropriate working directory.)}
+  \item{run}{Whether to run ADMB at all. This will write out files
+    to the appropriate working directory, \emph{or} read existing
+    output files in the working directory
+    (\code{glmmadmb.\{std,bar,par,cor\}})
+    into a \code{glmmadmb} object.}
 }
 \details{
   See the AD Model Builder reference manual

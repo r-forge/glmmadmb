@@ -335,8 +335,8 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
       unlink(file_name)
     }
   }
-  if(!file.exists(std_file))
-    stop("The function maximizer failed")
+  ## FIXME: try to continue without std file ??
+  if (!file.exists(std_file)) stop("The function maximizer failed")
   tmp <- read.table(paste(file_name,"std",sep="."), skip=1,as.is=TRUE)
   ## FIXME: could we change the TPL file to write everything out in full precision??
   ##   ... otherwise to read .par file or binary versions ...
