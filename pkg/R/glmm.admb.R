@@ -131,6 +131,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   if (!has_rand && (!missing(corStruct))) 
     stop("No random effects specified: \"corStruct\" does not make sense")
 
+  family <- tolower(family)
   nbinom1_flag <- 0
   if (family=="nbinom1") {
     family <- "nbinom"
@@ -141,7 +142,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   if (family=="gaussian") stop("gaussian family not yet debugged")
   if (family=="truncpoiss") warning("truncated Poisson support is EXPERIMENTAL/may not be supported other than on linux-32")
     
-  like_type_flag <- switch(tolower(family),poisson=0,binomial=1,nbinom=2,gamma=3,beta=4,gaussian=5,
+  like_type_flag <- switch(family,poisson=0,binomial=1,nbinom=2,gamma=3,beta=4,gaussian=5,
                            truncpoiss=6,
                            stop("unknown family"))
 
@@ -182,13 +183,15 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
 
   y <- model.response(mf, "any") # e.g. factors are allowed
   if (inherits(y,"factor")) {
-    if (family!="binomial") stop("factors only allowed for binomial models")
+    if (family!="binomial") stop("factors as response variables only allowed for binomial models")
     ## slightly odd, but this is how glm() defines it: first level is failure, all others success
     y <- 1-as.numeric(as.numeric(y)==1)
   }
   y <- as.matrix(y)
   n <- nrow(y)
   p_y <- ncol(y)
+
+  nyobs <- if (family=="binomial") rowSums(y) else 1
 
   ## BMB: nobs() method? model.matrix, model.frame, terms methods?
 
@@ -458,10 +461,14 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
     out$fitted <- lambda / (1+lambda)
   else
     out$fitted <- lambda
-  out$sd.est <- switch(family,
-                       poisson=sqrt(lambda),
-                       nbinom=sqrt(lambda*(1+lambda/out$alpha)),
-                       binomial=sqrt(out$fitted*(1-out$fitted)))
+  out$sd.est <- with(out,switch(family,
+                                poisson=sqrt(lambda),
+                                nbinom=sqrt(lambda*(1+lambda/alpha)),
+                                nbinom1=sqrt(lambda*alpha),
+                                binomial=sqrt(fitted*(1-fitted)/nyobs),
+                                beta=sqrt(fitted*(1-fitted)/(1+alpha)),
+                                rep(NA,length(lambda))))
+  ##  stop("sd.est not defined for family",family))
 
   out$residuals <- as.numeric(y-lambda)
   tmp <- par_read(file_name)
