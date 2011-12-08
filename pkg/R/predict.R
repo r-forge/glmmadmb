@@ -2,8 +2,8 @@ nobs.glmmadmb <- function(object,...) {
   nrow(object$frame)
 }
 
-predict.glmmadmb <- function(object, newdata=NULL, se.fit=FALSE,
-                    type=c("link","response"), ...) {
+predict.glmmadmb <- function(object, newdata=NULL, 
+                    type=c("link","response"), se.fit=FALSE, ...) {
   if (se.fit && type=="response") {
     warning("se.fit && type='response': setting se.fit to NA")
   }

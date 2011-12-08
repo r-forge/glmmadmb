@@ -12,6 +12,9 @@
     \item TPL file adds truncated Poisson (untested)
     \item update saved OwlModel
     \item added 'run' option to admbControl
+    \item fixed predict bug (remove LHS)
+    \item fix problems with calculating sd.est for models other than
+  Bernoulli, Poisson, NB
   }
 }
 
