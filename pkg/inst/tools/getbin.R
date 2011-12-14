@@ -1,4 +1,6 @@
-RELEASE <- "r135"
+## RELEASE <- "r135"
+RELEASE <- "r199"
+
 w7ver <- "mingw"
 buildbot_base <- "http://www.admb-project.org/buildbot/glmmadmb/glmmadmb-admb-"
 ## assume are starting from the root of the package directory
@@ -7,7 +9,8 @@ platform_str <- c(linux32="ubuntu11-gcc4.5-32bit-",
                   macos32="macos10.6-xcode3.2-32bit-",
                   macos64="macos10.6-xcode3.2-64bit-",
                   windows32="windows7-borland-32bit-",
-                  windows64="windows7-vc10-64bit-")
+                  ## FIXME: 
+                  windows64="windows7-vc10-64bit-64bit-")
   ## c(linux32="linux-gcc4.5.2-32bit",
   ##   linux64="linux-gcc4.5.2-64bit",
   ##   macos32="macos10.6.7-xcode3.2.6-32bit",
