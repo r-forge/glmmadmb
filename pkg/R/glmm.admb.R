@@ -47,7 +47,7 @@ get_bin_loc <- function(file_name,debug=FALSE) {
      ## http://tolstoy.newcastle.edu.au/R/e2/help/07/01/8497.html
      if (substr(R.version$os,1,6)=="darwin") "macos" else {
        if (R.version$os=="linux-gnu") "linux" else {
-         stop("glmmadmb binary not available for this OS")
+         stop("glmmadmb binary not available for OS",R.version$os)
          ## FIXME: allow user to supply their own binary?
        }
      }
@@ -76,9 +76,6 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
                      bin_loc=NULL,
                      debug=FALSE)
 {
-  ## FIXME: removed commented code after checking
-  ## FIXME: make this an R temp directory? begin with a . for invisibility?
-  ## dirname <- if(is.null(save.dir)) "_glmm_ADMB_temp_dir_" else save.dir
 
   file_name <- "glmmadmb"
 
@@ -327,22 +324,28 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   ##  output in the directory in which the binary lives rather than the
   ##  current working directory (feel like I struggled with this earlier
   ##  but have now forgotten -- ADMB mailing list archives??)
-  if (platform!="windows") {
+  if (platform=="windows") {
+    cmd <- paste("\"",bin_loc, "\"", " ", cmdoptions, sep="")
+  } else {
+    cmd <- paste("./", file_name, " ", cmdoptions, sep="")
     file.copy(bin_loc,".")
     Sys.chmod(file_name,mode="0755") ## file.copy strips executable permissions????
   }
+  if (debug) cat("Command line:",cmd,"\n")
   if (run) {
     if (platform=="windows") {
-      cmd <- paste("\"",bin_loc, "\"", " ", cmdoptions, sep="")
       shell(cmd, invisible=TRUE)
     } else  {
-      cmd2 <- paste("./", file_name, " ", cmdoptions, sep="")
-      sys.result <- system(cmd2,intern=!verbose)
+      sys.result <- system(cmd,intern=!verbose)
       unlink(file_name)
     }
   }
   ## FIXME: try to continue without std file ??
-  if (!file.exists(std_file)) stop("The function maximizer failed (couldn't find STD file)")
+  if (!file.exists(std_file)) {
+    if (run) stop("The function maximizer failed (couldn't find STD file)")
+    message("'run=FALSE' specified, no files found: stopping")
+    return(NULL)
+  }
   tmp <- read.table(paste(file_name,"std",sep="."), skip=1,as.is=TRUE)
   ## FIXME: could we change the TPL file to write everything out in full precision??
   ##   ... otherwise to read .par file or binary versions ...
