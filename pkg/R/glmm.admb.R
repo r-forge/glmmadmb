@@ -133,23 +133,22 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
 
   family <- tolower(family)
   nbinom1_flag <- 0
-  if (family=="nbinom1") {
-    family <- "nbinom"
+  if (family %in% c("nbinom1","truncnbinom1") ) {
     nbinom1_flag <- 1
-  } else if (family=="nbinom2") {  ## synonym for "nbinom"
-    family <- "nbinom"
   }
+  ## [trunc]nbinom2 is a synonym for [trunc]nbinom
+  if (length(grep("nbinom",family))>0)
+    family <- gsub("[12]$","",family)
+
   if (family=="gaussian") stop("gaussian family not yet debugged")
-  if (family=="truncpoiss") warning("truncated Poisson support is EXPERIMENTAL/may not be supported other than on linux-32")
     
   like_type_flag <- switch(family,poisson=0,binomial=1,nbinom=2,gamma=3,beta=4,gaussian=5,
-                           truncpoiss=6,
+                           truncpoiss=6,truncnbinom=7,
                            stop("unknown family"))
 
-
-
   if (missing(link)) {
-    link <- switch(family, binomial=, beta="logit", nbinom=, poisson=, truncpoiss=, gamma="log",gaussian="identity")
+    link <- switch(family, binomial=, beta="logit", nbinom=, poisson=, truncpoiss=, truncnbinom=, gamma="log",
+                   gaussian="identity")
   }
   linkfun <- switch(link,log=log,logit=qlogis,probit=qnorm,inverse=function(x) {1/x},
                     cloglog=function(x) {log(-log(1-x))},
@@ -321,25 +320,29 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   if(file.exists(std_file) && run) warning("file",std_file,"exists: overwriting")
   ## file.remove(std_file)
 
-  if (run) {
+  ## copy executable even if not running code (i.e. make complete copy needed
+  ##   to run ADMB outside of R)
   ## FIXME: for what platforms do we really need to copy the binary?
   ##  can't we just run it in place?  Or does it do something silly and produce
   ##  output in the directory in which the binary lives rather than the
   ##  current working directory (feel like I struggled with this earlier
   ##  but have now forgotten -- ADMB mailing list archives??)
+  if (platform!="windows") {
+    file.copy(bin_loc,".")
+    Sys.chmod(file_name,mode="0755") ## file.copy strips executable permissions????
+  }
+  if (run) {
     if (platform=="windows") {
       cmd <- paste("\"",bin_loc, "\"", " ", cmdoptions, sep="")
       shell(cmd, invisible=TRUE)
     } else  {
-      file.copy(bin_loc,".")
-      Sys.chmod(file_name,mode="0755") ## file.copy strips executable permissions????
       cmd2 <- paste("./", file_name, " ", cmdoptions, sep="")
       sys.result <- system(cmd2,intern=!verbose)
       unlink(file_name)
     }
   }
   ## FIXME: try to continue without std file ??
-  if (!file.exists(std_file)) stop("The function maximizer failed")
+  if (!file.exists(std_file)) stop("The function maximizer failed (couldn't find STD file)")
   tmp <- read.table(paste(file_name,"std",sep="."), skip=1,as.is=TRUE)
   ## FIXME: could we change the TPL file to write everything out in full precision??
   ##   ... otherwise to read .par file or binary versions ...
