@@ -15,24 +15,57 @@
 
 <h1>glmmADMB</h1>
 
-<p>Please visit the following webpages for information about the <tt>glmmADMB</tt> package 
+<p>The <code>glmmADMB</code> package, built on the open-source
+<a href="http://admb-project.org">AD Model Builder</a> platform, is
+an <a href="http://www.r-project.org">R</a> package for fitting
+generalized linear mixed models (GLMMs).</p>
+<p>Its capabilities include:
+<ul>
+<li>a wide range of families (response distributions), including non-exponential families such as negative binomial (type 1 and 2), Beta, and truncated Poisson and negative binomial distributions as well as the standard exponential families (binomial, Poisson, Gamma).
+</li>
+<li>a wide range of link functions: log, logit, probit, complementary log-log, identity, inverse.
+</li>
+<li>Zero-inflation (currently only as a single constant term across all groups)</li>
+<li>Single or multiple random effects, including both nested and crossed effects</li>
+<li>Markov chain Monte Carlo (MCMC) summaries of uncertainty</li>
+</ul>
+</p>
+<p>
+In order to use glmmADMB effectively you should already be reasonably familiar with GLMMs, which in turn requires familiarity with (i) generalized linear models (e.g. the special cases of logistic, binomial, and Poisson regression) and (ii) 'modern' mixed models (those working via maximization of the marginal likelihood rather than by manipulating sums of squares). 
+</p>
+<p>Please visit the following webpages for more information about the <tt>glmmADMB</tt> package 
 (<em>please note the latter is somewhat out of date,
 although it may still contain useful information</em>):
 
 <ul>
-  <li><a href="http://r-forge.r-project.org/projects/glmmadmb/">R-Forge</a> (current development)
-  <li><a href="http://admb-project.org/examples/r-stuff/glmmadmb">ADMB Project</a> (recent homepage)
+  <li><a href="http://r-forge.r-project.org/projects/glmmadmb/">R-Forge</a> (current development)</li>
+  <li><a href="http://admb-project.org/examples/r-stuff/glmmadmb">ADMB Project</a> (recent homepage)</li>
 </ul>
-
-<p>To install, run:
-<pre>install.packages("glmmADMB", repos="http://r-forge.r-project.org",type="source")</pre>
-(technically speaking, <code>type="source"</code> should not be necessary, but if you're
-try to install from not-the-very-latest-version of R, or if R-forge is having a bad day,
-it will help ...)
 </p>
+
+<h2>Installation</h2>
+<ul>
+<li>First try 
+<pre>install.packages("glmmADMB", repos="http://r-forge.r-project.org")
+</pre>
+</li>
+<li>If this fails (because you don't have the very latest version of R, or because R-forge is having a bad day), try
+<pre>
+install.packages("glmmADMB", repos="http://r-forge.r-project.org",type="source")</pre>
+</li>
+<li>If this fails, the most likely explanation is an internet connection problem.  Go to the <a href="https://r-forge.r-project.org/R/?group_id=847">R-forge packages page for the glmmADMB project</a> and download the source package (search for the link labeled "Package source (.tar.gz)") to your computer. (If this link is not found, contact the package maintainers.) Put this file (which will be called <code>glmmADMB_xxxx.tar.gz</code>, where <code>xxxx</code> is the version number) in your R working directory and try
+<pre>
+install.packages("glmmADMB_xxxx.tar.gz",repos=NULL, type="source")
+</pre>
+</li>
+</ul>
+</p>
+<h2>Additional documentation</h2>
 <p>Current (minimal) documentation/example:
 <a href="glmmADMB.html">HTML</a>, <a href="glmmADMB.pdf">PDF</a>
 </p>
+
+<h2>Note on new versions</h2>
 <p>
 </pre>
 New versions of <tt>glmmADMB</tt> (>0.6.4) have the following major changes:
