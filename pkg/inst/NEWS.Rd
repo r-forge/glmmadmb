@@ -9,7 +9,7 @@
     \item SVN rev 148 (+?)
     \item added debug flag, debugging statements
     \item attempt to avoid temporary-directory collisions
-    \item TPL file adds truncated Poisson (untested)
+    \item TPL file adds truncated Poisson and negative binomial
     \item update saved OwlModel
     \item added 'run' option to admbControl
     \item fixed predict bug (remove LHS)
