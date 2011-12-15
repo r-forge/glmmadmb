@@ -3,7 +3,9 @@ set.seed(1001)
 data("bioChemists",package="pscl")
 ## library(pscl)
 ## h1 <- hurdle(art~fem+mar+kid5+phd+ment,data=bioChemists)
+## h2 <- hurdle(art~fem+mar+kid5+phd+ment,data=bioChemists,dist="negbin")
 
+## stored results:
 psclcoef <- structure(c(0.671139312871508,
                         -0.228582657955377, 0.0964849892769541, 
                         -0.142187559329214, -0.0127263725842253,
@@ -17,6 +19,15 @@ psclcoef <- structure(c(0.671139312871508,
                         "count_ment", "zero_(Intercept)", "zero_femWomen",
                         "zero_marMarried", "zero_kid5",
                         "zero_phd", "zero_ment"))
+
+psclcoef2 <- structure(c(0.355124753990917, -0.244671930706915, 0.103417222781896, 
+                         -0.153259854258221, -0.00293325670968586, 0.0237381567796306, 
+                         0.236796012435245, -0.251151128617988, 0.326233583613064, -0.285248715785051, 
+                         0.0222193970990452, 0.0801213546865395),
+                       .Names = c("count_(Intercept)", 
+                         "count_femWomen", "count_marMarried", "count_kid5", "count_phd", 
+                         "count_ment", "zero_(Intercept)", "zero_femWomen", "zero_marMarried", 
+                         "zero_kid5", "zero_phd", "zero_ment"))
 
 bb <- subset(bioChemists,art>0)
 library(glmmADMB)
@@ -32,3 +43,12 @@ g2 <- glmmadmb(nz~fem+mar+kid5+phd+ment,
 cp2 <-  psclcoef[grep("zero_",names(psclcoef))]
 cg2 <- coef(g2)
 stopifnot(abs(cp2-cg2)<2e-5)
+
+## negative binomial version:
+g3 <- glmmadmb(art~fem+mar+kid5+phd+ment,
+               family="truncnbinom",link="log",data=bb)
+cp3 <- psclcoef2[grep("count_",names(psclcoef2))]
+cg3 <- coef(g3)
+stopifnot(abs(cp3-cg3)<6e-6)
+
+## binomial part should be identical ...

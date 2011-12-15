@@ -268,7 +268,8 @@ The standard set of accessors is available:
   \item[\code{confint}] extract confidence intervals of fixed-effect coefficients
 \end{description} 
 
-\textbf{Missing}: specifying starting values; MCMC
+\textbf{Missing}: specifying starting values; MCMC; general
+troubleshooting (extra arguments, running outside R)
 
 %%  AFTER HERE: stuff that's not really finished
 %Load data on epilepsy from the \code{MASS} package
