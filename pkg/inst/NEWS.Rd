@@ -4,9 +4,17 @@
 \title{glmmADMB News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.7 (2011-12-18)}{
+  \itemize{
+    \item added R2admb dependency, removed copies of R2admb files
+    \item improved vignette (hurdle and MCMC)
+    \item improved labeling of MCMC output
+  }
+}
+  
 \section{Changes in version 0.6.7.1 (2011-12-05)}{
   \itemize{
-    \item SVN rev 148 (+?)
+    \item SVN rev 158
     \item added debug flag, debugging statements
     \item attempt to avoid temporary-directory collisions
     \item TPL file adds truncated Poisson and negative binomial

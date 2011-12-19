@@ -346,6 +346,14 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
     message("'run=FALSE' specified, no files found: stopping")
     return(NULL)
   }
+  ## parameter order:
+  ## pz (1)
+  ## beta      ## nfixpar
+  ## real_beta ## nfixpar
+  ## tmpL (log standard dev)   ## nvar
+  ## tmplL1 (offdiag elements) ## ncor
+  ## log_alpha                 ## alpha
+  ##
   tmp <- read.table(paste(file_name,"std",sep="."), skip=1,as.is=TRUE)
   ## FIXME: could we change the TPL file to write everything out in full precision??
   ##   ... otherwise to read .par file or binary versions ...
@@ -500,7 +508,8 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
 
   ## FIXME: figure out names of parameters
   if (mcmc) {
-    out$mcmc <- read_psv(file_name)
+    out$mcmc <- as.matrix(R2admb:::read_psv(file_name))
+    colnames(out$mcmc) <- R2admb:::rep_pars(tmpindex)[1:ncol(out$mcmc)]
   }
   
   class(out) <- "glmmadmb"
