@@ -1,5 +1,6 @@
 ## RELEASE <- "r135"
-RELEASE <- "r199"
+## RELEASE <- "r199"
+RELEASE <- "r206"
 
 w7ver <- "mingw"
 buildbot_base <- "http://www.admb-project.org/buildbot/glmmadmb/glmmadmb-admb-"
