@@ -44,7 +44,7 @@ although it may still contain useful information</em>):
 </p>
 
 <h2>Installation</h2>
-<ul>
+<ol>
 <li>First try 
 <pre>install.packages("glmmADMB", repos="http://r-forge.r-project.org")
 </pre>
@@ -53,12 +53,24 @@ although it may still contain useful information</em>):
 <pre>
 install.packages("glmmADMB", repos="http://r-forge.r-project.org",type="source")</pre>
 </li>
-<li>If this fails, the most likely explanation is an internet connection problem.  Go to the <a href="https://r-forge.r-project.org/R/?group_id=847">R-forge packages page for the glmmADMB project</a> and download the source package (search for the link labeled "Package source (.tar.gz)") to your computer. (If this link is not found, contact the package maintainers.) Put this file (which will be called <code>glmmADMB_xxxx.tar.gz</code>, where <code>xxxx</code> is the version number) in your R working directory and try
+<li>If this fails, you may have an internet connection problem.  Go to the <a href="https://r-forge.r-project.org/R/?group_id=847">R-forge packages page for the glmmADMB project</a> and download the source package (search for the link labeled "Package source (.tar.gz)") to your computer. Put this file (which will be called <code>glmmADMB_xxxx.tar.gz</code>, where <code>xxxx</code> is the version number) in your R working directory and try
 <pre>
 install.packages("glmmADMB_xxxx.tar.gz",repos=NULL, type="source")
 </pre>
 </li>
-</ul>
+<li>If the most recent build of glmmADMB is messed up (usually the maintainers' fault), you may be able to find/install a fairly recent version via
+<pre>
+install.packages("glmmADMB", repos="http://www.math.mcmaster.ca/bolker/R",type="source")
+</pre>
+or by navigating to <a href="http://www.math.mcmaster.ca/bolker/R/src/contrib">http://www.math.mcmaster.ca/bolker/R/src/contrib</a> and downloading the appropriate file.
+</li>
+<li>
+If all else fails, contact the package maintainers.
+</li>
+<li>
+Note that recent versions of <code>glmmADMB</code> (>=0.7) require the <code>R2admb</code> package as well; under normal circumstances this should be installed automatically when you install <code>glmmADMB</code>, but if you run into trouble you should try solutions similar to those listed above.
+</li>
+</ol>
 </p>
 <h2>Additional documentation</h2>
 <p>
@@ -83,7 +95,8 @@ New versions of <tt>glmmADMB</tt> (>0.6.4) have the following major changes:
 <li>wider range of distributions and link functions supported (e.g. binomial with <em>N</em>&gt; 1)</li>
 </ul>
 The new release is somewhat slower (for the time being) than older (pre-0.5.2) versions: if you 
-have a desperate need for a copy of an old version, please contact the package maintainers.
+have a desperate need for a copy of an old version, you can 
+<a href="http://www.math.mcmaster.ca/bolker/R/src/contrib/glmmADMB_0.5.2.tar.gz">download a source version</a> and follow alternative #3 from the installation instructions above.
 </p>
 
 </body>
