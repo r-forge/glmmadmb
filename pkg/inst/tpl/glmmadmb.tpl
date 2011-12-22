@@ -383,6 +383,9 @@ SEPARABLE_FUNCTION void log_lik(int _i,const dvar_vector& tmpL,const dvar_vector
       else
         tmpl = log_negbinomial_density(y(_i,1),lambda,tau)-log(1.0-pow(1.0+lambda/alpha,-alpha));
       break;
+    case 8: // logistic 
+      tmpl = -log(alpha) + (y(_i,1)-lambda)/alpha - 2*log(1+exp((y(_i,1)-lambda)/alpha));
+      break;
     default:
       cerr << "Illegal value for like_type_flag" << endl;
       ad_exit(1);

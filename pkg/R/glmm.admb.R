@@ -140,12 +140,12 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   if (family=="gaussian") stop("gaussian family not yet debugged")
     
   like_type_flag <- switch(family,poisson=0,binomial=1,nbinom=2,gamma=3,beta=4,gaussian=5,
-                           truncpoiss=6,truncnbinom=7,
+                           truncpoiss=6,truncnbinom=7,logistic=8,
                            stop("unknown family"))
 
   if (missing(link)) {
     link <- switch(family, binomial=, beta="logit", nbinom=, poisson=, truncpoiss=, truncnbinom=, gamma="log",
-                   gaussian="identity")
+                   gaussian, logistic="identity")
   }
   linkfun <- switch(link,log=log,logit=qlogis,probit=qnorm,inverse=function(x) {1/x},
                     cloglog=function(x) {log(-log(1-x))},

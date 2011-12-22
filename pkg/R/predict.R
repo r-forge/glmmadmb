@@ -26,7 +26,7 @@ predict.glmmadmb <- function(object, newdata=NULL,
   }
   phat <- c(phat + offset)
   if (se.fit) {
-    stderr <- c(sqrt(diag(X %*% vcov(X) %*% t(X))))
+    stderr <- c(sqrt(diag(X %*% vcov(object) %*% t(X))))
   }
   if (type=="response") {
     phat <- object$ilinkfun(phat)
