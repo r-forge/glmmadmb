@@ -2,12 +2,17 @@ nobs.glmmadmb <- function(object,...) {
   nrow(object$frame)
 }
 
-predict.glmmadmb <- function(object, newdata=NULL, 
-                    type=c("link","response"), se.fit=FALSE, ...) {
+predict.glmmadmb <- function(object, newdata=NULL,
+                             type=c("link","response"),
+                             se.fit=FALSE,
+                             interval=c("none","confidence"),
+                             random=~0,
+                             level=0.95, ...) {
   if (se.fit && type=="response") {
     warning("se.fit && type='response': setting se.fit to NA")
   }
   type <- match.arg(type)
+  interval <- match.arg(interval)
   ## Construct model matrix, nobs x np
   if (is.null(newdata)) newdata <- object$frame
   form <- as.formula(as.character(object$fixed)[-2])
@@ -15,6 +20,10 @@ predict.glmmadmb <- function(object, newdata=NULL,
   beta <- as.vector(object$b)
   phat <- X %*% beta
   offset <- rep(0, nrow(X))
+  ## interpret random-effects formula
+  if (!identical(random,~0)) {
+    
+  }
   tt <- object$terms
   ## copied from predict.lm, unpacked slightly for ease of debugging
   off.num <- attr(tt, "offset")
@@ -25,12 +34,17 @@ predict.glmmadmb <- function(object, newdata=NULL,
     }
   }
   phat <- c(phat + offset)
-  if (se.fit) {
+  if (se.fit || interval!="none") {
     stderr <- c(sqrt(diag(X %*% vcov(object) %*% t(X))))
+  }
+  if (interval=="confidence") {
+    qq <- qnorm((1+level)/2)
+    phat <- cbind(fit=phat,lwr=phat-qq*stderr,upr=phat+qq*stderr)
   }
   if (type=="response") {
     phat <- object$ilinkfun(phat)
     stderr <- NA
   }
+  if (interval=="confidence") phat <- as.data.frame(phat)
   if (se.fit) list(fit=phat,se.fit=stderr) else phat
 }
