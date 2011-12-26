@@ -9,6 +9,8 @@
     \item added R2admb dependency, removed copies of R2admb files
     \item improved vignette (hurdle and MCMC)
     \item improved labeling of MCMC output
+    \item added test for MacOS <10.6
+    \item fixed predict bug; enhanced predict (still needs documentation)
   }
 }
   

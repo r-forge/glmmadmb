@@ -42,11 +42,22 @@ glmm.admb <- function(...) {
 
 get_bin_loc <- function(file_name,debug=FALSE) {
    nbits <- 8 * .Machine$sizeof.pointer
-   platform <- if (.Platform$OS.type == "windows") "windows" else {
+   if (.Platform$OS.type == "windows") {
+     platform <- "windows"
+   } else {
      ## MacOS detection OK?
      ## http://tolstoy.newcastle.edu.au/R/e2/help/07/01/8497.html
-     if (substr(R.version$os,1,6)=="darwin") "macos" else {
-       if (R.version$os=="linux-gnu") "linux" else {
+     if (substr(R.version$os,1,6)=="darwin") {
+       platform <- "macos"
+       unameres <- system("uname -v",intern=TRUE)
+       if (grepl(unameres,"Version 9")) {
+         stop("glmmADMB binaries are not available for Mac OS 10.5 (Leopard).",
+              "Please see http://glmmadmb.r-forge.r-project.org for other options")
+       }
+     } else {
+       if (R.version$os=="linux-gnu") {
+         platform <- "linux"
+       } else {
          stop("glmmadmb binary not available for OS",R.version$os)
          ## FIXME: allow user to supply their own binary?
        }

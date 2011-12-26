@@ -126,7 +126,7 @@ process_randformula <- function(f,random,data) {
   L
 }
 
-## print tp file (not necessarily 
+## print to file
 write_randformula <- function(x,name) {
   require(glmmADMB)
   fn <- if(substring(name,nchar(name)-3)==".dat") {
