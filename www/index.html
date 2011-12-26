@@ -70,6 +70,24 @@ If all else fails, contact the package maintainers.
 <li>
 Note that recent versions of <code>glmmADMB</code> (>=0.7) require the <code>R2admb</code> package as well; under normal circumstances this should be installed automatically when you install <code>glmmADMB</code>, but if you run into trouble you should try solutions similar to those listed above.
 </li>
+<li>At present the binaries included in the <code>glmmADMB</code> will <strong>not</strong> run on MacOS 10.5 (Leopard) or earlier. 
+If you encounter this problem, your choices are:
+<ul>
+<li>Upgrade your system to a more recent version of MacOS (if possible);</li>
+<li>Build <code>glmmadmb</code> from its TPL file on your machine.  This will be a bit tricky if you are not reasonably experienced
+<ul><li>Download the full AD Model Builder  source code
+from the <a href="http://admb-project.org/downloads/">AD Model Builder download page</a> and follow the <a href="http://admb-project.org/documentation/faq#build">directions</a> for building AD Model Builder from source; you may need to install Xcode, and you may need to ask for help at <code>users@admb-project.org</code>.  (Googling "admb macos 10.5" will be helpful as well, although it's possible that you will need the most recent version of the ADMB source code to compile <code>glmmadmb.tpl</code> properly ...)</li>
+<li>find the <code>glmmadmb.tpl</code> file in the <code>glmmADMB</code> package directories and use ADMB to compile it to a binary</li>
+<li>copy the resulting binary to the <code>bin/macos32</code> or <code>bin/macos64</code> directory as appropriate.
+</ul>
+<li>Contact the maintainers to appeal for help and find out if
+there any new developments in support for MacOS versions less than 10.6.
+</li>
+<li>A similar process may work for other unsupported 
+operating systems such as
+Solaris, but in that case it's also probably a good idea to
+contact the maintainers.</li>
+</ul>
 </ol>
 </p>
 <h2>Additional documentation</h2>
@@ -101,3 +119,5 @@ have a desperate need for a copy of an old version, you can
 
 </body>
 </html>
+
+
