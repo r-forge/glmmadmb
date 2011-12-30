@@ -148,15 +148,16 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   if (length(grep("nbinom",family))>0)
     family <- gsub("[12]$","",family)
 
-  if (family=="gaussian") stop("gaussian family not yet debugged")
+  ## if (family=="gaussian") stop("gaussian family not yet debugged")
     
   like_type_flag <- switch(family,poisson=0,binomial=1,nbinom=2,gamma=3,beta=4,gaussian=5,
                            truncpoiss=6,truncnbinom=7,logistic=8,
                            stop("unknown family"))
 
   if (missing(link)) {
-    link <- switch(family, binomial=, beta="logit", nbinom=, poisson=, truncpoiss=, truncnbinom=, gamma="log",
-                   gaussian, logistic="identity")
+    link <- switch(family, binomial=, beta="logit",
+                   nbinom=, poisson=, truncpoiss=, truncnbinom=, gamma="log",
+                   gaussian=, logistic="identity")
   }
   linkfun <- switch(link,log=log,logit=qlogis,probit=qnorm,inverse=function(x) {1/x},
                     cloglog=function(x) {log(-log(1-x))},
@@ -181,7 +182,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   m <- match(c("formula", "data", "subset", "na.action", 
                "offset"), names(mf), 0L)
   mf <- mf[c(1L, m)]
-  mf$formula <- get_fixedformula(mf$formula)
+  mf$formula <- get_fixedformula(eval(mf$formula))
   mf$drop.unused.levels <- TRUE
   mf[[1L]] <- as.name("model.frame")
   mf <- eval(mf, parent.frame())
@@ -391,6 +392,8 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
       out$sd_alpha <- as.numeric(tmp[tmpindex=="alpha", 4])
     } 
 
+
+  out$offset <- offset
   
   ## if(!missing(link))
   out$link <- link

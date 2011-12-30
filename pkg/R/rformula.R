@@ -13,11 +13,20 @@ get_fixedformula <- function(f) {
   lchar <- as.character(f[2])
   rchar <- as.character(f[3]) ## RHS
   offsetstr <- ""
-  if (length(grep("offset\\(",rchar))>0) {
+  has_offset <- function(x) {grepl("offset\\(",x)}
+  if (has_offset(rchar)) {
     ## protect/remove offset
-    offsetstr <- gsub(".*(\\+ *offset\\([^)]+\\)).*","\\1",rchar)
-    rchar <- gsub("offset\\([^)]+\\)","",rchar)
-  } 
+    off1str <- "offset\\([^()]*\\)"
+    off2str <- "offset\\([^()]*\\([^()]*\\)[^()]*\\)"
+    ## try nested parens
+    offsetstr <- gsub(paste(".*(\\+ *",off2str,").*",sep=""),"\\1",rchar)
+    rchar <- gsub(off2str,"",rchar)
+    if (has_offset(rchar)) {
+      offsetstr <- gsub(paste(".*(\\+ *",off1str,").*",sep=""),"\\1",rchar)
+      rchar <- gsub(off1str,"",rchar)
+    }    
+    if (has_offset(rchar)) stop("unable to process offset term")
+  }
   rchar <- gsub("\\([^)|]+\\|[^)|]+\\)","",rchar) ## parentheses containing |
   rchar <- gsub("(\\+ *\\+ *)+","+",rchar) ## duplicated +
   rchar <- gsub(" *\\++ *$","",rchar) ## terminating + (possibly multiple)
