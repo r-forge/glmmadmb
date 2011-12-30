@@ -101,4 +101,5 @@ g4 <- lm(y0~x,data=d)
 g4B <- glm(y0~x,data=d)
 g4C <- glmmadmb(y0~x,data=d,family="gaussian")
 stopifnot(all.equal(coef(g4),coef(g4B),coef(g4C)))
+stopifnot(all.equal(c(logLik(g4)),c(logLik(g4B)),c(logLik(g4C)),tol=1e-4))
 
