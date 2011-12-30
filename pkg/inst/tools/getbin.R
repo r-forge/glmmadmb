@@ -1,12 +1,14 @@
 ## RELEASE <- "r135"
 ## RELEASE <- "r199"
-RELEASE <- "r206"
+## RELEASE <- "r206"
+RELEASE <- "r214"
 
 w7ver <- "mingw"
 buildbot_base <- "http://www.admb-project.org/buildbot/glmmadmb/glmmadmb-admb-"
 ## assume are starting from the root of the package directory
-platform_str <- c(linux32="ubuntu11-gcc4.5-32bit-",
-                  linux64="ubuntu11-gcc4.5-64bit-",
+## 27 Dec: change gcc 4.5 -> 4.6
+platform_str <- c(linux32="ubuntu11-gcc4.6-32bit-",
+                  linux64="ubuntu11-gcc4.6-64bit-",
                   macos32="macos10.6-xcode3.2-32bit-",
                   macos64="macos10.6-xcode3.2-64bit-",
                   windows32="windows7-borland-32bit-",

@@ -14,32 +14,38 @@ predict.glmmadmb <- function(object, newdata=NULL,
   type <- match.arg(type)
   interval <- match.arg(interval)
   ## Construct model matrix, nobs x np
-  if (is.null(newdata)) newdata <- object$frame
-  form <- as.formula(as.character(object$fixed)[-2])
-  X <- model.matrix(form, data=newdata)
-  beta <- as.vector(object$b)
-  phat <- X %*% beta
-  offset <- rep(0, nrow(X))
-  ## interpret random-effects formula
-  if (!identical(random,~0)) {
-    
-  }
-  tt <- object$terms
-  ## copied from predict.lm, unpacked slightly for ease of debugging
-  off.num <- attr(tt, "offset")
-  if (!is.null(off.num))  {
-    for (i in off.num) {
-      cur.offset <- eval(attr(tt, "variables")[[i]], newdata)
-      offset <- offset + cur.offset
+  if (missing(newdata) || is.null(newdata)) {
+    newdata <- object$frame
+    X <- model.matrix(object, data=newdata)
+    offset <- object$offset
+  } else {
+    form <- as.formula(as.character(object$fixed)[-2])
+    X <- model.matrix(form, data=newdata)
+    tt <- object$terms
+    ## handle offset
+    offset <- rep(0, nrow(X))
+    off.num <- attr(tt, "offset")
+    if (!is.null(off.num))  {
+      for (i in off.num) {
+        cur.offset <- eval(attr(tt, "variables")[[i+1]], newdata)
+        offset <- offset + cur.offset
+      }
     }
   }
-  phat <- c(phat + offset)
+  beta <- as.vector(object$b)
+  phat <- X %*% beta
+  ## interpret random-effects formula
+  if (!identical(random,~0)) {
+    stop("random-effects prediction not yet implemented")
+  }  
+  if (!is.null(offset)) phat <- c(phat + offset)
   if (se.fit || interval!="none") {
     stderr <- c(sqrt(diag(X %*% vcov(object) %*% t(X))))
   }
   if (interval=="confidence") {
     qq <- qnorm((1+level)/2)
-    phat <- cbind(fit=phat,lwr=phat-qq*stderr,upr=phat+qq*stderr)
+    phat <- cbind(phat,phat-qq*stderr,phat+qq*stderr)
+    colnames(phat) <- c("fit","lwr","upr")
   }
   if (type=="response") {
     phat <- object$ilinkfun(phat)

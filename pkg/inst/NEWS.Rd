@@ -4,6 +4,13 @@
 \title{glmmADMB News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.7.1 (2011-12-28)}{
+  \itemize{
+    \item added logistic distribution, Gaussian (fixed stupid bug)!
+    \item fixed bugs in predict function with offsets, documented predict.glmmadmb
+  }
+}
+
 \section{Changes in version 0.7 (2011-12-18)}{
   \itemize{
     \item added R2admb dependency, removed copies of R2admb files

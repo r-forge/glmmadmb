@@ -35,6 +35,7 @@ g0A <- glm(y0~x+offset(offset),data=d,
 
 mlist <- list(glmmadmb0=g0,glm0=g0A)
 
+stopifnot(all.equal(coef(g0),coef(g0A),tol=1e-4))
 
 t(sapply(mlist,coef))
 sapply(mlist,logLik)
@@ -71,15 +72,15 @@ d$y <- rgamma(ntot,shape=gshape,scale=d$mu/gshape)
 g2 <- glmmadmb(y0~x,data=d,family="gamma",link="log")
 g2L <- glm(y0~x,data=d,family=Gamma(link="log"))
 
-coef(g2)
-coef(g2L)
+stopifnot(all.equal(coef(g2),coef(g2L),tol=1e-5))
 
 g3 <- glmmadmb(y~x+(1|f),data=d,family="gamma",link="log")
+## "matrix not pos definite in sparse choleski" warning
 library(lme4)
 ## boom!
 g3L <- glmer(y~x+(1|f),data=d,family=Gamma(link="log"))
 coef(g3)
-fixef(g3L)
+fixef(g3L)  ## NA ... urgh
 
 
 ## POISSON/identity link
@@ -88,9 +89,7 @@ g5 <- glmmadmb(y~1,data=dd,
          start=list(fixed=10),
          family="poisson",link="identity",
          verbose=TRUE)
-mean(dd)
 
-if (FALSE) {
 ### GAUSSIAN/IDENTITY LINK
 d$mu0 <- d$eta0
 d$mu <- d$eta
@@ -101,5 +100,5 @@ d$y <- rnorm(ntot,d$mu,sd=1)
 g4 <- lm(y0~x,data=d)
 g4B <- glm(y0~x,data=d)
 g4C <- glmmadmb(y0~x,data=d,family="gaussian")
-g4C <- glmmadmb(y0~1,data=d,family="gaussian")
-}
+stopifnot(all.equal(coef(g4),coef(g4B),coef(g4C)))
+
