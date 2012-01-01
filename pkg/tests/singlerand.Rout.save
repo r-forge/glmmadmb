@@ -1,0 +1,140 @@
+
+R Under development (unstable) (2012-01-01 r58032)
+Copyright (C) 2012 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: i686-pc-linux-gnu (32-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+During startup - Warning message:
+Functions for exporting methods must have been made generic, explicitly or implicitly; not true when loading ‘bbmle’ for ‘AIC’, ‘plot’, ‘update’ 
+> ## tests of a single random grouping variable
+> library(glmmADMB)
+Loading required package: MASS
+Loading required package: R2admb
+
+Attaching package: ‘glmmADMB’
+
+The following object(s) are masked _by_ ‘.GlobalEnv’:
+
+    OwlModel
+
+The following object(s) are masked from ‘package:R2admb’:
+
+    stdEr
+
+> 
+> ## random-intercept model
+> set.seed(101)
+> nblock <- 10
+> nrep <- 10
+> d <- expand.grid(f=factor(LETTERS[1:nblock]),rep=1:nrep)
+> N <- nrow(d)
+> d$x <- runif(N)
+> u <- rnorm(nblock,sd=1)
+> beta <- c(1,2)
+> eta <- model.matrix(~x,data=d) %*% beta + u[as.numeric(d$f)]
+> d$y <- rpois(N,exp(eta))
+> ##g1 <- glmm.admb(y~x,random=~1,group="f",family="poisson",data=d)
+> g1 <- glmmadmb(y~x+(1|f),family="poisson",data=d)
+Estimated covariance matrix may not be positive definite
+ 3.44101e-06 0.00460996 0.00520421 0.00597877 0.0134931 0.0146207 0.0177714 0.0229482 0.0329013 0.036711 0.12668 0.487471 9.92599
+> ## identical 
+> coef(g1)
+(Intercept)           x 
+     1.0205      1.9001 
+> g1$stdbeta
+(Intercept)           x 
+    0.30866     0.11819 
+> logLik(g1)
+'log Lik.' -260.508 (df=3)
+> g1$S
+$f
+            (Intercept)
+(Intercept)     0.88148
+
+> g1$sd_S
+$f
+            (Intercept)
+(Intercept)     0.40254
+
+> summary(g1$U[[1]])
+  (Intercept)       
+ Min.   :-1.333600  
+ 1st Qu.:-0.971335  
+ Median :-0.047980  
+ Mean   : 0.007881  
+ 3rd Qu.: 0.949377  
+ Max.   : 1.274000  
+> 
+> ## random intercepts and slopes
+> set.seed(101)
+> nblock <- 10
+> nrep <- 10
+> d2 <- expand.grid(f=factor(LETTERS[1:nblock]),rep=1:nrep)
+> N <- nrow(d)
+> d2$x <- runif(N)
+> u_f <- rnorm(nblock,sd=1)
+> u_fx <- rnorm(nblock,sd=0.5)
+> beta <- c(1,2)
+> eta <- model.matrix(~x,data=d2) %*% beta + u[as.numeric(d2$f)]+
++   u[as.numeric(d2$f)]*d$x
+> d2$y <- rpois(N,exp(eta))
+> 
+> ##g2 <- glmm.admb(y~x,random=~x,group="f",family="poisson",data=d2)
+> g2 <- glmmadmb(y~x+(x|f),family="poisson",data=d2)
+Estimated covariance matrix may not be positive definite
+ 1.52251e-06 2.94675e-05 0.00176421 0.00220669 0.00373328 0.00969372 0.0126432 0.0138972 0.0230209 0.0388233 0.0424115 0.0600662 0.0886014 0.150765 0.228057 0.239065 0.318752 0.40054 0.457594 0.575974 0.662924 0.722771 1.80229 13.8247
+> coef(g2)
+(Intercept)           x 
+    0.88575     2.10750 
+> logLik(g2)
+'log Lik.' -262.661 (df=4)
+> g2$U
+$f
+  (Intercept)        x
+A    -1.28290 -0.50192
+B    -0.19059 -0.44623
+C     0.84397  0.41015
+D    -0.97203 -1.26470
+E     0.68684  1.01670
+F    -1.35720 -0.86632
+G     0.41304 -0.38409
+H     1.29070  1.00890
+I     1.08520  1.46630
+J    -0.30674 -0.52069
+
+> summary(fitted(g2))
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+  0.7634   2.0010   7.1990  19.0800  22.9800 168.4000 
+> g2$S
+$f
+            (Intercept)       x
+(Intercept)      1.0235 0.00000
+x                0.0000 0.78178
+
+> g2$sd_S
+$f
+            (Intercept)       x
+(Intercept)     0.58083 0.00000
+x               0.00000 0.50258
+
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  6.668   3.396  10.151 

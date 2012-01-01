@@ -1,0 +1,77 @@
+
+R Under development (unstable) (2012-01-01 r58032)
+Copyright (C) 2012 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: i686-pc-linux-gnu (32-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+During startup - Warning message:
+Functions for exporting methods must have been made generic, explicitly or implicitly; not true when loading ‘bbmle’ for ‘AIC’, ‘plot’, ‘update’ 
+> ## test with lm() and offset
+> library(glmmADMB)
+Loading required package: MASS
+Loading required package: R2admb
+
+Attaching package: ‘glmmADMB’
+
+The following object(s) are masked _by_ ‘.GlobalEnv’:
+
+    OwlModel
+
+The following object(s) are masked from ‘package:R2admb’:
+
+    stdEr
+
+> 
+> set.seed(1001)
+> d <- data.frame(x=1:20,y=runif(20),s=rlnorm(20))
+> L0 <- lm(y~x,data=d)
+> L1 <- lm(y~x+offset(log(s)),data=d)
+> 
+> p0 <- unname(predict(L0))
+> p1 <- unname(predict(L1))
+> 
+> L2 <- glmmadmb(y~x,family="gaussian",data=d)
+Estimated covariance matrix may not be positive definite
+ 0.000371297 0.0870019 0.0870019
+> d <- transform(d,logS=log(s))
+> L3 <- glmmadmb(y~x+offset(logS),
++                family="gaussian",data=d)
+Estimated covariance matrix may not be positive definite
+ 0.000337847 0.980948 0.980948
+> L4 <- glmmadmb(y~x+offset(log(s)),
++                family="gaussian",data=d)
+Estimated covariance matrix may not be positive definite
+ 0.000337847 0.980948 0.980948
+> 
+> ## no-offset, glmmADMB vs lm
+> stopifnot(all.equal(predict(L2),p0,tolerance=1e-5))
+> ## offset as variable,
+> stopifnot(all.equal(predict(L3),predict(L3,newdata=d)))
+> stopifnot(all.equal(predict(L3,newdata=d),p1,tolerance=5e-6))
+> stopifnot(all.equal(predict(L4),predict(L4,newdata=d)))
+> stopifnot(all.equal(predict(L4,newdata=d),p1,tolerance=5e-6))
+> predict(L3,newdata=data.frame(x=1:3,logS=0:2))
+[1] -0.294388  0.774544  1.843476
+> predict(L4,newdata=data.frame(x=1:3,s=1:3))
+[1] -0.2943880  0.4676912  0.9420883
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  4.480   4.060   8.463 
