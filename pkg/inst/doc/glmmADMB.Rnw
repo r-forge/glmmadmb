@@ -342,7 +342,16 @@ plotTrace(m)
 The Geweke diagnostic gives $Z$ scores for each
 variable for a comparison
 between (by default) the first 10\% and last 50\% of
-the chain\footnote{The most frequently used diagnostic, Gelman-Rubin
+the chain
+<<>>=
+(gg <- geweke.diag(m))
+summary(2*pnorm(abs(gg$z),lower.tail=FALSE))
+@ 
+
+%% would make this a footnote but run into problems compiling LaTeX
+%% version ... "keyval error: 1 undefined"
+
+The most frequently used diagnostic, Gelman-Rubin
 (\code{gelman.diag}), requires multiple chains. The full set of
 diagnostic functions available in \code{coda} is:
 <<echo=FALSE>>=
@@ -350,11 +359,7 @@ a1 <- apropos(".diag$",where=TRUE)
 print(unname(a1[names(a1)==which(search()=="package:coda")]),
       quote=FALSE)
 @ 
-}:
-<<>>=
-(gg <- geweke.diag(m))
-summary(2*pnorm(abs(gg$z),lower.tail=FALSE))
-@ 
+
 
 \code{effectiveSize} gives the effective length of the
 chain for each variable, i.e. the number of samples
