@@ -130,8 +130,10 @@ glmm.admb(\dots)  ## deprecated
     \code{zeroInflation=TRUE})}
 }
 \note{
-\code{glmm.admb} is defined for backward compatibility; it
-will be removed in a future version.
+  \itemize{
+    \item \code{glmm.admb} is defined for backward compatibility; it will be removed in a future version.
+    \item Tools for working with MCMC output are preliminary; see \code{\link{mcmcControl}} or the vignette for more information.
+  }
 }
 \references{
   Bohning, D., E. Dietz, and P. Schlattmann. 1999. The zero-inflated

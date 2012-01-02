@@ -46,6 +46,18 @@ mcmcControl(mcmc = 1000, mcmc2=0, mcsave, mcnoscale = FALSE, mcgrope = FALSE, mc
   Some options (\code{mcmc2}, etc.) that can be used in AD Model Builder
   and ADMB-RE may not be available
 }
+\note{The functions in the \code{coda} and \code{scapeMCMC} packages
+  are useful for diagnosing convergence and other problems, summarizing,
+  and displaying the results of MCMC runs.
+  
+  The tools for working with MCMC output in \code{glmmADMB} are 
+limited at the moment (sorry!) --- in particular, the fixed-effect
+parameter estimates are given in terms of the internally fitted
+variables (which uses an orthogonalized version of the original
+design matrix), not the original coefficients. If you need
+to use the MCMC output, please contact the maintainers and
+encourage them to work on them some more.
+}
 \examples{
 mcmcControl(mcmc=2000)
 }
