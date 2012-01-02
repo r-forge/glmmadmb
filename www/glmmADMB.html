@@ -7,7 +7,7 @@
 <meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)"> 
 <!-- html --> 
 <meta name="src" content="glmmADMB.tex"> 
-<meta name="date" content="2011-11-25 16:13:00"> 
+<meta name="date" content="2012-01-02 15:56:00"> 
 <link rel="stylesheet" type="text/css" href="glmmADMB.css"> 
 </head><body 
 >
@@ -23,42 +23,44 @@
 <div class="author" ><span 
 class="aer12-">Ben Bolker, Hans Skaug, Arni Magnusson, Anders Nielsen</span></div><br />
 <div class="date" ><span 
-class="aer12-">November 25, 2011</span></div>
+class="aer12-">January 2, 2012</span></div>
    </div>
    <h3 class="sectionHead"><span class="titlemark">1   </span> <a 
  id="x1-10001"></a>Introduction/quick start</h3>
-<!--l. 32--><p class="noindent" ><span 
+<!--l. 34--><p class="noindent" ><span 
 class="aett-10">glmmADMB </span>is a package, built on the open source <a 
 href="http://admb-project.org" >AD Model Builder</a> nonlinear fitting
 engine, for fitting generalized linear mixed models and extensions.
      <ul class="itemize1">
      <li class="itemize">response  distributions:  Poisson,  binomial,  negative  binomial  (NB1  and
-     NB2 parameterizations), Gamma, Beta; Gaussian coming soon
+     NB2 parameterizations), Gamma, Beta, truncated Poisson and negative
+     binomial; Gaussian coming soon
      </li>
      <li class="itemize">link functions: log, logit, probit, cloglog, inverse, identity
      </li>
-     <li class="itemize">zero-inflation (models with a constant zero-inflation value only)
+     <li class="itemize">zero-inflation (models with a constant zero-inflation value only); hurdle
+     models via truncated Poisson/NB
      </li>
-     <li class="itemize">single, nested, or crossed random effects
+     <li class="itemize">single or multiple (nested or crossed) random effects
      </li>
      <li class="itemize">offsets
      </li>
      <li class="itemize">post-fit MCMC chain for characterizing uncertainty</li></ul>
-<!--l. 47--><p class="indent" >   As of version 0.6.5, the package has been greatly revised to allow a wider range of
+<!--l. 49--><p class="indent" >   As of version 0.6.5, the package has been greatly revised to allow a wider range of
 response and link functions and to allow models with multiple random effects. For
 now, the resulting package is slower than the old (single-random-effect version), but
 we hope to increase its speed in the future.
                                                                   
 
                                                                   
-<!--l. 53--><p class="indent" >   In order to use <span 
+<!--l. 55--><p class="indent" >   In order to use <span 
 class="aett-10">glmmADMB </span>effectively you should already be reasonably familiar
 with generalized linear mixed models (GLMMs), which in turn requires familiarity
 with (i) generalized linear models (e.g. the special cases of logistic, binomial,
 and Poisson regression) and (ii) &#8216;modern&#8217; mixed models (those working via
 maximization of the marginal likelihood rather than by manipulating sums of
 squares).
-<!--l. 61--><p class="indent" >   In order to fit a model in <span 
+<!--l. 63--><p class="indent" >   In order to fit a model in <span 
 class="aett-10">glmmADMB </span>you need to:
      <ul class="itemize1">
      <li class="itemize">specify a model for the fixed effects, in the standard R (Wilkinson-Rogers)
@@ -87,7 +89,7 @@ class="aett-10">block</span>. A model of nested random effects (block within sit
 class="aett-10">1|site/block</span>; a model of crossed random effects (block and
      year) would be <span 
 class="aett-10">(1|block)+(1|year)</span>.
-     <!--l. 79--><p class="noindent" >Random effects can be specified either in a separate <span 
+     <!--l. 81--><p class="noindent" >Random effects can be specified either in a separate <span 
 class="aett-10">random </span>argument (as
      in <span 
 class="aett-10">nlme</span>) or as part of the model formula (as in <span 
@@ -107,12 +109,12 @@ class="aett-10">zeroInflation=TRUE</span>. In
      the current version, zero-inflation can only be specified as a single constant
      term across the entire model &#8212; i.e. it cannot vary across groups or with
      covariates.</li></ul>
-<!--l. 93--><p class="noindent" >
+<!--l. 95--><p class="noindent" >
    <h3 class="sectionHead"><span class="titlemark">2   </span> <a 
  id="x1-20002"></a>Owls data</h3>
-<!--l. 95--><p class="noindent" >These data, taken from <span class="cite">[<a 
-href="#Xzuur_mixed_2009">2</a>]</span> and ultimately from <span class="cite">[<a 
-href="#Xroulinbersier_2007">1</a>]</span>, quantify the number of
+<!--l. 97--><p class="noindent" >These data, taken from <span class="cite">[<a 
+href="#Xzuur_mixed_2009">3</a>]</span> and ultimately from <span class="cite">[<a 
+href="#Xroulinbersier_2007">2</a>]</span>, quantify the number of
 negotiations among owlets (owl chicks) in different nests <span 
 class="aeti-10">prior </span>to the arrival of a
 provisioning parent as a function of food treatment (deprived or satiated), the sex of
@@ -122,13 +124,13 @@ the parent, and arrival time. The total number of calls from the nest is recorde
                                                                   
 along with the total brood size, which is used as an offset to allow the use of a
 Poisson response.
-<!--l. 105--><p class="indent" >   Since the same nests are measured repeatedly, the nest is used as a random effect.
+<!--l. 107--><p class="indent" >   Since the same nests are measured repeatedly, the nest is used as a random effect.
 The model can be expressed as a zero-inflated generalized linear mixed model
 (ZIGLMM).
-<!--l. 110--><p class="indent" >   First we draw some pictures (Figures&#x00A0;<a 
+<!--l. 112--><p class="indent" >   First we draw some pictures (Figures&#x00A0;<a 
 href="#x1-20131">1<!--tex4ht:ref: fig:owl1 --></a>, <a 
 href="#x1-20142">2<!--tex4ht:ref: fig:owl2 --></a>).
-<!--l. 112--><p class="indent" >   Load the <span 
+<!--l. 114--><p class="indent" >   Load the <span 
 class="aett-10">glmmADMB </span>package to get access to the <span 
 class="aett-10">Owls </span>data set; load the <span 
 class="aett-10">ggplot2</span>
@@ -145,7 +147,7 @@ class="aesltt-10">&#x00A0;</span><span
 class="aesltt-10">&#x00A0;&#x003E;</span><span 
 class="aesltt-10">&#x00A0;library(ggplot2)</span>
    </div>
-<!--l. 121--><p class="indent" >   Various small manipulations of the data set: (1) reorder nests by mean
+<!--l. 123--><p class="indent" >   Various small manipulations of the data set: (1) reorder nests by mean
 negotiations per chick, for plotting purposes; (2) add log brood size variable (for
 offset); (3) rename response variable.
    <div class="fancyvrb" id="fancyvrb2">
@@ -178,7 +180,7 @@ class="aesltt-10">&#x00A0;</span><span
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;NCalls=SiblingNegotiation)</span>
    </div>
-<!--l. 134--><p class="indent" >   <hr class="figure"><div class="figure" 
+<!--l. 136--><p class="indent" >   <hr class="figure"><div class="figure" 
 >
                                                                   
 
@@ -188,7 +190,7 @@ class="aesltt-10">&#x00A0;NCalls=SiblingNegotiation)</span>
                                                                   
 
                                                                   
-<!--l. 136--><p class="noindent" ><img 
+<!--l. 138--><p class="noindent" ><img 
 src="glmmADMB0x.png" alt="PIC" class="graphics" width="345.0pt" height="345.01822pt" ><!--tex4ht:graphics  
 name="glmmADMB0x.png" src="glmmADMB-owlplot1.eps"  
 -->
@@ -198,8 +200,8 @@ class="content">Basic view of owl data (arrival time not shown).</span></div><!-
                                                                   
 
                                                                   
-<!--l. 139--><p class="indent" >   </div><hr class="endfigure">
-<!--l. 141--><p class="indent" >   <hr class="figure"><div class="figure" 
+<!--l. 141--><p class="indent" >   </div><hr class="endfigure">
+<!--l. 143--><p class="indent" >   <hr class="figure"><div class="figure" 
 >
                                                                   
 
@@ -209,7 +211,7 @@ class="content">Basic view of owl data (arrival time not shown).</span></div><!-
                                                                   
 
                                                                   
-<!--l. 142--><p class="noindent" ><img 
+<!--l. 144--><p class="noindent" ><img 
 src="glmmADMB1x.png" alt="PIC" class="graphics" width="276.00105pt" height="276.01457pt" ><!--tex4ht:graphics  
 name="glmmADMB1x.png" src="glmmADMB-owlplot2.eps"  
 -->
@@ -219,9 +221,9 @@ class="content">Basic view of owl data, #2 (nest identity not shown)</span></div
                                                                   
 
                                                                   
-<!--l. 145--><p class="indent" >   </div><hr class="endfigure">
-<!--l. 147--><p class="indent" >   Now fit some models:
-<!--l. 149--><p class="indent" >   The basic <span 
+<!--l. 147--><p class="indent" >   </div><hr class="endfigure">
+<!--l. 149--><p class="indent" >   Now fit some models:
+<!--l. 151--><p class="indent" >   The basic <span 
 class="aett-10">glmmadmb </span>fit &#8212; a zero-inflated Poisson model.
    <div class="fancyvrb" id="fancyvrb3">
 <a 
@@ -812,7 +814,7 @@ class="aett-10">&#x00A0;</span><span
 class="aett-10">&#x00A0;Log-likelihood:</span><span 
 class="aett-10">&#x00A0;-1985.3</span>
    </div>
-<!--l. 194--><p class="indent" >   The <span 
+<!--l. 196--><p class="indent" >   The <span 
 class="aett-10">coefplot2 </span>package knows about <span 
 class="aett-10">glmmadmb </span>fits:
                                                                   
@@ -830,11 +832,11 @@ class="aesltt-10">&#x00A0;</span><span
 class="aesltt-10">&#x00A0;&#x003E;</span><span 
 class="aesltt-10">&#x00A0;coefplot2(fit_zipoiss)</span>
    </div>
-<!--l. 202--><p class="noindent" ><img 
+<!--l. 204--><p class="noindent" ><img 
 src="glmmADMB2x.png" alt="PIC" class="graphics" width="276.00105pt" height="206.9977pt" ><!--tex4ht:graphics  
 name="glmmADMB2x.png" src="glmmADMB-coefplotmg1.eps"  
 -->
-<!--l. 204--><p class="indent" >   We can also try a standard zero-inflated negative binomial model; the default is
+<!--l. 206--><p class="indent" >   We can also try a standard zero-inflated negative binomial model; the default is
 the &#8220;NB2&#8221; parameterization (variance = <span 
 class="cmmi-10">&#x03BC;</span><span 
 class="cmr-10">(1 + </span><span 
@@ -941,7 +943,7 @@ class="aesltt-10">&#x00A0;</span><span
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;family="nbinom")</span>
    </div>
-<!--l. 216--><p class="indent" >   Alternatively, use an &#8220;NB1&#8221; fit (variance = <span 
+<!--l. 218--><p class="indent" >   Alternatively, use an &#8220;NB1&#8221; fit (variance = <span 
 class="cmmi-10">&#x03D5;&#x03BC;</span>).
    <div class="fancyvrb" id="fancyvrb8">
 <a 
@@ -1120,7 +1122,7 @@ class="aesltt-10">&#x00A0;</span><span
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;family="nbinom1")</span>
    </div>
-<!--l. 227--><p class="indent" >   Relax the assumption that total number of calls is strictly proportional to brood
+<!--l. 229--><p class="indent" >   Relax the assumption that total number of calls is strictly proportional to brood
 size (i.e. using log(brood size) as an offset):
    <div class="fancyvrb" id="fancyvrb9">
                                                                   
@@ -1302,7 +1304,7 @@ class="aesltt-10">&#x00A0;</span><span
 class="aesltt-10">&#x00A0;</span><span 
 class="aesltt-10">&#x00A0;family="nbinom1")</span>
    </div>
-<!--l. 239--><p class="indent" >   Every change we have made so far improves the fit &#8212; changing distributions
+<!--l. 241--><p class="indent" >   Every change we have made so far improves the fit &#8212; changing distributions
 improves it enormously, while changing the role of brood size makes only a modest
 (-1 AIC unit) difference:
    <div class="fancyvrb" id="fancyvrb10">
@@ -1383,7 +1385,7 @@ class="aett-10">&#x00A0;</span><span
 class="aett-10">&#x00A0;637.0</span><span 
 class="aett-10">&#x00A0;8</span>
    </div>
-<!--l. 256--><p class="indent" >   Compare the parameter estimates:
+<!--l. 258--><p class="indent" >   Compare the parameter estimates:
    <div class="fancyvrb" id="fancyvrb12">
 <a 
  id="x1-2128r1"></a><span 
@@ -1491,11 +1493,1279 @@ class="aesltt-10">&#x00A0;legend=TRUE)</span>
                                                                   
 
                                                                   
-<!--l. 268--><p class="noindent" ><img 
+<!--l. 270--><p class="noindent" ><img 
 src="glmmADMB3x.png" alt="PIC" class="graphics" width="276.00105pt" height="276.01457pt" ><!--tex4ht:graphics  
 name="glmmADMB3x.png" src="glmmADMB-cplot2.eps"  
 -->
-<!--l. 270--><p class="indent" >   The standard set of accessors is available:
+   <h4 class="subsectionHead"><span class="titlemark">2.1   </span> <a 
+ id="x1-30002.1"></a>Hurdle models</h4>
+<!--l. 274--><p class="noindent" >In contrast to zero-inflated models, hurdle models treat zero-count and non-zero
+outcomes as two completely separate categories, rather than treating the zero-count
+outcomes as a mixture of structural and sampling zeros.
+<!--l. 279--><p class="indent" >   As of version 0.6.7.1, <span 
+class="aett-10">glmmADMB </span>includes truncated Poisson and negative binomial
+familes and hence can fit hurdle models. The two parts of the model have to be fitted
+separately, however. First we fit a truncated distribution to the non-zero
+outcomes:
+<!--l. 285--><p class="indent" >
+   <div class="fancyvrb" id="fancyvrb13">
+<a 
+ id="x1-3002r1"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;&#x003E;</span><span 
+class="aesltt-10">&#x00A0;fit_hnbinom1</span><span 
+class="aesltt-10">&#x00A0;&#x003C;-</span><span 
+class="aesltt-10">&#x00A0;glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+</span>
+<br class="fancyvrb" /><a 
+ id="x1-3004r2"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;BroodSize+(1|Nest),</span>
+<br class="fancyvrb" /><a 
+ id="x1-3006r3"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;data=subset(Owls,NCalls&#x003E;0),</span>
+<br class="fancyvrb" /><a 
+ id="x1-3008r4"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;family="truncnbinom1")</span>
+   </div>
+<!--l. 293--><p class="indent" >   Then we fit a model to the binary part of the data (zero vs. non-zero).
+In this case, I started by fitting a simple (intercept-only) model with
+intercept-level random effects only. This comes a bit closer to matching the
+previous (zero-inflation) models, which treated zero-inflation as a single
+                                                                  
+
+                                                                  
+constant level across the entire data set (in fact, leaving out the random
+effects and just using <span class="obeylines-h"><span class="verb"><span 
+class="aett-10">glmmADMB(nz~1,data=Owls,family="binomial")</span></span></span>, or
+<span class="obeylines-h"><span class="verb"><span 
+class="aett-10">glm(nz~1,data=Owls,family="binomial")</span></span></span>, would be an even closer match). I
+then fitted a more complex binary model &#8212; this is all a matter of judgment
+about how complex a model it&#8217;s worth trying to fit to a given data set &#8212;
+but it does look as though the zero-inflation varies with arrival time and
+satiation.
+<!--l. 308--><p class="indent" >
+   <div class="fancyvrb" id="fancyvrb14">
+<a 
+ id="x1-3010r1"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;&#x003E;</span><span 
+class="aesltt-10">&#x00A0;Owls$nz</span><span 
+class="aesltt-10">&#x00A0;&#x003C;-</span><span 
+class="aesltt-10">&#x00A0;as.numeric(Owls$NCalls&#x003E;0)</span>
+<br class="fancyvrb" /><a 
+ id="x1-3012r2"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;&#x003E;</span><span 
+class="aesltt-10">&#x00A0;fit_count</span><span 
+class="aesltt-10">&#x00A0;&#x003C;-</span><span 
+class="aesltt-10">&#x00A0;glmmadmb(nz~1+(1|Nest),</span>
+<br class="fancyvrb" /><a 
+ id="x1-3014r3"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;data=Owls,</span>
+<br class="fancyvrb" /><a 
+ id="x1-3016r4"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;family="binomial")</span>
+<br class="fancyvrb" /><a 
+ id="x1-3018r5"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;&#x003E;</span><span 
+class="aesltt-10">&#x00A0;fit_ccount</span><span 
+class="aesltt-10">&#x00A0;&#x003C;-</span><span 
+class="aesltt-10">&#x00A0;glmmadmb(nz~(FoodTreatment+ArrivalTime)*SexParent+(1|Nest),</span>
+<br class="fancyvrb" /><a 
+ id="x1-3020r6"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;data=Owls,</span>
+<br class="fancyvrb" /><a 
+ id="x1-3022r7"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;family="binomial")</span>
+<br class="fancyvrb" /><a 
+ id="x1-3024r8"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;&#x003E;</span><span 
+class="aesltt-10">&#x00A0;AICtab(fit_count,fit_ccount)</span>
+<br class="fancyvrb" /><a 
+ id="x1-3026r9"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;&#x003E;</span><span 
+class="aesltt-10">&#x00A0;summary(fit_ccount)</span>
+   </div>
+<!--l. 321--><p class="noindent" >
+   <h4 class="subsectionHead"><span class="titlemark">2.2   </span> <a 
+ id="x1-40002.2"></a>MCMC fitting</h4>
+<!--l. 323--><p class="noindent" >AD Model Builder has the capability to run a <span 
+class="aeti-10">post hoc </span>Markov chain to assess
+variability &#8212; that is, it uses the MLE as a starting point and the estimated sampling
+distribution (variance-covariance matrix) of the parameters as a candidate
+distribution, and &#8220;jumps around&#8221; the parameter space in a consistent way
+(Metropolis-Hastings?) to generate a series of samples from a posterior distribution
+of the parameter distribution (assuming flat priors: please see the ADMB
+documentation, or <span class="cite">[<a 
+href="#XBolker2008">1</a>]</span>, for more details).
+<!--l. 333--><p class="indent" >   This is very convenient, but tends to be a bit slow. In the example below, I ran a
+chain of 50,000 MCMC iterations &#8212; on examination, the default chain of 1000
+iterations was much too short &#8212; which took about 1.92 hours on a modern (2011)
+laptop.
+<!--l. 339--><p class="indent" >
+   <div class="fancyvrb" id="fancyvrb15">
+<a 
+ id="x1-4002r1"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;&#x003E;</span><span 
+class="aesltt-10">&#x00A0;fit_zinbinom1_bs_mcmc</span><span 
+class="aesltt-10">&#x00A0;&#x003C;-</span><span 
+class="aesltt-10">&#x00A0;glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+</span>
+<br class="fancyvrb" /><a 
+ id="x1-4004r2"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;BroodSize+(1|Nest),</span>
+<br class="fancyvrb" /><a 
+ id="x1-4006r3"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;data=Owls,</span>
+<br class="fancyvrb" /><a 
+ id="x1-4008r4"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;zeroInflation=TRUE,</span>
+<br class="fancyvrb" /><a 
+ id="x1-4010r5"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;family="nbinom1",</span>
+<br class="fancyvrb" /><a 
+ id="x1-4012r6"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;mcmc=TRUE,</span>
+<br class="fancyvrb" /><a 
+ id="x1-4014r7"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;mcmc.opts=mcmcControl(mcmc=50000))</span>
+   </div>
+                                                                  
+
+                                                                  
+<!--l. 351--><p class="indent" >   Convert the MCMC chain to an <span 
+class="aett-10">mcmc </span>object which the <span 
+class="aett-10">coda </span>package can
+handle:
+<!--l. 355--><p class="indent" >
+   <div class="fancyvrb" id="fancyvrb16">
+<a 
+ id="x1-4016r1"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;&#x003E;</span><span 
+class="aesltt-10">&#x00A0;library(coda)</span>
+<br class="fancyvrb" /><a 
+ id="x1-4018r2"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;&#x003E;</span><span 
+class="aesltt-10">&#x00A0;m</span><span 
+class="aesltt-10">&#x00A0;&#x003C;-</span><span 
+class="aesltt-10">&#x00A0;as.mcmc(fit_zinbinom1_bs_mcmc$mcmc)</span>
+   </div>
+<!--l. 361--><p class="indent" >   Look at the trace plots.
+<!--l. 364--><p class="indent" >
+   <div class="fancyvrb" id="fancyvrb17">
+<a 
+ id="x1-4020r1"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;&#x003E;</span><span 
+class="aesltt-10">&#x00A0;library(scapeMCMC)</span>
+<br class="fancyvrb" /><a 
+ id="x1-4022r2"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;&#x003E;</span><span 
+class="aesltt-10">&#x00A0;plotTrace(m)</span>
+   </div>
+<!--l. 369--><p class="noindent" ><img 
+src="glmmADMB4x.png" alt="PIC" class="graphics" width="276.00105pt" height="276.01457pt" ><!--tex4ht:graphics  
+name="glmmADMB4x.png" src="glmmADMB-021.eps"  
+-->
+<!--l. 371--><p class="indent" >   The Geweke diagnostic gives <span 
+class="cmmi-10">Z </span>scores for each variable for a comparison between
+(by default) the first 10% and last 50% of the chain
+   <div class="fancyvrb" id="fancyvrb18">
+<a 
+ id="x1-4024r1"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;&#x003E;</span><span 
+class="aesltt-10">&#x00A0;(gg</span><span 
+class="aesltt-10">&#x00A0;&#x003C;-</span><span 
+class="aesltt-10">&#x00A0;geweke.diag(m))</span>
+   </div>
+<!--l. 379--><p class="noindent" >
+                                                                  
+
+                                                                  
+   <div class="fancyvrb" id="fancyvrb19">
+<a 
+ id="x1-4026r1"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;Fraction</span><span 
+class="aett-10">&#x00A0;in</span><span 
+class="aett-10">&#x00A0;1st</span><span 
+class="aett-10">&#x00A0;window</span><span 
+class="aett-10">&#x00A0;=</span><span 
+class="aett-10">&#x00A0;0.1</span>
+<br class="fancyvrb" /><a 
+ id="x1-4028r2"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;Fraction</span><span 
+class="aett-10">&#x00A0;in</span><span 
+class="aett-10">&#x00A0;2nd</span><span 
+class="aett-10">&#x00A0;window</span><span 
+class="aett-10">&#x00A0;=</span><span 
+class="aett-10">&#x00A0;0.5</span>
+<br class="fancyvrb" /><a 
+ id="x1-4030r3"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span>
+<br class="fancyvrb" /><a 
+ id="x1-4032r4"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;pz</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;beta.1</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;beta.2</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;beta.3</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;beta.4</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;beta.5</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;beta.6</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;beta.7</span>
+<br class="fancyvrb" /><a 
+ id="x1-4034r5"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;1.05890</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;-0.02392</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.52422</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;1.26288</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;-1.42940</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;-0.10490</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;-0.42814</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.23393</span>
+<br class="fancyvrb" /><a 
+ id="x1-4036r6"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;tmpL</span><span 
+class="aett-10">&#x00A0;log_alpha</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.01</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.02</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.03</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.04</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.05</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.06</span>
+<br class="fancyvrb" /><a 
+ id="x1-4038r7"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.40161</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;-1.64034</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;-0.54043</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;-0.10781</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.15012</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.38768</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;-0.21563</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.36554</span>
+<br class="fancyvrb" /><a 
+ id="x1-4040r8"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.07</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.08</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.09</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.10</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.11</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.12</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.13</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.14</span>
+<br class="fancyvrb" /><a 
+ id="x1-4042r9"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.31533</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.34659</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;-0.34155</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;-0.09860</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.15218</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.18873</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.16287</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.20951</span>
+<br class="fancyvrb" /><a 
+ id="x1-4044r10"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.15</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.16</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.17</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.18</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.19</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.20</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.21</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.22</span>
+<br class="fancyvrb" /><a 
+ id="x1-4046r11"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.16704</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.19575</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.32859</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.10631</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.13427</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;-0.14341</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.24088</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;-0.90355</span>
+<br class="fancyvrb" /><a 
+ id="x1-4048r12"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.23</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.24</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.25</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.26</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;u.27</span>
+<br class="fancyvrb" /><a 
+ id="x1-4050r13"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.43930</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;1.15159</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.34327</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;-0.23469</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.00186</span>
+   </div>
+<!--l. 394--><p class="noindent" >
+   <div class="fancyvrb" id="fancyvrb20">
+<a 
+ id="x1-4052r1"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;&#x003E;</span><span 
+class="aesltt-10">&#x00A0;summary(2*pnorm(abs(gg$z),lower.tail=FALSE))</span>
+   </div>
+<!--l. 397--><p class="noindent" >
+   <div class="fancyvrb" id="fancyvrb21">
+<a 
+ id="x1-4054r1"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;Min.</span><span 
+class="aett-10">&#x00A0;1st</span><span 
+class="aett-10">&#x00A0;Qu.</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;Median</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;Mean</span><span 
+class="aett-10">&#x00A0;3rd</span><span 
+class="aett-10">&#x00A0;Qu.</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;Max.</span>
+<br class="fancyvrb" /><a 
+ id="x1-4056r2"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.1009</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.6685</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.8096</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.7134</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.8790</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.9985</span>
+   </div>
+<!--l. 406--><p class="indent" >   The most frequently used diagnostic, Gelman-Rubin (<span 
+class="aett-10">gelman.diag</span>),
+requires multiple chains. The full set of diagnostic functions available in <span 
+class="aett-10">coda</span>
+is:
+   <div class="fancyvrb" id="fancyvrb22">
+<a 
+ id="x1-4058r1"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;[1]</span><span 
+class="aett-10">&#x00A0;autocorr.diag</span><span 
+class="aett-10">&#x00A0;gelman.diag</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;geweke.diag</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;heidel.diag</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;raftery.diag</span>
+   </div>
+<!--l. 416--><p class="indent" >   <span 
+class="aett-10">effectiveSize </span>gives the effective length of the chain for each variable, i.e. the
+number of samples corrected for autocorrelation:
+   <div class="fancyvrb" id="fancyvrb23">
+<a 
+ id="x1-4060r1"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;&#x003E;</span><span 
+class="aesltt-10">&#x00A0;range(effectiveSize(m))</span>
+   </div>
+<!--l. 423--><p class="noindent" >
+   <div class="fancyvrb" id="fancyvrb24">
+<a 
+ id="x1-4062r1"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;[1]</span><span 
+class="aett-10">&#x00A0;316.7461</span><span 
+class="aett-10">&#x00A0;702.1153</span>
+   </div>
+                                                                  
+
+                                                                  
+<!--l. 428--><p class="indent" >   <span 
+class="aett-10">HPDinterval </span>gives the highest posterior density (credible interval):
+   <div class="fancyvrb" id="fancyvrb25">
+<a 
+ id="x1-4064r1"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;&#x003E;</span><span 
+class="aesltt-10">&#x00A0;head(HPDinterval(m))</span>
+   </div>
+<!--l. 434--><p class="noindent" >
+   <div class="fancyvrb" id="fancyvrb26">
+<a 
+ id="x1-4066r1"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;lower</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;upper</span>
+<br class="fancyvrb" /><a 
+ id="x1-4068r2"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;pz</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.04086837</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.1350379</span>
+<br class="fancyvrb" /><a 
+ id="x1-4070r3"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;beta.1</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;39.65328510</span><span 
+class="aett-10">&#x00A0;48.7512345</span>
+<br class="fancyvrb" /><a 
+ id="x1-4072r4"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;beta.2</span><span 
+class="aett-10">&#x00A0;-10.48568580</span><span 
+class="aett-10">&#x00A0;-6.1049157</span>
+<br class="fancyvrb" /><a 
+ id="x1-4074r5"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;beta.3</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;-8.21234181</span><span 
+class="aett-10">&#x00A0;-4.3009885</span>
+<br class="fancyvrb" /><a 
+ id="x1-4076r6"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;beta.4</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;-1.04757046</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;3.2400361</span>
+<br class="fancyvrb" /><a 
+ id="x1-4078r7"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;beta.5</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.88345874</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;8.9078930</span>
+   </div>
+<!--l. 445--><p class="indent" >   You might prefer inferences based on the quantiles instead:
+   <div class="fancyvrb" id="fancyvrb27">
+<a 
+ id="x1-4080r1"></a><span 
+class="aesltt-10">&#x00A0;</span><span 
+class="aesltt-10">&#x00A0;&#x003E;</span><span 
+class="aesltt-10">&#x00A0;head(t(apply(m,2,quantile,c(0.025,0.975))))</span>
+   </div>
+<!--l. 450--><p class="noindent" >
+   <div class="fancyvrb" id="fancyvrb28">
+<a 
+ id="x1-4082r1"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;2.5%</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;97.5%</span>
+<br class="fancyvrb" /><a 
+ id="x1-4084r2"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;pz</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.04555855</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;0.1458387</span>
+<br class="fancyvrb" /><a 
+ id="x1-4086r3"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;beta.1</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;39.87602463</span><span 
+class="aett-10">&#x00A0;49.0420272</span>
+<br class="fancyvrb" /><a 
+ id="x1-4088r4"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;beta.2</span><span 
+class="aett-10">&#x00A0;-10.60885261</span><span 
+class="aett-10">&#x00A0;-6.1931622</span>
+<br class="fancyvrb" /><a 
+ id="x1-4090r5"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;beta.3</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;-8.46562399</span><span 
+class="aett-10">&#x00A0;-4.3939505</span>
+<br class="fancyvrb" /><a 
+ id="x1-4092r6"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;beta.4</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;-0.81607569</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;3.5588189</span>
+<br class="fancyvrb" /><a 
+ id="x1-4094r7"></a><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;beta.5</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;1.55442942</span><span 
+class="aett-10">&#x00A0;</span><span 
+class="aett-10">&#x00A0;9.8495245</span>
+   </div>
+<!--l. 461--><p class="indent" >   You can also look at density plots or pairwise scatterplots (&#8220;splom&#8221; in <span 
+class="aett-10">lattice</span>
+and <span 
+class="aett-10">scapeMCMC</span>, for <span 
+class="aebx-10">S</span>catter<span 
+class="aebx-10">plo</span>t <span 
+class="aebx-10">m</span>atrices), although these are not particularly useful
+for this large a set of parameters:
+<!--l. 467--><p class="indent" >   The MCMC output in <span 
+class="aett-10">glmmADMB </span>is currently in a very raw form &#8212; in particular,
+the internal names and variants of the parameters are used:
+     <dl class="description"><dt class="description">
+<span 
+class="aebx-10">pz</span> </dt><dd 
+class="description">zero-inflation parameter
+     </dd><dt class="description">
+<span 
+class="aebx-10">beta</span> </dt><dd 
+class="description">fixed-effect parameter estimates: <span 
+class="aebx-10">note </span>that these are the versions of the
+     parameters fitted internally, using an orthogonalized version of the original
+     design matrix, not the original coefficients (if this means nothing to you,
+     as it might well, just accept that these are transformed versions of the
+     parameters).
+                                                                  
+
+                                                                  
+     </dd><dt class="description">
+<span 
+class="aebx-10">tmpL</span> </dt><dd 
+class="description">variance-covariance parameters
+     </dd><dt class="description">
+<span 
+class="aebx-10">log_alpha</span> </dt><dd 
+class="description">log of overdispersion/scale parameter
+     </dd><dt class="description">
+<span 
+class="aebx-10">u</span> </dt><dd 
+class="description">random effects (unscaled)</dd></dl>
+<!--l. 478--><p class="noindent" >If you need to use the MCMC output and can&#8217;t figure out how, please contact the
+maintainers and encourage them to work on them some more (!)
+<!--l. 480--><p class="noindent" >
+   <h3 class="sectionHead"><span class="titlemark">3   </span> <a 
+ id="x1-50003"></a>Other information</h3>
+<!--l. 481--><p class="noindent" >The standard set of accessors is available:
      <dl class="description"><dt class="description">
 <span 
 class="aett-10">coef</span> </dt><dd 
@@ -1531,9 +2801,6 @@ class="aeti-10">based only on uncertainty of fixed effects</span>),
 <span 
 class="aett-10">logLik</span> </dt><dd 
 class="description">extract log-likelihood
-                                                                  
-
-                                                                  
      </dd><dt class="description">
 <span 
 class="aett-10">AIC</span> </dt><dd 
@@ -1546,6 +2813,9 @@ class="description">print summary
 <span 
 class="aett-10">stdEr</span> </dt><dd 
 class="description">extract standard errors of coefficients
+                                                                  
+
+                                                                  
      </dd><dt class="description">
 <span 
 class="aett-10">vcov</span> </dt><dd 
@@ -1558,14 +2828,22 @@ class="description">extract variance-covariance matrices of random effects
 <span 
 class="aett-10">confint</span> </dt><dd 
 class="description">extract confidence intervals of fixed-effect coefficients</dd></dl>
-<!--l. 292--><p class="indent" >   <span 
-class="aebx-10">Missing</span>: specifying starting values; MCMC
+<!--l. 503--><p class="indent" >   <span 
+class="aebx-10">Missing</span>: specifying starting values; MCMC; general troubleshooting (extra
+arguments, running outside R)
+<!--l. 1--><p class="noindent" >
    <h3 class="likesectionHead"><a 
- id="x1-30002"></a>References</h3>
+ id="x1-60003"></a>References</h3>
 <!--l. 1--><p class="noindent" >
    <div class="thebibliography">
    <p class="bibitem" ><span class="biblabel">
  [1]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ id="XBolker2008"></a>Benjamin&#x00A0;M.  Bolker.   <span 
+class="aeti-10">Ecological  Models  and  Data  in  R</span>.   Princeton
+   University Press, Princeton, NJ, 2008.
+   </p>
+   <p class="bibitem" ><span class="biblabel">
+ [2]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="Xroulinbersier_2007"></a>A.&#x00A0;Roulin and L.&#x00A0;Bersier.   Nestling barn owls beg more intensely in
    the presence of their mother than in the presence of their father.  <span 
 class="aeti-10">Animal</span>
@@ -1573,7 +2851,7 @@ class="aeti-10">Animal</span>
 class="aeti-10">Behaviour</span>, 74:1099&#8211;1106, 2007.
    </p>
    <p class="bibitem" ><span class="biblabel">
- [2]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ [3]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="Xzuur_mixed_2009"></a>Alain&#x00A0;F. Zuur, Elena&#x00A0;N. Ieno, Neil&#x00A0;J. Walker, Anatoly&#x00A0;A. Saveliev, and
    Graham&#x00A0;M. Smith.  <span 
 class="aeti-10">Mixed Effects Models and Extensions in Ecology with</span>
