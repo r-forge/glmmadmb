@@ -13,6 +13,8 @@
 \usepackage{hyperref}
 \usepackage{alltt}
 \newcommand{\code}[1]{{\tt #1}}
+\usepackage{fancyvrb}
+\VerbatimFootnotes
 \bibliographystyle{plain}
 
 \title{Getting started with the \code{glmmADMB} package}
@@ -302,10 +304,14 @@ from a posterior distribution of the parameter distribution (assuming
 flat priors: please see the ADMB documentation, or \cite{Bolker2008}, for
 more details).
 
+<<echo=FALSE>>=
+load("owls_mcmcbatch.RData")
+@ 
+
 This is very convenient, but tends to be a bit slow.  In the example below,
 I ran a chain of 50,000 MCMC iterations --- on examination, the default
-chain of 1000 iterations was much too short --- which took about two
-hours on a modern (2011) laptop.
+chain of 1000 iterations was much too short --- which took about
+\Sexpr{round(sum(mcmctime[4:5])/(60*60),2)} hours on a modern (2011) laptop.
 
 <<eval=FALSE>>=
 fit_zinbinom1_bs_mcmc <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
@@ -317,9 +323,6 @@ fit_zinbinom1_bs_mcmc <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
                                   mcmc.opts=mcmcControl(mcmc=50000))
 @ 
 
-<<echo=FALSE>>=
-load("owls_mcmcbatch.RData")
-@ 
 
 Convert the MCMC chain to an \code{mcmc} object which the 
 \code{coda} package can handle:
@@ -329,26 +332,71 @@ library(coda)
 m <- as.mcmc(fit_zinbinom1_bs_mcmc$mcmc)
 @ 
 
-Look at the trace plots.  (Unfortunately, the MCMC variables
-are not properly labeled yet!)
+Look at the trace plots.
 
 <<fig=TRUE>>=
 library(scapeMCMC)
 plotTrace(m)
 @ 
 
+The Geweke diagnostic gives $Z$ scores for each
+variable for a comparison
+between (by default) the first 10\% and last 50\% of
+the chain\footnote{The most frequently used diagnostic, Gelman-Rubin
+(\code{gelman.diag}), requires multiple chains. The full set of
+diagnostic functions available in \code{coda} is:
+<<echo=FALSE>>=
+a1 <- apropos(".diag$",where=TRUE)
+print(unname(a1[names(a1)==which(search()=="package:coda")]),
+      quote=FALSE)
+@ 
+}:
 <<>>=
-gg <- geweke.diag(m)
-range(effectiveSize(m))
-HPDinterval(m)
+(gg <- geweke.diag(m))
+summary(2*pnorm(abs(gg$z),lower.tail=FALSE))
 @ 
 
+\code{effectiveSize} gives the effective length of the
+chain for each variable, i.e. the number of samples
+corrected for autocorrelation:
 <<>>=
+range(effectiveSize(m))
+@ 
+
+\code{HPDinterval} gives the highest posterior density
+(credible interval):
+<<>>=
+head(HPDinterval(m))
+@ 
+
+You might prefer inferences based on the quantiles instead:
+<<>>=
+head(t(apply(m,2,quantile,c(0.025,0.975))))
+@ 
+
+You can also look at density plots or pairwise scatterplots
+(``splom'' in \code{lattice} and
+\code{scapeMCMC}, for \textbf{S}catter\textbf{plo}t \textbf{m}atrices),
+although these are not particularly useful for this large a set
+of parameters:
+<<echo=FALSE>>=
 plotDens(m)
-## very slow and not particularly useful for this large a set of parameters ...
 plotSplom(m,pch=".")  
 @ 
 
+The MCMC output in \code{glmmADMB} is currently in a very raw form --- in particular, the internal names and variants of the parameters are used:
+\begin{description}
+  \item[pz] zero-inflation parameter
+  \item[beta] fixed-effect parameter estimates: \textbf{note} that these
+    are the versions of the parameters fitted internally, 
+    using an orthogonalized version of the original design matrix,
+    not the original coefficients (if this means nothing to you, as it might well, just accept that these are transformed versions of the parameters).
+\item[tmpL] variance-covariance parameters
+\item[log\_alpha] log of overdispersion/scale parameter
+\item[u] random effects (unscaled)
+\end{description}
+ If you need to use the MCMC output and can't figure out how, please contact the maintainers and encourage them to work on them some more  (!)
+ 
 \section{Other information}
 The standard set of accessors is available:
 \begin{description}

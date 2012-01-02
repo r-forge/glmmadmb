@@ -25,15 +25,33 @@ if (!file.exists("inst/bin")) {
   }
 }
 setwd("inst/bin")
-for (i in names(platform_str)) {
-  setwd(i)
-  srcext <- if (grepl("windows",i)) ".exe" else ".bin"
-  destext <- if (grepl("windows",i)) ".exe" else ""
-  fn <- paste(buildbot_base,platform_str[i],RELEASE,
-                      srcext,sep="")
-  download.file(fn,
-                destfile=paste("glmmadmb",destext,sep=""))
-  setwd("..")
+
+get_allbin <- function(release) {
+  if (missing(release)) {
+    g <- suppressWarnings(get_bbot_versions())
+    ## suppress "incomplete final line" warning
+    m <- sapply(platform_str,grep,g$desc)
+    release <- paste("r",g[m,]$ver,sep="")
+  }
+  cdir <- getwd()
+  on.exit(setwd(cdir))
+  plist <- names(platform_str)
+  status <- rep(NA,length(plist))
+  names(status) <- plist
+  for (i in seq_along(plist)) {
+    p <- plist[i]
+    cat(p,"\n")
+    setwd(p)
+    srcext <- if (grepl("windows",p)) ".exe" else ".bin"
+    destext <- if (grepl("windows",p)) ".exe" else ""
+    fn <- paste(buildbot_base,platform_str[p],release[i],
+                srcext,sep="")
+    tt <- try(download.file(fn,
+                            destfile=paste("glmmadmb",destext,sep="")))
+    if (!inherits(tt,"try-error")) status[i] <- release[i]
+    setwd("..")
+  }
+  status
 }
   
 ## glmmadmb-r107-bcc5.5-32bit 	0B 	[text/html] 	
