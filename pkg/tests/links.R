@@ -43,6 +43,7 @@ sapply(mlist,logLik)
 ## B. random effects (vs glmer)
 g1 <- glmmadmb(y~x+(1|f)+offset(offset),data=d,
                family="binomial",link="cloglog")
+
 library(lme4)
 g1A <- glmer(y~x+(1|f)+offset(offset),data=d,
              family=binomial(link="cloglog"))

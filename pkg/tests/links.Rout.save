@@ -18,8 +18,6 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
-[Previously saved workspace restored]
-
 > ## testing identity, cloglog links, gaussian family
 > library(glmmADMB)
 Loading required package: MASS
@@ -231,4 +229,4 @@ Estimated covariance matrix may not be positive definite
 > 
 > proc.time()
    user  system elapsed 
- 19.660   7.604  27.197 
+ 11.820   3.540  15.387 

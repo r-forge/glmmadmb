@@ -18,20 +18,12 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
-[Previously saved workspace restored]
-
-During startup - Warning message:
-Functions for exporting methods must have been made generic, explicitly or implicitly; not true when loading ‘bbmle’ for ‘AIC’, ‘plot’, ‘update’ 
 > ## tests of a single random grouping variable
 > library(glmmADMB)
 Loading required package: MASS
 Loading required package: R2admb
 
 Attaching package: ‘glmmADMB’
-
-The following object(s) are masked _by_ ‘.GlobalEnv’:
-
-    OwlModel
 
 The following object(s) are masked from ‘package:R2admb’:
 
@@ -52,7 +44,7 @@ The following object(s) are masked from ‘package:R2admb’:
 > ##g1 <- glmm.admb(y~x,random=~1,group="f",family="poisson",data=d)
 > g1 <- glmmadmb(y~x+(1|f),family="poisson",data=d)
 Estimated covariance matrix may not be positive definite
- 3.44101e-06 0.00460996 0.00520421 0.00597877 0.0134931 0.0146207 0.0177714 0.0229482 0.0329013 0.036711 0.12668 0.487471 9.92599
+ 3.44101e-06 0.00460995 0.00520421 0.00597877 0.0134931 0.0146207 0.0177714 0.0229481 0.0329013 0.036711 0.12668 0.487471 9.926
 > ## identical 
 > coef(g1)
 (Intercept)           x 
@@ -137,4 +129,4 @@ x               0.00000 0.50258
 > 
 > proc.time()
    user  system elapsed 
-  6.668   3.396  10.151 
+  1.892   1.176   3.008 

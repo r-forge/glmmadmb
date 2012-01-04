@@ -269,7 +269,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
     cor_block_start <- cor_block_stop <- 1
     numb_cor_params <- 1
   }
-  cmdoptions <- paste("-maxfn",maxfn)
+  cmdoptions <- paste("-maxfn",maxfn,"-maxph 4")
   if (admb.opts$noinit) cmdoptions <- paste(cmdoptions,"-noinit")
   if (admb.opts$shess) cmdoptions <- paste(cmdoptions,"-shess")
   if (has_rand && impSamp>0) cmdoptions <- paste(cmdoptions,"-is",impSamp)

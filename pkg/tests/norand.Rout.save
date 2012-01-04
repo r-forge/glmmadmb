@@ -18,19 +18,11 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
-[Previously saved workspace restored]
-
-During startup - Warning message:
-Functions for exporting methods must have been made generic, explicitly or implicitly; not true when loading ‘bbmle’ for ‘AIC’, ‘plot’, ‘update’ 
 > library(glmmADMB)
 Loading required package: MASS
 Loading required package: R2admb
 
 Attaching package: ‘glmmADMB’
-
-The following object(s) are masked _by_ ‘.GlobalEnv’:
-
-    OwlModel
 
 The following object(s) are masked from ‘package:R2admb’:
 
@@ -62,4 +54,4 @@ Estimated covariance matrix may not be positive definite
 > 
 > proc.time()
    user  system elapsed 
-  4.164   2.500   6.715 
+  0.320   0.824   1.091 
