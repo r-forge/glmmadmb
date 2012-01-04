@@ -49,7 +49,7 @@ nonlinear fitting engine, for fitting generalized
 linear mixed models and extensions.
 
 \begin{itemize}
-  \item response distributions: Poisson, binomial, negative binomial (NB1 and NB2 parameterizations), Gamma, Beta, truncated Poisson and negative binomial; Gaussian coming soon
+  \item response distributions: Poisson, binomial, negative binomial (NB1 and NB2 parameterizations), Gamma, Beta, truncated Poisson and negative binomial; Gaussian
   \item link functions: log, logit, probit, cloglog, inverse, identity
   \item zero-inflation (models with a constant zero-inflation value only); hurdle models via truncated Poisson/NB
   \item single or multiple (nested or crossed) random effects
