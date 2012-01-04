@@ -18,10 +18,6 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
-[Previously saved workspace restored]
-
-During startup - Warning message:
-Functions for exporting methods must have been made generic, explicitly or implicitly; not true when loading ‘bbmle’ for ‘AIC’, ‘plot’, ‘update’ 
 > ## Make sure that ranef() definition coexists nicely
 > library(lme4)
 Loading required package: Matrix
@@ -68,10 +64,6 @@ Loading required package: R2admb
 
 Attaching package: ‘glmmADMB’
 
-The following object(s) are masked _by_ ‘.GlobalEnv’:
-
-    OwlModel
-
 The following object(s) are masked from ‘package:R2admb’:
 
     stdEr
@@ -109,4 +101,4 @@ The following object(s) are masked from ‘package:lme4’:
 > 
 > proc.time()
    user  system elapsed 
-  4.540   2.148   6.674 
+  2.252   1.392   3.611 

@@ -58,5 +58,5 @@ logLik(OwlModel_poiss.glmer)
 r_glmer <- residuals(OwlModel_poiss.glmer)
 r_admb <- residuals(OwlModel_poiss.admb)
 
-plot(r_glmer,r_admb)                       
+## plot(r_glmer,r_admb)                       
 

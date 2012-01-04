@@ -19,5 +19,5 @@ VarCorr(g1)
 g1M <- glmmadmb(y~x+(1|f),family="poisson",data=d,mcmc=TRUE,
                  mcmc.opts=mcmcControl(mcmc=100))
 library(coda)
-xyplot(as.mcmc(g1M$mcmc),layout=c(4,4),aspect="fill")
-densityplot(as.mcmc(g1M$mcmc),layout=c(4,4),aspect="fill")
+## xyplot(as.mcmc(g1M$mcmc),layout=c(4,4),aspect="fill")
+## densityplot(as.mcmc(g1M$mcmc),layout=c(4,4),aspect="fill")

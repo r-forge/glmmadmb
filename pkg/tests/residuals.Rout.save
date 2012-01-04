@@ -18,19 +18,11 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
-[Previously saved workspace restored]
-
-During startup - Warning message:
-Functions for exporting methods must have been made generic, explicitly or implicitly; not true when loading ‘bbmle’ for ‘AIC’, ‘plot’, ‘update’ 
 > library(glmmADMB)
 Loading required package: MASS
 Loading required package: R2admb
 
 Attaching package: ‘glmmADMB’
-
-The following object(s) are masked _by_ ‘.GlobalEnv’:
-
-    OwlModel
 
 The following object(s) are masked from ‘package:R2admb’:
 
@@ -101,7 +93,7 @@ Estimated covariance matrix may not be positive definite
 +                                  data=Owls, family="poisson",
 +                                  easyFlag=FALSE)
 Estimated covariance matrix may not be positive definite
- 9.78845e-06 0.0121047 0.0122587 0.0132124 0.0203465 0.0212046 0.0227711 0.0238722 0.026215 0.027534 0.0289648 0.0304689 0.0316825 0.0318917 0.0328367 0.0368625 0.0393284 0.0458978 0.0537423 0.0609681 0.0664128 0.0707911 0.0728449 0.117966 0.125617 0.162896 0.199007 0.225011 0.261825 0.401176 0.478016 5.87514
+ 9.78845e-06 0.0121047 0.0122587 0.0132124 0.0203465 0.0212046 0.0227711 0.0238722 0.026215 0.027534 0.0289648 0.0304689 0.0316825 0.0318917 0.0328367 0.0368625 0.0393284 0.0458978 0.0537424 0.0609681 0.0664128 0.0707911 0.072845 0.117966 0.125617 0.162896 0.199007 0.225011 0.261825 0.401176 0.478016 5.87514
 Warning message:
 In glmmadmb(SiblingNegotiation ~ FoodTreatment * SexParent + (1 |  :
   easyFlag argument ignored
@@ -135,4 +127,4 @@ In glmmadmb(SiblingNegotiation ~ FoodTreatment * SexParent + (1 |  :
 > 
 > proc.time()
    user  system elapsed 
- 13.500   4.584  18.085 
+  8.280   2.140  10.389 

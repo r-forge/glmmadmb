@@ -384,7 +384,7 @@ You can also look at density plots or pairwise scatterplots
 \code{scapeMCMC}, for \textbf{S}catter\textbf{plo}t \textbf{m}atrices),
 although these are not particularly useful for this large a set
 of parameters:
-<<echo=FALSE>>=
+<<eval=FALSE>>=
 plotDens(m)
 plotSplom(m,pch=".")  
 @ 
