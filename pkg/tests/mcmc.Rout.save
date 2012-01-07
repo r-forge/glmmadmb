@@ -42,26 +42,21 @@ The following object(s) are masked from ‘package:R2admb’:
 > d$y <- rpois(ntot,lambda=d$mu)
 > 
 > g1 <- glmmadmb(y~x+(1|f),family="poisson",data=d)
-Estimated covariance matrix may not be positive definite
- 6.75812e-06 0.00903883 0.0161427 0.0315456 0.0374585 0.0509301 0.0584591 0.0634383 0.0905275 0.134933 0.469662 0.565151 22.6755
 > coef(g1)
 (Intercept)           x 
   -0.036484    0.402420 
 > VarCorr(g1)
-$f
-            (Intercept)
-(Intercept)       1.027
-
+Group=f
+            Variance StdDev
+(Intercept)    1.027  1.013
 > 
 > g1M <- glmmadmb(y~x+(1|f),family="poisson",data=d,mcmc=TRUE,
 +                  mcmc.opts=mcmcControl(mcmc=100))
-Estimated covariance matrix may not be positive definite
- 6.75812e-06 0.00903883 0.0161427 0.0315456 0.0374585 0.0509301 0.0584591 0.0634383 0.0905275 0.134933 0.469662 0.565151 22.6755
 > library(coda)
 Loading required package: lattice
-> xyplot(as.mcmc(g1M$mcmc),layout=c(4,4),aspect="fill")
-> densityplot(as.mcmc(g1M$mcmc),layout=c(4,4),aspect="fill")
+> ## xyplot(as.mcmc(g1M$mcmc),layout=c(4,4),aspect="fill")
+> ## densityplot(as.mcmc(g1M$mcmc),layout=c(4,4),aspect="fill")
 > 
 > proc.time()
    user  system elapsed 
-  7.608   1.732   9.326 
+ 13.368   3.800  18.660 

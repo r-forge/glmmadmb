@@ -43,8 +43,6 @@ The following object(s) are masked from ‘package:R2admb’:
 > d$y <- rpois(N,exp(eta))
 > ##g1 <- glmm.admb(y~x,random=~1,group="f",family="poisson",data=d)
 > g1 <- glmmadmb(y~x+(1|f),family="poisson",data=d)
-Estimated covariance matrix may not be positive definite
- 3.44101e-06 0.00460995 0.00520421 0.00597877 0.0134931 0.0146207 0.0177714 0.0229481 0.0329013 0.036711 0.12668 0.487471 9.926
 > ## identical 
 > coef(g1)
 (Intercept)           x 
@@ -89,8 +87,7 @@ $f
 > 
 > ##g2 <- glmm.admb(y~x,random=~x,group="f",family="poisson",data=d2)
 > g2 <- glmmadmb(y~x+(x|f),family="poisson",data=d2)
-Estimated covariance matrix may not be positive definite
- 1.52251e-06 2.94675e-05 0.00176421 0.00220669 0.00373328 0.00969372 0.0126432 0.0138972 0.0230209 0.0388233 0.0424115 0.0600662 0.0886014 0.150765 0.228057 0.239065 0.318752 0.40054 0.457594 0.575974 0.662924 0.722771 1.80229 13.8247
+matrix not pos definite in sparse choleski
 > coef(g2)
 (Intercept)           x 
     0.88575     2.10750 
@@ -129,4 +126,4 @@ x               0.00000 0.50258
 > 
 > proc.time()
    user  system elapsed 
-  1.892   1.176   3.008 
+  7.856   2.636  11.391 

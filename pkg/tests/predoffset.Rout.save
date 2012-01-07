@@ -45,11 +45,11 @@ Estimated covariance matrix may not be positive definite
 > L3 <- glmmadmb(y~x+offset(logS),
 +                family="gaussian",data=d)
 Estimated covariance matrix may not be positive definite
- 0.000337847 0.980948 0.980948
+ 0.000337847 0.980949 0.980949
 > L4 <- glmmadmb(y~x+offset(log(s)),
 +                family="gaussian",data=d)
 Estimated covariance matrix may not be positive definite
- 0.000337847 0.980948 0.980948
+ 0.000337847 0.980949 0.980949
 > 
 > ## no-offset, glmmADMB vs lm
 > stopifnot(all.equal(predict(L2),p0,tolerance=1e-5))
@@ -66,4 +66,4 @@ Estimated covariance matrix may not be positive definite
 > 
 > proc.time()
    user  system elapsed 
-  0.384   0.920   1.241 
+  0.656   2.316   3.271 

@@ -69,7 +69,28 @@ nobs.glmmadmb <- function(object,...) {
 ##  and lme4 (S4 methods, arguments x, ...)
 VarCorr.glmmadmb <- function(x,sigma=1,rdig=3) {
   if (!missing(sigma) || !missing(rdig)) warning("'sigma' and 'rdig' arguments are present for compatibility only: ignored")
-  x$S
+  vc <- x$S
+  class(vc) <- "VarCorr"
+  vc
+}
+
+print.VarCorr <- function(x, digits=4, ...) {
+  for (i in seq_along(x)) {
+    cat("Group=",names(x)[i],"\n",sep="")
+    vc <- x[[i]]
+    v <- diag(vc)
+    vmat <- cbind(Variance=v,StdDev=sqrt(v))
+    if (nrow(vc)==1 || all(vc[lower.tri(vc)]==0)) {
+      print(vmat,digits=digits)
+    } else {
+      cmat <- matrix("",nrow=nrow(vmat),ncol=nrow(vmat)-1)
+      cmat[lower.tri(cmat)] <- format(vc[lower.tri(vc)],digits=digits)
+      colnames(cmat) <- c("Corr",rep("",ncol(cmat)-1))
+      cmat[1,] <- abbreviate(rownames(vc)[-nrow(vc)],digits+2)
+      vmat <- format(vmat,digits=digits)
+      print(cbind(vmat,cmat),quote=FALSE)
+    }
+  }
 }
 
 VarCorr.summary.glmmadmb <- VarCorr.glmmadmb
@@ -87,6 +108,3 @@ setMethod("VarCorr", signature(x="summary.glmmadmb"), VarCorr.glmmadmb)
 ##          (or save.frame or saveFrame) ?
 
 
-predict.glmmadmb <- function(object,...) {
-
-}

@@ -55,9 +55,11 @@ print.summary.glmmadmb <- function(x, digits = max(3, getOption("digits") - 4),
       ## FIXME: prettier? standard errors?
     }
     if (!is.null(x$alpha)) {
-      label <- switch(x$family,nbinom="Negative binomial dispersion parameter",
+      label <- switch(x$family,truncnbinom=,nbinom="Negative binomial dispersion parameter",
                       gamma="Gamma shape parameter",
-                      beta="Beta dispersion parameter")
+                      beta="Beta dispersion parameter",
+                      gaussian="Residual variance",
+                      logistic="Scale parameter")
       cat(label,": ",x$alpha," (std. err.: ",x$sd_alpha,")\n",
           sep="")
     }

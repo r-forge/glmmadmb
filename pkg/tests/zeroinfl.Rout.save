@@ -62,7 +62,7 @@ Estimated covariance matrix may not be positive definite
 > 
 > g1 <- glmmadmb(y0~1,family="nbinom",zeroInflation=TRUE)
 Estimated covariance matrix may not be positive definite
- 0.00012695 0.137624 2.82781
+ 0.00012695 0.138134 2.82781
 > 
 > logLik(g0)
 'log Lik.' -928.811 (df=2)
@@ -74,7 +74,7 @@ Estimated covariance matrix may not be positive definite
  0.000259257 7.18386
 > g4 <- glmmadmb(y~1,family="nbinom",zeroInflation=TRUE)
 Estimated covariance matrix may not be positive definite
- 0.000267842 0.0254404 230.101
+ 0.000267842 0.0254406 230.098
 > 
 > ##  library(bbmle)
 > ##  m2 <- mle2(y~dzinbinom(mu=mu,size=alpha,zprob=zprob),
@@ -100,4 +100,4 @@ There were 14 warnings (use warnings() to see them)
 > 
 > proc.time()
    user  system elapsed 
-  1.016   1.148   2.113 
+  1.896   2.364   4.101 
