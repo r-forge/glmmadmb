@@ -4,6 +4,18 @@
 \title{glmmADMB News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.7.2 (2012-01-06)}{
+  \itemize{
+    \item updated TPL file; improved robustness, reduced warnings
+    \item added get_bin_version
+    \item improvements to reporting (drop unused levels in nested
+  groups, better labeling of variance components and random effects, return 'alpha'
+  (variance/scale parameter etc.) for all appropriate distributions);
+  better formatting of RE variance-covariance matrices
+  \item documented default link functions
+  }
+}
+
 \section{Changes in version 0.7.1 (2011-12-28)}{
   \itemize{
     \item added logistic distribution, Gaussian (fixed stupid bug)!

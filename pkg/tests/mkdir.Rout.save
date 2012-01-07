@@ -34,18 +34,18 @@ The following object(s) are masked from ‘package:R2admb’:
 
 > g2 <- glmmadmb(counts~outcome+treatment,family="poisson",data=d)
 Estimated covariance matrix may not be positive definite
- 0.047619 0.06 0.06 0.0638298 0.075
+ 0.0476191 0.06 0.06 0.0638298 0.075
 Estimated covariance matrix may not be positive definite
- 0.047619 0.06 0.06 0.0638298 0.075
+ 0.0476191 0.06 0.06 0.0638298 0.075
 > g2 <- glmmadmb(counts~outcome+treatment,family="poisson",data=d,
 +                save.dir="dirtst")
 Estimated covariance matrix may not be positive definite
- 0.047619 0.06 0.06 0.0638298 0.075
+ 0.0476191 0.06 0.06 0.0638298 0.075
 Estimated covariance matrix may not be positive definite
- 0.047619 0.06 0.06 0.0638298 0.075
+ 0.0476191 0.06 0.06 0.0638298 0.075
 > v <- unlink("dirtst",recursive=TRUE)
 > stopifnot(v==0)
 > 
 > proc.time()
    user  system elapsed 
-  0.264   1.024   1.219 
+  0.644   2.384   3.061 

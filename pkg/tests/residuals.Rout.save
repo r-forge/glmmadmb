@@ -62,9 +62,9 @@ The following object(s) are masked from ‘package:stats’:
 > glm.D93.admb <- glmmadmb(counts~outcome+treatment, family="poisson",
 +           data=d.AD)
 Estimated covariance matrix may not be positive definite
- 0.047619 0.06 0.06 0.0638298 0.075
+ 0.0476191 0.06 0.06 0.0638298 0.075
 Estimated covariance matrix may not be positive definite
- 0.047619 0.06 0.06 0.0638298 0.075
+ 0.0476191 0.06 0.06 0.0638298 0.075
 > r1P <- residuals(glm.D93,type="pearson")
 > r2P <- residuals(glm.D93.admb,type="pearson")
 > stopifnot(max(abs(r1P-r2P))<2e-4)
@@ -77,7 +77,7 @@ Estimated covariance matrix may not be positive definite
  3.044522e+00 -4.542553e-01 -2.929871e-01  8.716884e-16  4.557335e-16 
 > coef(glm.D93.admb)
 (Intercept)    outcome2    outcome3  treatment2  treatment3 
- 3.0445e+00 -4.5426e-01 -2.9299e-01  2.8287e-08  6.4061e-08 
+ 3.0445e+00 -4.5425e-01 -2.9299e-01 -1.9584e-08  4.2323e-09 
 > ## zero-inflated negative binomial is probably best for fitting data:
 > ## glmer can do Poisson-lognormal, not NB, and not zero-inflation
 > 
@@ -92,8 +92,6 @@ Estimated covariance matrix may not be positive definite
 +                                  (1|Nest)+offset(logBroodSize),
 +                                  data=Owls, family="poisson",
 +                                  easyFlag=FALSE)
-Estimated covariance matrix may not be positive definite
- 9.78845e-06 0.0121047 0.0122587 0.0132124 0.0203465 0.0212046 0.0227711 0.0238722 0.026215 0.027534 0.0289648 0.0304689 0.0316825 0.0318917 0.0328367 0.0368625 0.0393284 0.0458978 0.0537424 0.0609681 0.0664128 0.0707911 0.072845 0.117966 0.125617 0.162896 0.199007 0.225011 0.261825 0.401176 0.478016 5.87514
 Warning message:
 In glmmadmb(SiblingNegotiation ~ FoodTreatment * SexParent + (1 |  :
   easyFlag argument ignored
@@ -122,9 +120,9 @@ In glmmadmb(SiblingNegotiation ~ FoodTreatment * SexParent + (1 |  :
 > r_glmer <- residuals(OwlModel_poiss.glmer)
 > r_admb <- residuals(OwlModel_poiss.admb)
 > 
-> plot(r_glmer,r_admb)                       
+> ## plot(r_glmer,r_admb)                       
 > 
 > 
 > proc.time()
    user  system elapsed 
-  8.280   2.140  10.389 
+ 18.536   4.552  23.994 

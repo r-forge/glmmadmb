@@ -40,7 +40,16 @@ glmm.admb <- function(...) {
   glmmadmb(...)
 }
 
-get_bin_loc <- function(file_name,debug=FALSE) {
+get_bin_version <- function(file_name="glmmadmb") {
+  res <- get_bin_loc(file_name)
+  platform <- res$platform
+  bin_loc <- res$bin_loc
+  r <- run_bin(platform,bin_loc,file_name,cmdoptions="-version")
+  cat(r,sep="\n")
+  invisible(r)
+}
+
+get_bin_loc <- function(file_name="glmmadmb",debug=FALSE) {
    nbits <- 8 * .Machine$sizeof.pointer
    if (.Platform$OS.type == "windows") {
      platform <- "windows"
@@ -74,6 +83,33 @@ get_bin_loc <- function(file_name,debug=FALSE) {
               sprintf("glmmadmb binary should be available, but isn't (%s, %d bits)",platform,nbits))
    list(bin_loc=bin_loc,platform=platform)
  }
+
+  run_bin <- function(platform,bin_loc,file_name,cmdoptions,run=TRUE,rm_binary=TRUE,debug=FALSE,verbose=FALSE) {
+    ## copy executable even if not running code (i.e. make complete copy needed
+    ##   to run ADMB outside of R)
+    ## FIXME: for what platforms do we really need to copy the binary?
+    ##  can't we just run it in place?  Or does it do something silly and produce
+  ##  output in the directory in which the binary lives rather than the
+  ##  current working directory (feel like I struggled with this earlier
+  ##  but have now forgotten -- ADMB mailing list archives??)
+  if (platform=="windows") {
+    cmd <- paste("\"",bin_loc, "\"", " ", cmdoptions, sep="")
+  } else {
+    cmd <- paste("./", file_name, " ", cmdoptions, sep="")
+    file.copy(bin_loc,".")
+    Sys.chmod(file_name,mode="0755") ## file.copy strips executable permissions????
+  }
+  if (debug) cat("Command line:",cmd,"\n")
+  if (run) {
+    if (platform=="windows") {
+      shell(cmd, invisible=TRUE)
+    } else  {
+      sys.result <- system(cmd,intern=!verbose)
+      if (rm_binary) unlink(file_name)
+    }
+  }
+  sys.result
+}
 
 glmmadmb <- function(formula, data, family="poisson", link,start,
                      random,
@@ -148,11 +184,10 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   if (length(grep("nbinom",family))>0)
     family <- gsub("[12]$","",family)
 
-  ## if (family=="gaussian") stop("gaussian family not yet debugged")
-    
   like_type_flag <- switch(family,poisson=0,binomial=1,nbinom=2,gamma=3,beta=4,gaussian=5,
                            truncpoiss=6,truncnbinom=7,logistic=8,
                            stop("unknown family"))
+  has_alpha <- family %in% c("nbinom","gamma","beta","gaussian","truncnbinom","logistic")
 
   if (missing(link)) {
     link <- switch(family, binomial=, beta="logit",
@@ -185,6 +220,8 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   mf$formula <- get_fixedformula(eval(mf$formula))
   mf$drop.unused.levels <- TRUE
   mf[[1L]] <- as.name("model.frame")
+
+  ## FIXME: warning on evaluation with nested factors?
   mf <- eval(mf, parent.frame())
 
   mt <- attr(mf, "terms") # allow model.frame to have updated it
@@ -217,6 +254,8 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
     if (any(REmat$nterms>1)) {
       tmpind <- rep(seq_along(REmat$mmats),REmat$nterms)
       REmat$mmats <- REmat$mmats[tmpind]
+      ## fix names: ???
+      names(REmat$mmats) <- names(REmat$levels)
       REmat$codes <-
         unlist(lapply(REmat$codes,
                       function(x) lapply(as.list(as.data.frame(x)),matrix)),
@@ -236,7 +275,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
 
     Z <- do.call(cbind,REmat$mmats)
     colnames(Z) <- paste(rep(names(REmat$mmat),m),
-                         sapply(REmat$mmat,colnames),sep=":")
+                         unlist(sapply(REmat$mmat,colnames)),sep=".")
 
     ## Make matrix of pointers into ADMB vector of random effects "u".
     ## Rows in II contain pointers for a given data point 
@@ -329,29 +368,9 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   if(file.exists(std_file) && run) warning("file",std_file,"exists: overwriting")
   ## file.remove(std_file)
 
-  ## copy executable even if not running code (i.e. make complete copy needed
-  ##   to run ADMB outside of R)
-  ## FIXME: for what platforms do we really need to copy the binary?
-  ##  can't we just run it in place?  Or does it do something silly and produce
-  ##  output in the directory in which the binary lives rather than the
-  ##  current working directory (feel like I struggled with this earlier
-  ##  but have now forgotten -- ADMB mailing list archives??)
-  if (platform=="windows") {
-    cmd <- paste("\"",bin_loc, "\"", " ", cmdoptions, sep="")
-  } else {
-    cmd <- paste("./", file_name, " ", cmdoptions, sep="")
-    file.copy(bin_loc,".")
-    Sys.chmod(file_name,mode="0755") ## file.copy strips executable permissions????
-  }
-  if (debug) cat("Command line:",cmd,"\n")
-  if (run) {
-    if (platform=="windows") {
-      shell(cmd, invisible=TRUE)
-    } else  {
-      sys.result <- system(cmd,intern=!verbose)
-      unlink(file_name)
-    }
-  }
+  sys.result <- run_bin(platform,bin_loc,file_name,cmdoptions,run,
+                        rm_binary=!use_tmp_dir,debug=debug,verbose=verbose)
+  
   ## FIXME: try to continue without std file ??
   if (!file.exists(std_file)) {
     if (run) stop("The function maximizer failed (couldn't find STD file)")
@@ -386,7 +405,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   out$stdbeta <- as.numeric(tmp[tmpindex=="real_beta", 4])
   names(out$stdbeta) <- names(out$b) <- colnames(X)
 
-  if(family %in% c("nbinom","nbinom1","gamma","beta"))
+  if (has_alpha)
     {
       out$alpha <- as.numeric(tmp[tmpindex=="alpha", 3])
       out$sd_alpha <- as.numeric(tmp[tmpindex=="alpha", 4])
@@ -435,7 +454,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
     ## out$random <- random
     ## FIXME: check dimnames for a wider range of cases ...
     uvec <- tmp[tmpindex=="u",3]
-    ulist <- split(uvec,rep(1:length(q),q))
+    ulist <- split(uvec,rep(1:length(q),q*m))
     dn <- mapply(list,
                  REmat$levels, ## lapply(REmat$mmat,attr,which="levels"),
                  parnames,
@@ -458,7 +477,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
     ## ## dimnames=list(data[,group][group_d[-1]-1],colnames(Z)))
     ## dimnames=list(NULL,colnames(Z)))
     sd_uvec <- tmp[tmpindex=="u",4]
-    sd_ulist <- split(sd_uvec,rep(1:length(q),q))
+    sd_ulist <- split(sd_uvec,rep(1:length(q),q*m))
     out$sd_U <- mapply(matrix,
                        sd_ulist,
                        ncol=m,

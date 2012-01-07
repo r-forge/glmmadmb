@@ -38,16 +38,19 @@ glmm.admb(\dots)  ## deprecated
   \item{data}{a data frame containing the variables named in
     \code{formula}.}
   \item{family}{a string determining the response distribution:
-    currently implemented options are
+    currently implemented options (and default link functions) are
     \itemize{
-      \item exponential family distributions: \code{"poisson"},
-      \code{"binomial"}, \code{"gamma"}, \code{"gaussian"}
-      \item negative binomial: \code{"nbinom"},
+      \item exponential family distributions: \code{"poisson"} (log),
+      \code{"binomial"} (logit), \code{"gamma"} (log), \code{"gaussian"}
+      (identity)
+      \item negative binomial (log): \code{"nbinom"},
       \code{"nbinom1"} (negative binomial ``type 1'': see Details),
       \code{"nbinom2"} (a synonym for \code{"nbinom"})
-      \item extended distributions: \code{"beta"}, \code{"logistic"}
-      \item truncated distributions (for hurdle models): \code{"truncpoiss"},
-      \code{"truncnbinom"}, \code{"truncnbinom1"}
+      \item extended distributions: \code{"beta"} (logit),
+      \code{"logistic"} (identity)
+      \item truncated distributions (log):
+      \code{"truncpoiss"}, \code{"truncnbinom"}, \code{"truncnbinom1"}
+      (these can be used to fit hurdle models)
     }
   }
   \item{link}{a string specifying the shape of the link function:

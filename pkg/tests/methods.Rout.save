@@ -48,10 +48,9 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 
 Number of observations: total=599, Nest=27 
 Random effect variance(s):
-$Nest
-            (Intercept)
-(Intercept)    0.075223
-
+Group=Nest
+            Variance StdDev
+(Intercept)  0.07522 0.2743
 Negative binomial dispersion parameter: 2.2298 (std. err.: 0.2582)
 Zero-inflation: 0.22029  (std. err.:  0.020664 )
 
@@ -91,4 +90,4 @@ FoodTreatmentSatiated:SexParentMale                        2.714256e-02
 > 
 > proc.time()
    user  system elapsed 
-  0.308   0.772   1.021 
+  0.632   1.696   2.454 

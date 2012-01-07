@@ -1,8 +1,3 @@
-## RELEASE <- "r135"
-## RELEASE <- "r199"
-## RELEASE <- "r206"
-## RELEASE <- "r214"
-
 buildbot_base <- "http://www.admb-project.org/buildbot/glmmadmb/glmmadmb-admb-"
 ## assume we are starting from the root of the package directory
 ## 27 Dec: change gcc 4.5 -> 4.6

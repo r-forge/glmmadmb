@@ -50,14 +50,18 @@ process_randformula <- function(f,random,data) {
                   gsub(")[^()]*$","",rchar))
   }
 
+  ## separate random components into a character vector
   randbits <- grep("\\|",strsplit(rchar,"[()]")[[1]],value=TRUE)
   
 
   ## FIXME: test whether this works with fixed effects embedded
   ##   between random effects??
-  
+
+  ## random components divided into structure and grouping variable
+  ##  (before and after |)
   splitbits <- strsplit(randbits,"\\|")
-                              
+
+  ## generate model matrix from component
   cfun <- function(lbit,mdata) {
     m <- model.matrix(as.formula(paste("~",lbit)),mdata)
     m
@@ -71,7 +75,7 @@ process_randformula <- function(f,random,data) {
     ## ugly: "If the answer is parse() you should usually rethink the question" but ??
     labs <- attr(t,"term.labels")
     sapply(labs,
-           function(lab) as.numeric(with(data,eval(parse(text=lab)))))
+           function(lab) as.numeric(with(data,droplevels(eval(parse(text=lab))))))
   }
   termnames <- gsub("\\|","_bar_",
                     gsub(":","_int_",
@@ -82,14 +86,18 @@ process_randformula <- function(f,random,data) {
 
   ## expand formulae
 
+  ## terms list
   tL <- lapply(as.list(groups),
          function(x) {
            tt <- terms(formula(paste("~",x,sep="")),data=data)
+           tt
          })
 
   ## list of ATOMIC factors
   groupL <- lapply(tL,
                    function(z) {
+                     ## FAILED attempt to reduce variables by getting rid of unused levels:
+                     ## x <- lapply(eval(attr(z,"variables"),data),droplevels)
                      x <- eval(attr(z,"variables"),data)
                      names(x) <-rownames(attr(z,"factors"))
                      x
@@ -101,8 +109,10 @@ process_randformula <- function(f,random,data) {
   dgroupL <- lapply(tL,
                    function(z) {
                      ff <- as.list(colnames(attr(z,"factors")))
+                     ## FAILED attempt to reduce variables by getting rid of unused levels:
+                     lapply(ff,function(x) droplevels(eval(parse(text=x),data)))
                      ## DANGER WILL ROBINSON: eval(parse(...)) !
-                     lapply(ff,function(x) eval(parse(text=x),data))
+                     ##lapply(ff,function(x) eval(parse(text=x),data))
                    })
   
   ## flat group list
@@ -130,8 +140,13 @@ process_randformula <- function(f,random,data) {
   ## for (i in seq_along(L$mmats)) {
   ##   attr(L$mmats[[i]],"levels") <- levels(fgroupL[[1]])
   ## }
-  names(L$mmats) <- names(L$levels) <- groups ## names(fgroupL)
+  rnames <- unlist(lapply(L$codes,colnames)) 
+  names(L$mmats)  <- groups
+  names(L$levels) <- rnames
   names(L$codes) <- termnames
+  attr(names,"groupnames1") <- groups
+  attr(names,"groupnames2") <- rnames
+  attr(names,"levelnames") <- termnames
   L
 }
 

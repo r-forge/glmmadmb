@@ -59,9 +59,9 @@ The following object(s) are masked from ‘package:R2admb’:
 > g0 <- glmmadmb(y0~x+offset(offset),data=d,
 +                family="binomial",link="cloglog")
 Estimated covariance matrix may not be positive definite
- 2.59815 3.09142
+ 2.59807 3.09145
 Estimated covariance matrix may not be positive definite
- 2.59815 3.09142
+ 2.59807 3.09145
 > 
 > g0A <- glm(y0~x+offset(offset),data=d,
 +            family=binomial(link="cloglog"))
@@ -75,17 +75,16 @@ Warning messages:
 > 
 > t(sapply(mlist,coef))
           (Intercept)         x
-glmmadmb0   0.2989300 0.4218900
+glmmadmb0   0.2989400 0.4219400
 glm0        0.2989406 0.4219311
 > sapply(mlist,logLik)
 glmmadmb0      glm0 
--90.47510 -90.47131 
+-90.47130 -90.47131 
 > 
 > ## B. random effects (vs glmer)
 > g1 <- glmmadmb(y~x+(1|f)+offset(offset),data=d,
 +                family="binomial",link="cloglog")
-Estimated covariance matrix may not be positive definite
- 2.62387e-05 0.0342835 0.0369153 0.0376875 0.063035 0.279368 0.29783 0.305906 0.311626 0.320293 0.459642 4.26791 104.212
+> 
 > library(lme4)
 Loading required package: Matrix
 Loading required package: lattice
@@ -125,22 +124,21 @@ glmmadmb(formula = y ~ x + (1 | f) + offset(offset), data = d,
 
 Coefficients:
             Estimate Std. Error z value Pr(>|z|)  
-(Intercept)   0.9972     0.4857    2.05     0.04 *
-x             0.0386     0.3216    0.12     0.90  
+(Intercept)   0.9646     0.5681    1.70     0.09 .
+x             0.0397     0.3434    0.12     0.91  
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
 
 Number of observations: total=500, f=10 
 Random effect variance(s):
-$f
-            (Intercept)
-(Intercept)      1.2311
+Group=f
+            Variance StdDev
+(Intercept)    1.181  1.087
 
-
-Log-likelihood: -96.7592 
+Log-likelihood: -96.7505 
 > 
 > c(logLik(g1),L1A)
-[1] -96.75920 -97.01224
+[1] -96.75050 -97.01224
 > p0 <- predict(g1)
 > pb <- predict(g1,type="response")
 > 
@@ -191,25 +189,14 @@ The following object(s) are masked from ‘package:stats’:
 > dd <- data.frame(y=rpois(20,lambda=10))
 > g5 <- glmmadmb(y~1,data=dd,
 +          start=list(fixed=10),
-+          family="poisson",link="identity",
-+          verbose=TRUE)
-
-Initial statistics: 1 variables; iteration 0; function evaluation 0; phase 1
-Function value   2.0638764e+02; maximum gradient component mag  -1.6028e+01
-Var   Value    Gradient   |Var   Value    Gradient   |Var   Value    Gradient   
-  1 10.00000 -1.60279e+01 |
-
- - final statistics:
-1 variables; iteration 9; function evaluation 12
-Function value   5.4542e+01; maximum gradient component mag  -5.7929e-05
-Exit code = 1;  converg criter   1.0000e-04
-Var   Value    Gradient   |Var   Value    Gradient   |Var   Value    Gradient   
-  1 45.83880 -5.79287e-05 |
-Estimating row 1 out of 1 for hessian
++          family="poisson",link="identity")
 Estimated covariance matrix may not be positive definite
- 10.2497
+ 10.25
 Estimated covariance matrix may not be positive definite
- 10.2497
+ 10.25
+> coef(g5)
+(Intercept) 
+      10.25 
 > 
 > ### GAUSSIAN/IDENTITY LINK
 > d$mu0 <- d$eta0
@@ -229,4 +216,4 @@ Estimated covariance matrix may not be positive definite
 > 
 > proc.time()
    user  system elapsed 
- 11.820   3.540  15.387 
+ 28.565   8.008  39.693 

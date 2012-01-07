@@ -101,4 +101,4 @@ Estimated covariance matrix may not be positive definite
 > 
 > proc.time()
    user  system elapsed 
-  1.224   1.120   2.286 
+  2.020   2.256   4.791 

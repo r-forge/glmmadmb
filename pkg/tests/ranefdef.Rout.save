@@ -101,4 +101,4 @@ The following object(s) are masked from ‘package:lme4’:
 > 
 > proc.time()
    user  system elapsed 
-  2.252   1.392   3.611 
+  3.548   2.332   5.859 

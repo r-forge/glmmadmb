@@ -96,4 +96,4 @@ The following object(s) are masked from ‘package:R2admb’:
 > 
 > proc.time()
    user  system elapsed 
-  0.168   0.876   0.982 
+  0.476   1.604   1.952 

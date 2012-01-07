@@ -47,10 +47,9 @@ The following object(s) are masked from ‘package:R2admb’:
 (Intercept)           x 
     0.54786     0.39559 
 > VarCorr(g1)
-$f
-            (Intercept)
-(Intercept)     0.90823
-
+Group=f
+            Variance StdDev
+(Intercept)   0.9082  0.953
 > summary(g1)
 
 Call:
@@ -66,10 +65,9 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 
 Number of observations: total=500, f=10 
 Random effect variance(s):
-$f
-            (Intercept)
-(Intercept)     0.90823
-
+Group=f
+            Variance StdDev
+(Intercept)   0.9082  0.953
 Beta dispersion parameter: 2.163 (std. err.: 0.13171)
 
 Log-likelihood: 352.738 
@@ -77,4 +75,4 @@ Log-likelihood: 352.738
 > 
 > proc.time()
    user  system elapsed 
-  5.480   1.484   6.938 
+ 14.016   3.092  21.003 
