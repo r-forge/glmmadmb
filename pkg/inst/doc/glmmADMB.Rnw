@@ -49,8 +49,8 @@ nonlinear fitting engine, for fitting generalized
 linear mixed models and extensions.
 
 \begin{itemize}
-  \item response distributions: Poisson, binomial, negative binomial (NB1 and NB2 parameterizations), Gamma, Beta, truncated Poisson and negative binomial; Gaussian
-  \item link functions: log, logit, probit, cloglog, inverse, identity
+  \item response distributions: Poisson, binomial, negative binomial (NB1 and NB2 parameterizations), Gamma, Beta, truncated Poisson and negative binomial; Gaussian; logistic
+  \item link functions: log, logit, probit, complementary log-log (\code{"cloglog"}), inverse, identity
   \item zero-inflation (models with a constant zero-inflation value only); hurdle models via truncated Poisson/NB
   \item single or multiple (nested or crossed) random effects
   \item offsets
@@ -425,8 +425,30 @@ The standard set of accessors is available:
   \item[\code{confint}] extract confidence intervals of fixed-effect coefficients
 \end{description} 
 
-\textbf{Missing}: specifying starting values; MCMC; general
-troubleshooting (extra arguments, running outside R)
+\section{To do/road map}
+\subsection{Vignette}
+\begin{itemize}
+  \item More examples
+  \item Show how to specify starting values
+  \item fix MCMC!
+  \item General troubleshooting (extra arguments, running outside R)
+  \item basic intro to \code{R2admb}?
+  \item (appendix?) document details of TPL file -- robustness hacks, etc.
+\end{itemize}
+\subsection{Code}
+\begin{itemize}
+\item Speed improvement by identifying special cases?
+\item Spatial models?
+\item Additional flexibility:
+  \begin{itemize}
+  \item Allow model specification for zero-inflation
+  \item Allow model specification for shape parameter
+  \item More complex variance models (see AS-REML/MCMCglmm for interface/syntax ideas)
+  \end{itemize}
+  \item Improve \code{predict} method: allow prediction based on REs
+  \item \code{simulate} method
+\end{itemize}
+
 
 %%  AFTER HERE: stuff that's not really finished
 %Load data on epilepsy from the \code{MASS} package
