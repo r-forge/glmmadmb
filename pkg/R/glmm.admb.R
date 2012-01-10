@@ -103,6 +103,9 @@ get_bin_loc <- function(file_name="glmmadmb",debug=FALSE) {
   if (run) {
     if (platform=="windows") {
       shell(cmd, invisible=TRUE)
+      sys.result <- NULL
+      ## FIXME: get this to work properly (incl. capturing
+      ## output) -- system2() or ... ?
     } else  {
       sys.result <- system(cmd,intern=!verbose)
       if (rm_binary) unlink(file_name)
