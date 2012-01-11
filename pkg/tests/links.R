@@ -85,11 +85,16 @@ fixef(g3L)  ## NA ... urgh
 
 
 ## POISSON/identity link
-dd <- data.frame(y=rpois(20,lambda=10))
+dd <- data.frame(y=rpois(20,lambda=10),f=factor(rep(1:5,each=4)))
 g5 <- glmmadmb(y~1,data=dd,
          start=list(fixed=10),
          family="poisson",link="identity")
+g5R <- glmmadmb(y~1+(1|f),data=dd,
+         start=list(fixed=10),
+         family="poisson",link="identity")
+
 coef(g5)
+coef(g5R)
 
 ### GAUSSIAN/IDENTITY LINK
 d$mu0 <- d$eta0
