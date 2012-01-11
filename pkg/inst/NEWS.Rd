@@ -4,6 +4,14 @@
 \title{glmmADMB News}
 \encoding{UTF-8}
 
+
+\section{Changes in version 0.7.3}{
+ \itemize{
+   \item Bug fixes in sys.result handling
+   \item Retrieve and document information about orthogonalized
+ fixed-effect parameters
+ }
+}
 \section{Changes in version 0.7.2 (2012-01-06)}{
   \itemize{
     \item updated TPL file; improved robustness, reduced warnings

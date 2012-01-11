@@ -60,14 +60,14 @@ get_bin_loc <- function(file_name="glmmadmb",debug=FALSE) {
        platform <- "macos"
        unameres <- system("uname -v",intern=TRUE)
        if (grepl(unameres,"Version 9")) {
-         stop("glmmADMB binaries are not available for Mac OS 10.5 (Leopard).",
+         stop("glmmADMB binaries are not available for Mac OS 10.5 (Leopard). ",
               "Please see http://glmmadmb.r-forge.r-project.org for other options")
        }
      } else {
        if (R.version$os=="linux-gnu") {
          platform <- "linux"
        } else {
-         stop("glmmadmb binary not available for OS",R.version$os)
+         stop("glmmadmb binary not available for OS ",R.version$os)
          ## FIXME: allow user to supply their own binary?
        }
      }
@@ -80,7 +80,7 @@ get_bin_loc <- function(file_name="glmmadmb",debug=FALSE) {
                           package="glmmADMB")
    if (debug) cat("bin_loc:",bin_loc,"\n")
    if (nchar(bin_loc)==0) stop(
-              sprintf("glmmadmb binary should be available, but isn't (%s, %d bits)",platform,nbits))
+              sprintf("glmmadmb binary should be available, but isn't (%s, %d bits) ",platform," ",nbits))
    list(bin_loc=bin_loc,platform=platform)
  }
 
@@ -107,7 +107,7 @@ get_bin_loc <- function(file_name="glmmadmb",debug=FALSE) {
       sys.result <- system(cmd,intern=!verbose)
       if (rm_binary) unlink(file_name)
     }
-  }
+  } else sys.result <- NULL
   sys.result
 }
 
@@ -365,7 +365,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   dat_write(file_name, dat_list)
   pin_write(file_name, pin_list)
   std_file <- paste(file_name, ".std", sep="")
-  if(file.exists(std_file) && run) warning("file",std_file,"exists: overwriting")
+  if(file.exists(std_file) && run) warning("file ",std_file," exists: overwriting")
   ## file.remove(std_file)
 
   sys.result <- run_bin(platform,bin_loc,file_name,cmdoptions,run,
@@ -521,6 +521,9 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   tmp <- par_read(file_name)
   out$npar <- tmp$npar   ## BMB: should this be total number of parameters or number of fixed parameters?
   bpar <- bar_read(file_name,n=tmp$npar+1)[-1] ## ZI parameter comes first
+  if (file.exists("phi.rep")) {
+    out$phi <- matrix(scan("phi.rep",quiet=TRUE),nrow=length(out$b),byrow=TRUE)
+  }
   tmp$beta <- bpar
   out$loglik <- tmp$loglik
   out$gradloglik <- tmp$gradient

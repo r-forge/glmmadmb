@@ -104,7 +104,21 @@ Log-likelihood: -98.6118
 > g3 <- glmmadmb(y~1+(1|f1/f2)+(x|f1),family="gaussian",data=d)
 > 
 > g4 <- glmmadmb(y~1+(x|f1),corStruct="full",family="gaussian",data=d)
+> VarCorr(g4)
+Group=f1
+            Variance  StdDev    Corr     
+(Intercept) 2.661e-09 5.159e-05 (Intr)   
+x           1.339e-08 1.157e-04 1.339e-08
+> 
 > g5 <- glmmadmb(y~1+(x+x2|f1),corStruct="full",family="gaussian",data=d)
+> VarCorr(g5)
+Group=f1
+            Variance  StdDev    Corr               
+(Intercept) 2.676e-09 5.173e-05 (Intr)    x        
+x           5.304e-09 7.283e-05 5.304e-09          
+x2          4.191e-09 6.474e-05 4.191e-09 4.191e-09
+> 
+> ## m5 <- lme(y~1,random=~x+x2|f1,data=d)
 > ## needs work.
 > 
 > ## is doing it 'wrong' (explicit nesting) slower?
@@ -123,4 +137,4 @@ Log-likelihood: -98.6118
 > 
 > proc.time()
    user  system elapsed 
-  9.076   3.832  13.490 
+  4.008   3.084  18.332 
