@@ -102,10 +102,7 @@ get_bin_loc <- function(file_name="glmmadmb",debug=FALSE) {
   if (debug) cat("Command line:",cmd,"\n")
   if (run) {
     if (platform=="windows") {
-      shell(cmd, invisible=TRUE)
-      sys.result <- NULL
-      ## FIXME: get this to work properly (incl. capturing
-      ## output) -- system2() or ... ?
+      sys.result <- shell(cmd, invisible=TRUE,intern=!verbose)
     } else  {
       sys.result <- system(cmd,intern=!verbose)
       if (rm_binary) unlink(file_name)
@@ -356,10 +353,10 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
     for (i in seq_along(start)) {
       pp <- pin_list[[ns[i]]]
       if (is.null(pp)) {
-        stop("unmatched start component",ns[i])
+        stop("unmatched start component ",ns[i])
       }
       if (length(pp) != length(start[[i]])) {
-        stop("length mismatch in start component",ns[i])
+        stop("length mismatch in start component ",ns[i])
       }
       pin_list[[ns[i]]] <- start[[i]]
     }
