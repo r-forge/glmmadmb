@@ -58,14 +58,18 @@ glmm.admb(\dots)  ## deprecated
     \code{"log"}, \code{"logit"}, \code{"probit"}, \code{"cloglog"},
     and \code{"identity"}.}
   \item{start}{an (optional) named list specifying starting values, with
-    (optional) components \code{fixed} (fixed-effect parameters: default
-    0);
-    \code{pz} (zero-inflation probability: default 0.02);
-    \code{log_alpha} (log of dispersion parameter: default 1);
-    \code{RE_sd} (standard deviations of random effects: default 0.25);
-    \code{RE_cor} (off-diagonal elements of Cholesky decomposition of
+    (optional) components
+    \itemize{
+    \item \code{fixed} (fixed-effect parameters, on orthogonal scale
+    (see Details below): default 0);
+    \item \code{pz} (zero-inflation probability: default 0.02);
+    \item \code{log_alpha} (log of dispersion parameter: default 1);
+    \item \code{RE_sd} (log-standard deviations of random effects: default 0.25);
+    \item \code{RE_cor} (off-diagonal elements of Cholesky decomposition of
     random-effect correlation matrix: default 0.0001);
-    \code{u} (random effects: default 0)}
+    \item \code{u} (random effects [unscaled, i.e. not multiplied by
+    corresponding RE standard deviation]: default 0)}
+  }
   \item{random}{a formula specifying the random effects.
     A single random effect may be specified as \code{~x|g},
     but parentheses must be used if more than one random
@@ -126,9 +130,13 @@ glmm.admb(\dots)  ## deprecated
     \code{easyFlag=FALSE}.
 
     \item At present, offsets cannot be computed "on the fly", but
-      must be present in the data frame -- i.e., use
-     \code{data$logarea <- log(data$area); glmmadmb(...+offset(logarea)...)}
-     rather than \code{glmmadmb(...+offset(log(area))}
+    must be present in the data frame -- i.e., use
+    \code{data$logarea <- log(data$area); glmmadmb(...+offset(logarea)...)}
+    rather than \code{glmmadmb(...+offset(log(area)))}
+    \item Internally, glmmADMB works with an orthogonalized version of
+    the fixed-effect design matrix.  The \code{phi} matrix returned in the results can
+    be used to convert from orthogonalized to 'real' fixed parameters,
+    i.e. \code{b_real == b_orth \%*\% phi} or \code{b_orth = b_real \%*\% solve(phi)}
   }
 }
 \value{
@@ -139,6 +147,8 @@ glmm.admb(\dots)  ## deprecated
     (negative binomial, Gamma, beta)}
   \item{pz}{Zero-inflation parameter (only when
     \code{zeroInflation=TRUE})}
+  \item{phi}{Matrix for converting from 'orthogonalized' to 'real'
+    parameters: see Details}
 }
 \note{
   \itemize{
