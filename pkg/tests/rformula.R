@@ -54,6 +54,7 @@ write_randformula <- function(x,name) {
   dat_write(name,x$codes,append=TRUE)
 }
 
+set.seed(1001)
 tdat <- expand.grid(f1=LETTERS[1:5],f2=letters[1:5],rep=1:3)
 tdat$x <- runif(nrow(tdat))
 

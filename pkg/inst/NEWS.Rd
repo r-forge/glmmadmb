@@ -5,11 +5,16 @@
 \encoding{UTF-8}
 
 
-\section{Changes in version 0.7.3}{
+\section{Changes in version 0.7.2.4}{
  \itemize{
    \item Bug fixes in sys.result handling
    \item Retrieve and document information about orthogonalized
- fixed-effect parameters
+   fixed-effect parameters
+   \item re-instituted informative error message for non-factor grouping
+   variables
+   \item added maxphase (-maxph) to admbControl
+   \item further robustification of TPL file
+   \item documentation cleanup/improvement
  }
 }
 \section{Changes in version 0.7.2 (2012-01-06)}{

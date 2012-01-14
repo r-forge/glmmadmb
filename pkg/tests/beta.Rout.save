@@ -75,4 +75,4 @@ Log-likelihood: 352.738
 > 
 > proc.time()
    user  system elapsed 
- 14.016   3.092  21.003 
+  7.260   2.456   9.703 

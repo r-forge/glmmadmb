@@ -18,9 +18,8 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
-> d <- data.frame(counts=c(18,17,15,20,10,20,25,13,12),
-+                 outcome=gl(3,1,9),
-+                 treatment <- gl(3,3))
+> apa <- data.frame(odist=ordered(sample(1:5,replace=TRUE,size=100)),
++             sl=runif(100),abun=rnbinom(100,mu=2,size=1))
 > 
 > library(glmmADMB)
 Loading required package: MASS
@@ -32,20 +31,10 @@ The following object(s) are masked from ‘package:R2admb’:
 
     stdEr
 
-> g2 <- glmmadmb(counts~outcome+treatment,family="poisson",data=d)
-Estimated covariance matrix may not be positive definite
- 0.0476191 0.06 0.06 0.0638298 0.075
-Estimated covariance matrix may not be positive definite
- 0.0476191 0.06 0.06 0.0638298 0.075
-> g2 <- glmmadmb(counts~outcome+treatment,family="poisson",data=d,
-+                save.dir="dirtst")
-Estimated covariance matrix may not be positive definite
- 0.0476191 0.06 0.06 0.0638298 0.075
-Estimated covariance matrix may not be positive definite
- 0.0476191 0.06 0.06 0.0638298 0.075
-> v <- unlink("dirtst",recursive=TRUE)
-> stopifnot(v==0)
+> gg <- try(glmmadmb(abun~odist+(1|sl),data=apa,zeroInflation=TRUE,family="nbinom"),silent=TRUE)
+> ## should throw an error from Droplevels
+> stopifnot(inherits(gg,"try-error"),grepl("Error in Droplevels",gg))
 > 
 > proc.time()
    user  system elapsed 
-  0.320   2.080   2.334 
+  0.276   0.792   1.021 

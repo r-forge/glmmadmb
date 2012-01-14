@@ -3,12 +3,13 @@ pkgname <- "glmmADMB"
 admbControl <- function(impSamp=0,
                         maxfn=500,
                         imaxfn=500,
+                        maxph=5,
                         noinit=TRUE,
                         shess=TRUE,
                         run=TRUE,
                         ZI_kluge=FALSE) {
   list(impSamp=impSamp,maxfn=maxfn,imaxfn=imaxfn,noinit=noinit,shess=shess,
-       ZI_kluge=ZI_kluge,run=run)
+       ZI_kluge=ZI_kluge,run=run,maxph=maxph)
   ## FIXME: do something clever with formals/match.call() ?
 }
   
@@ -175,6 +176,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   if (!has_rand && (!missing(corStruct))) 
     stop("No random effects specified: \"corStruct\" does not make sense")
 
+  if (!is.character(family)) stop("must specify 'family' as a character string")
   family <- tolower(family)
   nbinom1_flag <- 0
   if (family %in% c("nbinom1","truncnbinom1") ) {
@@ -226,6 +228,10 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
 
   mt <- attr(mf, "terms") # allow model.frame to have updated it
 
+  if (is.data.frame(data) && nrow(mf)<nrow(data))
+    warning("NAs removed in constructing fixed-effect model frame: ",
+            "you should probably remove them manually, e.g. with na.omit()")
+  
   y <- model.response(mf, "any") # e.g. factors are allowed
   if (inherits(y,"factor")) {
     if (family!="binomial") stop("factors as response variables only allowed for binomial models")
@@ -233,6 +239,13 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
     y <- 1-as.numeric(as.numeric(y)==1)
   }
   y <- as.matrix(y)
+  if (family %in% c("nbinom","truncnbinom","poisson","truncpoiss","binomial") && any(y!=floor(y))) {
+    warning("non-integer response values in discrete family")
+  }
+  if (substr(family,1,5)=="trunc" && any(y==0)) {
+    warning("zero response values in truncated family")
+  }
+  
   n <- nrow(y)
   p_y <- ncol(y)
 
@@ -308,7 +321,8 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
     cor_block_start <- cor_block_stop <- 1
     numb_cor_params <- 1
   }
-  cmdoptions <- paste("-maxfn",maxfn,"-maxph 4")
+  cmdoptions <- paste("-maxfn",maxfn)
+  if (!is.null(admb.opts$maxph) && !is.na(admb.opts$maxph)) cmdoptions <- paste(cmdoptions,"-maxph",admb.opts$maxph)
   if (admb.opts$noinit) cmdoptions <- paste(cmdoptions,"-noinit")
   if (admb.opts$shess) cmdoptions <- paste(cmdoptions,"-shess")
   if (has_rand && impSamp>0) cmdoptions <- paste(cmdoptions,"-is",impSamp)
