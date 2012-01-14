@@ -67,6 +67,11 @@ process_randformula <- function(f,random,data) {
     m
   }
 
+  Droplevels <- function(x) {
+    if (!is.factor(x)) stop("all grouping variables in random effects must be factors")
+    droplevels(x)
+  }
+  
   ## expand RHS and provide a list of indices
   ## into the appropriate factor:
   rfun <- function(rbit,rdata) {
@@ -75,7 +80,7 @@ process_randformula <- function(f,random,data) {
     ## ugly: "If the answer is parse() you should usually rethink the question" but ??
     labs <- attr(t,"term.labels")
     sapply(labs,
-           function(lab) as.numeric(with(data,droplevels(eval(parse(text=lab))))))
+           function(lab) as.numeric(with(data,Droplevels(eval(parse(text=lab))))))
   }
   termnames <- gsub("\\|","_bar_",
                     gsub(":","_int_",
@@ -97,7 +102,7 @@ process_randformula <- function(f,random,data) {
   groupL <- lapply(tL,
                    function(z) {
                      ## FAILED attempt to reduce variables by getting rid of unused levels:
-                     ## x <- lapply(eval(attr(z,"variables"),data),droplevels)
+                     ## x <- lapply(eval(attr(z,"variables"),data),Droplevels)
                      x <- eval(attr(z,"variables"),data)
                      names(x) <-rownames(attr(z,"factors"))
                      x
@@ -110,7 +115,7 @@ process_randformula <- function(f,random,data) {
                    function(z) {
                      ff <- as.list(colnames(attr(z,"factors")))
                      ## FAILED attempt to reduce variables by getting rid of unused levels:
-                     lapply(ff,function(x) droplevels(eval(parse(text=x),data)))
+                     lapply(ff,function(x) Droplevels(eval(parse(text=x),data)))
                      ## DANGER WILL ROBINSON: eval(parse(...)) !
                      ##lapply(ff,function(x) eval(parse(text=x),data))
                    })

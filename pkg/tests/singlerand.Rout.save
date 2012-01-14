@@ -43,6 +43,7 @@ The following object(s) are masked from ‘package:R2admb’:
 > d$y <- rpois(N,exp(eta))
 > ##g1 <- glmm.admb(y~x,random=~1,group="f",family="poisson",data=d)
 > g1 <- glmmadmb(y~x+(1|f),family="poisson",data=d)
+matrix not pos definite in sparse choleski
 > ## identical 
 > coef(g1)
 (Intercept)           x 
@@ -85,9 +86,57 @@ $f
 +   u[as.numeric(d2$f)]*d$x
 > d2$y <- rpois(N,exp(eta))
 > 
-> ##g2 <- glmm.admb(y~x,random=~x,group="f",family="poisson",data=d2)
-> g2 <- glmmadmb(y~x+(x|f),family="poisson",data=d2)
-matrix not pos definite in sparse choleski
+> ##old style: g2 <- glmm.admb(y~x,random=~x,group="f",family="poisson",data=d2)
+> 
+> library(lme4)
+Loading required package: Matrix
+Loading required package: lattice
+
+Attaching package: ‘Matrix’
+
+The following object(s) are masked from ‘package:base’:
+
+    det
+
+
+Attaching package: ‘lme4’
+
+The following object(s) are masked from ‘package:glmmADMB’:
+
+    VarCorr
+
+The following object(s) are masked from ‘package:stats’:
+
+    AIC, BIC
+
+> g2B <- glmer(y~x+(1|f)+(0+x|f),family="poisson",data=d2)
+> 
+> g2 <- glmmadmb(y~x+(x|f),family="poisson",data=d2,
++                admb.opts=admbControl(noinit=FALSE))
+> 
+> if (FALSE) {
++   glmmadmb(y~x+(x|f),family="poisson",data=d2,
++            save.dir="tmp",
++            admb.opts=admbControl(run=FALSE))
++ }
+> 
+> stopifnot(all.equal(fixef(g2B),coef(g2),tol=3e-5))
+> stopifnot(all.equal(unname(unlist(VarCorr(g2B))),unname(diag(g2$S[[1]])),tol=3e-3))
+> 
+> 
+> 
+> g2D <- glmmadmb(y~x+(x|f),family="poisson",data=d2,
++                admb.opts=admbControl(maxph=NA))
+> 
+> g2E <- glmmadmb(y~x+(x|f),family="poisson",data=d2,
++                admb.opts=admbControl(noinit=FALSE))
+> 
+> if (FALSE) {
++   ## this one still doesn't work
++   g2C <- glmmadmb(y~x+(x|f),family="poisson",data=d2)
++ }
+> 
+> 
 > coef(g2)
 (Intercept)           x 
     0.88575     2.10750 
@@ -126,4 +175,4 @@ x               0.00000 0.50258
 > 
 > proc.time()
    user  system elapsed 
-  7.856   2.636  11.391 
+ 16.568   4.708  21.609 

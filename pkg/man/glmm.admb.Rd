@@ -3,14 +3,13 @@
 \alias{glmm.admb}
 \title{Generalized Linear Mixed Models Using AD Model Builder}
 \description{
-  Fits mixed-effects models to count data using binomial, Poisson, or
-  negative binomial response distributions. Zero-inflated versions of
-  Poisson and negative binomial distributions are supported.
+  Fits (extended)
+  generalized linear mixed-effects models to data using a variety of
+  distributions and link functions, including zero-inflated models.
 }
 \usage{
 glmmadmb(formula, data, family="poisson", link,start,
-          random,
-          corStruct="diag", easyFlag=TRUE,
+          random, corStruct="diag", easyFlag=TRUE,
           zeroInflation=FALSE, 
           admb.opts=admbControl(),
           mcmc=FALSE,mcmc.opts=mcmcControl(),save.dir,
@@ -29,14 +28,12 @@ glmm.admb(\dots)  ## deprecated
     parameter(s) that vary across grouping variables and \code{g}
     represents the grouping variables; for example, \code{(1|g)} indicates
     a model where only intercepts vary across groups.
-    Grouping variables must be factors.
+    \emph{Grouping variables must be factors.}
     The model may include an offset term, which must be specified on the
     scale of the linear predictor and included in \code{data}:
-    see \code{\link{offset}}.
-    Alternatively, the random effects terms may be specified
-  separately: see \code{random} below.}
-  \item{data}{a data frame containing the variables named in
-    \code{formula}.}
+    see \code{\link{offset}}. Alternatively, the random effects terms may be specified
+  separately using the \code{random} argument.}
+  \item{data}{a data frame containing the variables named in \code{formula}.}
   \item{family}{a string determining the response distribution:
     currently implemented options (and default link functions) are
     \itemize{
@@ -53,7 +50,7 @@ glmm.admb(\dots)  ## deprecated
       (these can be used to fit hurdle models)
     }
   }
-  \item{link}{a string specifying the shape of the link function:
+  \item{link}{a string specifying the link function:
     currently implemented options are
     \code{"log"}, \code{"logit"}, \code{"probit"}, \code{"cloglog"},
     and \code{"identity"}.}
@@ -124,23 +121,22 @@ glmm.admb(\dots)  ## deprecated
     When \code{impSamp >0}, 
     importance sampling is used to improve the Laplace approximation
     (Skaug and Fournier 2006).
-    
-    \item If the message \code{'Proper convergence could not be reached'}
-    occurs, try to increase the parameter \code{imaxfn} and to set
-    \code{easyFlag=FALSE}.
-
-    \item At present, offsets cannot be computed "on the fly", but
-    must be present in the data frame -- i.e., use
-    \code{data$logarea <- log(data$area); glmmadmb(...+offset(logarea)...)}
-    rather than \code{glmmadmb(...+offset(log(area)))}
+    \item Due to technical limitations, offset expressions can
+    contain \emph{at most} one internal set of parentheses; i.e.
+    \code{offset(log(x))} works, but \code{offset((log(x)))} will not.
+    If necessary, define a new variable in the data frame, e.g.
+    \code{mydata$myoffset <- with(mydata,log(3*exp(x)))}.
     \item Internally, glmmADMB works with an orthogonalized version of
     the fixed-effect design matrix.  The \code{phi} matrix returned in the results can
     be used to convert from orthogonalized to 'real' fixed parameters,
-    i.e. \code{b_real == b_orth \%*\% phi} or \code{b_orth = b_real \%*\% solve(phi)}
+    i.e. \code{b_real == b_orth \%*\% phi} or \code{b_orth = b_real
+      \%*\% solve(phi)}
+    \item For advice on troubleshooting, see \code{\link{admbControl}}.
   }
 }
 \value{
-  An object of class \code{"glmmadmb"} representing the model fit:
+  An object of class \code{"glmmadmb"} representing the model fit,
+  including (among others) components:
   \item{b}{vector of fixed effects}
   \item{S}{covariance matrix of random effects}
   \item{alpha}{scale/overdispersion parameter
@@ -167,18 +163,23 @@ glmm.admb(\dots)  ## deprecated
   Statistics & Data Analysis 51:699--709.
 }
 \seealso{
-  \code{\link{glmmADMB-package}}.
+  \code{\link{glmmADMB-package}, }.
 }
 \examples{
+data(bacteria,package="MASS")
+bacteria$present <- as.numeric(bacteria$y)-1
+(bfit <-  glmmadmb(present ~ trt + I(week > 2), random = ~ 1 | ID,
+                     family = "binomial", data = bacteria))
+\dontrun{
+## Epilepsy data
+## all grouping variables must be factors:
   epil2$subject <- factor(epil2$subject)
   (fm <- glmmadmb(y~Base*trt+Age+Visit+(Visit|subject),
                   data=epil2, family="nbinom"))
-\dontrun{
+## Owls data
 data(Owls)
-Owls$offset <- log(Owls$BroodSize) 
  om <- glmmadmb(SiblingNegotiation~FoodTreatment*SexParent+
-           (1|Nest)+offset(offset),
-## FIXME: would like to be able to use offset(log(BroodSize))
+           (1|Nest)+offset(log(BroodSize)),
           zeroInflation=TRUE,family="nbinom",data=Owls)
 }
 }

@@ -36,8 +36,37 @@ eta <- model.matrix(~x,data=d2) %*% beta + u[as.numeric(d2$f)]+
   u[as.numeric(d2$f)]*d$x
 d2$y <- rpois(N,exp(eta))
 
-##g2 <- glmm.admb(y~x,random=~x,group="f",family="poisson",data=d2)
-g2 <- glmmadmb(y~x+(x|f),family="poisson",data=d2)
+##old style: g2 <- glmm.admb(y~x,random=~x,group="f",family="poisson",data=d2)
+
+library(lme4)
+g2B <- glmer(y~x+(1|f)+(0+x|f),family="poisson",data=d2)
+
+g2 <- glmmadmb(y~x+(x|f),family="poisson",data=d2,
+               admb.opts=admbControl(noinit=FALSE))
+
+if (FALSE) {
+  glmmadmb(y~x+(x|f),family="poisson",data=d2,
+           save.dir="tmp",
+           admb.opts=admbControl(run=FALSE))
+}
+
+stopifnot(all.equal(fixef(g2B),coef(g2),tol=3e-5))
+stopifnot(all.equal(unname(unlist(VarCorr(g2B))),unname(diag(g2$S[[1]])),tol=3e-3))
+
+
+
+g2D <- glmmadmb(y~x+(x|f),family="poisson",data=d2,
+               admb.opts=admbControl(maxph=NA))
+
+g2E <- glmmadmb(y~x+(x|f),family="poisson",data=d2,
+               admb.opts=admbControl(noinit=FALSE))
+
+if (FALSE) {
+  ## this one still doesn't work
+  g2C <- glmmadmb(y~x+(x|f),family="poisson",data=d2)
+}
+
+
 coef(g2)
 logLik(g2)
 g2$U
