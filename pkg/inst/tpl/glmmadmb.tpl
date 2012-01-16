@@ -23,6 +23,8 @@ DATA_SECTION
   init_int rlinkflag                            // robust link function?
   init_int no_rand_flag   			// 0 have random effects 1 no random effects
   init_int zi_flag				// Zero inflation (zi) flag: 1=zi, 0=no zi
+  // init_int zi_model_flag                        // ZI varies among groups/covariates?
+  // init_matrix G(1,n,1,ncolG)                    // Design matrix for zero-inflation (fixed effects)
   // TESTING: remove eventually?
   init_int zi_kluge				// apply zi=0.001?
   init_int nbinom1_flag				// 1=NBinom1, 0=NBinom2
@@ -454,6 +456,9 @@ SEPARABLE_FUNCTION void log_lik(int _i,const dvar_vector& tmpL,const dvar_vector
   // Zero inflation part 
   // zi_kluge: apply ZI whether or not zi_flag is true
   if(zi_flag || zi_kluge) {
+    // if (zi_model_flag) {
+    // 
+    // }
     if(y(_i,1)==0)
       g -= log(e2+pz+(1.0-pz)*mfexp(tmpl));
     else
