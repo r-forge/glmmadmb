@@ -1,5 +1,5 @@
 Package: glmmADMB
-Version: 0.7.2.4
+Version: 0.7.2.5
 Revision: $Revision$
 Date: $ Date $
 Title: Generalized Linear Mixed Models Using AD Model Builder
@@ -10,7 +10,7 @@ Maintainer: Ben Bolker <bolker@mcmaster.ca>
 LazyData: yes
 Description: Fits mixed-effects models using a variety of distributions
 Imports: stats, nlme
-Depends: R (>= 2.13), methods, MASS, R2admb
+Depends: R (>= 2.12), methods, MASS, R2admb
 Suggests: lattice, lme4, coda, mlmRev, scapeMCMC, ggplot2, coefplot2, bbmle, pscl
 License: BSD
 URL: http://glmmadmb.r-forge.r-project.org, http://admb-project.org

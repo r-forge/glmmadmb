@@ -46,7 +46,7 @@ get_bin_version <- function(file_name="glmmadmb") {
   platform <- res$platform
   bin_loc <- res$bin_loc
   r <- run_bin(platform,bin_loc,file_name,cmdoptions="-version")
-  cat(r,sep="\n")
+  message(r,sep="\n")
   invisible(r)
 }
 
@@ -356,6 +356,12 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
     u=rep(0,sum(m*q)))  
 
 
+  if (!missing(start) && !is.null(start$fixed)) {
+    message("converting fixed to orthogonalized variant ...")
+    phi <- make_phi(X)
+    start$fixed <- start$fixed %*% solve(phi)
+  }
+
   rnames <- list(c("fixed","b"),
                  c("RE_sd","tmpL"),
                  c("RE_cor","tmpL1"))
@@ -370,12 +376,14 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
         stop("unmatched start component ",ns[i])
       }
       if (length(pp) != length(start[[i]])) {
-        stop("length mismatch in start component ",ns[i])
+        stop("length mismatch in start component ",ns[i],
+             ": ",length(pp),"!=",length(start[[i]]))
       }
       pin_list[[ns[i]]] <- start[[i]]
     }
   }
 
+  
   dat_write(file_name, dat_list)
   pin_write(file_name, pin_list)
   std_file <- paste(file_name, ".std", sep="")

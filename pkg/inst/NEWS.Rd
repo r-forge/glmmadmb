@@ -4,6 +4,12 @@
 \title{glmmADMB News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.7.2.5}{
+\itemize{
+  \item new binaries (ADMB r229)
+  \item R calculation of phi, pre-transformation of fixed effect parameters
+}
+}
 
 \section{Changes in version 0.7.2.4}{
  \itemize{
