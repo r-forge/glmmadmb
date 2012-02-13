@@ -7,12 +7,17 @@
   (optionally) their standard deviations.
 }
 \usage{
-\method{ranef}{glmmadmb}(object, sd=FALSE, \dots)
+\method{ranef}{glmmadmb}(object, sd=FALSE, scale=TRUE, \dots)
 }
 \arguments{
   \item{object}{a fitted \code{glmmadmb} model.}
   \item{sd}{whether the standard deviations of the random effects should
     be returned, rather than point estimates.}
+  \item{scale}{(logical) scale random effects by the relevant
+    random-effects standard deviations (i.e., the resulting effects
+    should have variance approximately equal to the estimated RE
+    variance if \code{scale=TRUE}, or approximately equal to 1 if
+    \code{scale=FALSE})}
   \item{\dots}{further arguments (currently ignored).}
 }
 \details{
@@ -21,7 +26,10 @@
   variance components, etc.) are fixed at their MLE's when the joint
   likelihood is maximized with respect to the random effects. However,
   uncertainty about the hyperparameters is taken into account when the
-  standard deviations of the random effects are calculated.
+  standard deviations of the random effects are calculated.  The
+  standard deviations of the random effects are quadratic
+  approximations, so should be taken with a grain of salt for small
+  sample sizes.
 }
 \value{
   A matrix of estimated random effects (or standard deviations).

@@ -57,8 +57,7 @@ glmm.admb(\dots)  ## deprecated
   \item{start}{an (optional) named list specifying starting values, with
     (optional) components
     \itemize{
-    \item \code{fixed} (fixed-effect parameters, on orthogonal scale
-    (see Details below): default 0);
+    \item \code{fixed} (fixed-effect parameters: default 0);
     \item \code{pz} (zero-inflation probability: default 0.02);
     \item \code{log_alpha} (log of dispersion parameter: default 1);
     \item \code{RE_sd} (log-standard deviations of random effects: default 0.25);
@@ -130,7 +129,12 @@ glmm.admb(\dots)  ## deprecated
     the fixed-effect design matrix.  The \code{phi} matrix returned in the results can
     be used to convert from orthogonalized to 'real' fixed parameters,
     i.e. \code{b_real == b_orth \%*\% phi} or \code{b_orth = b_real
-      \%*\% solve(phi)}
+      \%*\% solve(phi).}  Fixed effects specified in the starting values
+    are automatically orthogonalized.
+    \item If you are specifying starting values from a different GLMM
+ fit for more than the fixed-effect parameters, you may want to use
+ \code{extra.args="-phase 5"} to skip over the estimation phase where
+ ADMB fits the model without random effects.
     \item For advice on troubleshooting, see \code{\link{admbControl}}.
   }
 }

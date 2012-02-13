@@ -219,11 +219,14 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   m <- match(c("formula", "data", "subset", "na.action", 
                "offset"), names(mf), 0L)
   mf <- mf[c(1L, m)]
-  mf$formula <- get_fixedformula(eval(mf$formula))
+  ## FIXME/WARNING!!! added parent.frame().  Does this always work???
+  mf$formula <- get_fixedformula(eval(mf$formula,parent.frame()))
   mf$drop.unused.levels <- TRUE
   mf[[1L]] <- as.name("model.frame")
 
   ## FIXME: warning on evaluation with nested factors?
+  ##
+  mf_orig <- mf
   mf <- eval(mf, parent.frame())
 
   mt <- attr(mf, "terms") # allow model.frame to have updated it
@@ -357,7 +360,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
 
 
   if (!missing(start) && !is.null(start$fixed)) {
-    message("converting fixed to orthogonalized variant ...")
+    ## message("converting fixed to orthogonalized variant ...")
     phi <- make_phi(X)
     start$fixed <- start$fixed %*% solve(phi)
   }

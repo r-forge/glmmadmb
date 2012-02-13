@@ -4,6 +4,12 @@
 \title{glmmADMB News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.7.2.6}{
+\itemize{
+  \item fix scaling of RE standard deviations; add scale option to ranef
+}
+}
+
 \section{Changes in version 0.7.2.5}{
 \itemize{
   \item new binaries (ADMB r229)
