@@ -395,10 +395,11 @@ The MCMC output in \code{glmmADMB} is currently in a very raw form --- in partic
   \item[beta] fixed-effect parameter estimates: \textbf{note} that these
     are the versions of the parameters fitted internally, 
     using an orthogonalized version of the original design matrix,
-    not the original coefficients (if this means nothing to you, as it might well, just accept that these are transformed versions of the parameters).
+    not the original coefficients.  These can be converted to the original using the \code{phi} matrix 
+    as noted in the ``Details'' section of \code{?glmmadmb}
 \item[tmpL] variance-covariance parameters
 \item[log\_alpha] log of overdispersion/scale parameter
-\item[u] random effects (unscaled)
+\item[u] random effects (unscaled: these can be scaled using the estimated random-effects standard deviations from \code{VarCorr()})
 \end{description}
  If you need to use the MCMC output and can't figure out how, please contact the maintainers and encourage them to work on them some more  (!)
  
@@ -430,7 +431,7 @@ The standard set of accessors is available:
 \begin{itemize}
   \item More examples
   \item Show how to specify starting values
-  \item fix MCMC!
+  \item fix MCMC! Apply phi, std dev
   \item General troubleshooting (extra arguments, running outside R)
   \item basic intro to \code{R2admb}?
   \item (appendix?) document details of TPL file -- robustness hacks, etc.

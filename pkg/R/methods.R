@@ -26,10 +26,12 @@ fixef.glmmadmb <- function(object, ...) {
 ##           MoreArgs=list(MARGIN=2,FUN="*"),SIMPLIFY=FALSE)
 ##  })
 
-ranef.glmmadmb <- function(object, sd=FALSE, ...) {
-  if(sd) return(object$sd_U)
-  mapply(sweep,object$U,lapply(object$S,function(z)sqrt(diag(z))),
-         MoreArgs=list(MARGIN=2,FUN="*"),SIMPLIFY=FALSE)
+ranef.glmmadmb <- function(object, sd=FALSE, scale=TRUE, ...) {
+  sdvals <- lapply(object$S,function(z)sqrt(diag(z)))
+  X <- if (sd) object$sd_U else object$U
+  if (scale) X <- mapply(sweep,X,sdvals,
+                         MoreArgs=list(MARGIN=2,FUN="*"),SIMPLIFY=FALSE)
+  return(X)
 }
 
 residuals.glmmadmb <- function(object, type=c("pearson", "response"), ...) {
