@@ -38,6 +38,12 @@ get_fixedformula <- function(f) {
 ## get_fixedformula(y~Base*trt+Age+Visit+poly(a,b,c)+(Visit|subject))
 ## get_fixedformula(y~Base*trt+Age+Visit+poly(a,b,c)+(Visit|subject)+(1|zzz))
 
+### needs to be outside so can be seen even if data= not specified
+Droplevels <- function(x) {
+  if (!is.factor(x)) stop("all grouping variables in random effects must be factors")
+  droplevels(x)
+}
+
 process_randformula <- function(f,random,data) {
   rchar <- as.character(f[3]) ## RHS
   if (!missing(random)) {
@@ -62,15 +68,18 @@ process_randformula <- function(f,random,data) {
   splitbits <- strsplit(randbits,"\\|")
 
   ## generate model matrix from component
+  ## FIXME: fails with ~1 and no data ...
   cfun <- function(lbit,mdata) {
-    m <- model.matrix(as.formula(paste("~",lbit)),mdata)
+    ##
+    if (!is.null(nrow(mdata))) {
+      m <- model.matrix(as.formula(paste("~",lbit)),mdata)
+    } else {
+      ## hack: pull LHS of formula from global f
+      m <- model.matrix(as.formula(paste(as.character(f[2]),"~",lbit)))
+    }
     m
   }
 
-  Droplevels <- function(x) {
-    if (!is.factor(x)) stop("all grouping variables in random effects must be factors")
-    droplevels(x)
-  }
   
   ## expand RHS and provide a list of indices
   ## into the appropriate factor:
@@ -80,8 +89,10 @@ process_randformula <- function(f,random,data) {
     ## ugly: "If the answer is parse() you should usually rethink the question" but ??
     labs <- attr(t,"term.labels")
     sapply(labs,
-           function(lab) as.numeric(with(data,Droplevels(eval(parse(text=lab))))))
+    ##       function(lab) as.numeric(with(data,Droplevels(eval(parse(text=lab))))))
+           function(lab) as.numeric(Droplevels(eval(parse(text=lab),data))))
   }
+  
   termnames <- gsub("\\|","_bar_",
                     gsub(":","_int_",
                          gsub("/","_nest_",
@@ -130,7 +141,8 @@ process_randformula <- function(f,random,data) {
   if (any(!sapply(fgroupL,inherits,"factor")))
     stop("all grouping variables must be factors")
   ## FIXME: identify which variables are non-factors
-  
+
+  ## n.b. this is LHS of the RE chunk, not of the overall formula
   LHS <- gsub("^ +","",lapply(splitbits,"[",1))
 
   ngroupfac <- sapply(groupL,length)

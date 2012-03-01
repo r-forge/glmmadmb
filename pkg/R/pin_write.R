@@ -13,7 +13,7 @@ pin_write <- function(name, L)
     if(data.class(x) == "matrix")
     {
       cat("#", names(L)[i], "\n", file=filename, append=TRUE)
-      write.table(L[[i]], col=FALSE, row=FALSE, quote=FALSE, file=filename, append=TRUE)
+      write.table(L[[i]], col.names=FALSE, row.names=FALSE, quote=FALSE, file=filename, append=TRUE)
       cat("\n", file=filename, append=TRUE)
     }
   }
