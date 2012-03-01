@@ -22,6 +22,13 @@ g1$S
 g1$sd_S
 summary(g1$U[[1]])
 
+## try with data in global workspace, not data=argument
+y <- d$y
+x <- d$x
+f <- d$f
+g1GW <- glmmadmb(y~x+(1|f),family="poisson")
+rm(y,x,f)
+
 ## random intercepts and slopes
 set.seed(101)
 nblock <- 10
