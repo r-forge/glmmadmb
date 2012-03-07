@@ -1,13 +1,14 @@
 export(glmmadmb,glmm.admb,admbControl,mcmcControl,get_bin_version)
 
 importFrom(nlme,ranef,fixef,VarCorr)
+importFrom(R2admb,dat_write)
 importFrom(stats,nobs)
 ## importMethodsFrom("nlme",ranef,VarCorr)
 export(ranef) ## (needs to be explicit even if using generic exportPattern)
 export(fixef)
 export(stdEr)
 export(VarCorr)
-export(dat_write)
+## export(dat_write) ## now use R2admb version
 ## export(nobs)
 
 S3method(print,glmmadmb)
@@ -27,5 +28,4 @@ S3method(anova,glmmadmb)
 S3method(logLik,glmmadmb)
 S3method(predict,glmmadmb)
 S3method(nobs,glmmadmb)
-## wait for 2.13 to be released ... or work around it
 

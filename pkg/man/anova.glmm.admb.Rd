@@ -7,20 +7,24 @@
 }
 \arguments{
   \item{object}{a fitted \code{glmmadmb} model.}
-  \item{\dots}{more fitted models, with the same random effects.}
+  \item{\dots}{More complex fitted models. These may differ in fixed
+    or random effects, but note that the likelihood ratio test is
+    generally conservative for testing among models with differing
+    random terms, because of boundary effects.}
 }
 \details{
   Basic table for testing the fixed effects, using
   likelihood ratio tests (may be extended
   later).
 }
+\note{The models must be nested and arranged in order
+  of increasing complexity.}
 \value{
   An object of class \code{"anova"}, inheriting from class
   \code{"data.frame"}.
 }
 \seealso{
-  \code{\link{glmmadmb}}.
-
+  \code{\link{glmmadmb}},
   \code{\link{glmmADMB-package}}.
 }
 \examples{

@@ -153,7 +153,8 @@ process_randformula <- function(f,random,data) {
   L <- list(mmats=lapply(LHS,cfun,mdata=data),
             codes=lapply(groups,rfun,rdata=data),
             levels=lapply(unlist(dgroupL,recursive=FALSE),levels),
-            nterms=nterms)  ## num. derived terms per RE mat
+            nterms=nterms,   ## num. derived terms per RE mat
+            rstring=rchar) 
   ## for (i in seq_along(L$mmats)) {
   ##   attr(L$mmats[[i]],"levels") <- levels(fgroupL[[1]])
   ## }
@@ -161,9 +162,10 @@ process_randformula <- function(f,random,data) {
   names(L$mmats)  <- groups
   names(L$levels) <- rnames
   names(L$codes) <- termnames
-  attr(names,"groupnames1") <- groups
-  attr(names,"groupnames2") <- rnames
-  attr(names,"levelnames") <- termnames
+  ## ??? junk ???
+  ## attr(names,"groupnames1") <- groups
+  ## attr(names,"groupnames2") <- rnames
+  ## attr(names,"levelnames") <- termnames
   L
 }
 

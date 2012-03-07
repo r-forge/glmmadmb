@@ -4,6 +4,13 @@
 \title{glmmADMB News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.7.2.7}{
+\itemize{
+  \item anova() is a little more flexible, tiny format changes
+  \item removed dat_write (use version from R2admb)
+}
+}
+
 \section{Changes in version 0.7.2.6}{
 \itemize{
   \item fix scaling of RE standard deviations; add scale option to ranef
