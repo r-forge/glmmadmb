@@ -1,27 +1,31 @@
 library(glmmADMB)
 Owls <- transform(Owls,
-  Nest=reorder(Nest,NegPerChick),
-  logBroodSize=log(BroodSize),
-  NCalls=SiblingNegotiation)
+                  Nest=reorder(Nest,NegPerChick),
+                  NCalls=SiblingNegotiation)
 
-time0 <- system.time(fit0 <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
-                                      BroodSize+(1|Nest),
-                                      data=Owls,
-                                      zeroInflation=TRUE,
-                                      family="nbinom1",
-                                      save.dir="owls_mcmcdir0",
-                                      mcmc=TRUE))
+time0 <- system.time(OwlModel <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
+                                          offset(log(BroodSize))+(1|Nest),
+                                          data=Owls,
+                                          zeroInflation=TRUE,
+                                          family="nbinom"))
+save(list=c(ls(pattern="time"),ls(pattern="OwlModel")),file="OwlModel.rda")
 
-mcmctime <- system.time(fit_zinbinom1_bs_mcmc <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
-                                                          BroodSize+(1|Nest),
-                                                          data=Owls,
-                                                          zeroInflation=TRUE,
-                                                          family="nbinom1",
-                                                          save.dir="owls_mcmcdir",
-                                                          mcmc=TRUE,
-                                                          mcmc.opts=mcmcControl(mcmc=50000)))
+time1 <- system.time(OwlModel_nb1_bs <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
+                                                 BroodSize+(1|Nest),
+                                                 data=Owls,
+                                                 zeroInflation=TRUE,
+                                                 family="nbinom1"))
+save(list=c(ls(pattern="time"),ls(pattern="OwlModel")),file="OwlModel.rda")
 
-save("fit0","time0","fit_zinbinom1_bs_mcmc","mcmctime",file="owls_mcmcbatch.RData")
+time2 <- system.time(OwlModel_nb1_bs_mcmc <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
+                                                      BroodSize+(1|Nest),
+                                                      data=Owls,
+                                                      zeroInflation=TRUE,
+                                                      family="nbinom1",
+                                                      mcmc=TRUE,
+                                                      mcmc.opts=mcmcControl(mcmc=50000)))
+
+save(list=c(ls(pattern="time"),ls(pattern="OwlModel")),file="OwlModel.rda")
 
 if (FALSE) {
   load("owls_mcmcbatch.RData")

@@ -1,6 +1,9 @@
 \name{Owls}
 \alias{Owls}
 \alias{OwlModel}
+\alias{OwlModel_nb1_bs}
+\alias{OwlModel_nb1_bs_mcmc}
+
 \docType{data}
 \title{
 Begging by owl nestlings
@@ -22,11 +25,17 @@ Begging by owl nestlings
     \item{\code{BroodSize}}{brood size}
     \item{\code{NegPerChick}}{number of negotations per chick}
   }
-  \code{OwlModel} is the results of fitting the model
-  \code{glmmadmb(SiblingNegotiation~FoodTreatment*SexParent+
-    (1|Nest)+offset(logBroodSize),family="nbinom",
-    zeroInflation=TRUE,data=Owls)}
-  to the data, provided for convenience in testing methods.
+  For convenience in testing methods, several pre-fitted models are provided:
+  \itemize{
+    \item \code{OwlModel} is the results of fitting the model
+      \code{glmmadmb(SiblingNegotiation~FoodTreatment*SexParent+
+	(1|Nest)+offset(log(BroodSize)),family="nbinom",
+	zeroInflation=TRUE,data=Owls)}
+    \item \code{OwlModel_nb1_bs}: \code{glmmadmb(SiblingNegotiation~FoodTreatment*SexParent+BroodSize+
+      (1|Nest),family="nbinom1",zeroInflation=TRUE,data=Owls)}
+    \item \code{OwlModel_nb1_bs_mcmc}: \code{glmmadmb(SiblingNegotiation~FoodTreatment*SexParent+BroodSize+
+      (1|Nest),family="nbinom1",zeroInflation=TRUE,MCMC=TRUE,data=Owls)}
+    }
 }
 \source{
   Roulin, A. and L. Bersier. 2007. Nestling barn owls beg more intensely
