@@ -306,16 +306,15 @@ flat priors: please see the ADMB documentation, or \cite{Bolker2008}, for
 more details).
 
 <<echo=FALSE>>=
-load("owls_mcmcbatch.RData")
+L <- load("OwlModel.rda")
 @ 
-
 This is very convenient, but tends to be a bit slow.  In the example below,
 I ran a chain of 50,000 MCMC iterations --- on examination, the default
 chain of 1000 iterations was much too short --- which took about
-\Sexpr{round(sum(mcmctime[4:5])/(60*60),2)} hours on a modern (2011) laptop.
+\Sexpr{round(sum(time2[4:5])/(60*60),2)} hours on a modern (2012) desktop.
 
 <<eval=FALSE>>=
-fit_zinbinom1_bs_mcmc <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
+OwlModel_nb1_bs_mcmc <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
                                      BroodSize+(1|Nest),
                                      data=Owls,
                                      zeroInflation=TRUE,
@@ -330,14 +329,52 @@ Convert the MCMC chain to an \code{mcmc} object which the
 
 <<>>=
 library(coda)
-m <- as.mcmc(fit_zinbinom1_bs_mcmc$mcmc)
+m <- as.mcmc(OwlModel_nb1_bs_mcmc$mcmc)
+@ 
+
+<<>>=
+mcmc_transform <- function(m,fit) {
+  if (missing(fit)) {
+    fit0 <- fit
+    m <- fit$mcmc
+    fit <- fit0
+  }
+  if (!is(m,"mcmc")) stop("m must be an 'mcmc' object")
+  if (!is(fit,"glmmadmb")) stop("fit must a 'glmmadmb' object")
+  ## zero-inflation
+  pz <- m[,"pz",drop=FALSE]
+  t_pz <- pz  ## (not transformed)
+  ## fixed effects
+  fixed <- m[,grep("^beta",colnames(m)),drop=FALSE]
+  t_fixed <- as.mcmc(fixed %*% fit$phi)
+  colnames(t_fixed) <- names(fixef(fit))
+  ## variance parameters: log std dev
+  theta <- m[,grep("^tmpL",colnames(m)),drop=FALSE]
+  t_theta <- exp(theta)
+  ## corr parameters ("offdiagonal elements of cholesky-factor of correlation matrix")
+  corr <- m[,grep("^tmpL1",colnames(m)),drop=FALSE]
+  t_corr <- corr
+  ## scale/overdispersion parameter
+  logalpha <- m[,grep("^log_alpha",colnames(m)),drop=FALSE]
+  t_alpha <- matrix(exp(logalpha),dimnames=list(NULL,"alpha"))
+  ## random effects
+  re <- m[,grep("^u\\.[0-9]+",colnames(m)),drop=FALSE]
+  t_re <- re
+  mcmc(cbind(t_pz,t_fixed,t_theta,t_corr,t_alpha,t_re),
+       start=start(m),end=end(m),thin=frequency(m))
+}
 @ 
 
 Look at the trace plots.
+(Something a bit odd happens at the end of the chain, so we drop the last few values \ldots
+there may be a bug in the import-handling for MCMC for very long chains \ldots)
 
+<<>>=
+tm <- window(mcmc_transform(m,OwlModel_nb1_bs),1,320)
+@ 
 <<fig=TRUE>>=
 library(scapeMCMC)
-plotTrace(m)
+plotTrace(tm)
 @ 
 
 The Geweke diagnostic gives $Z$ scores for each
@@ -366,18 +403,18 @@ print(unname(a1[names(a1)==which(search()=="package:coda")]),
 chain for each variable, i.e. the number of samples
 corrected for autocorrelation:
 <<>>=
-range(effectiveSize(m))
+range(effectiveSize(tm))
 @ 
 
 \code{HPDinterval} gives the highest posterior density
 (credible interval):
 <<>>=
-head(HPDinterval(m))
+head(HPDinterval(tm))
 @ 
 
 You might prefer inferences based on the quantiles instead:
 <<>>=
-head(t(apply(m,2,quantile,c(0.025,0.975))))
+head(t(apply(tm,2,quantile,c(0.025,0.975))))
 @ 
 
 You can also look at density plots or pairwise scatterplots
@@ -386,19 +423,23 @@ You can also look at density plots or pairwise scatterplots
 although these are not particularly useful for this large a set
 of parameters:
 <<eval=FALSE>>=
-plotDens(m)
-plotSplom(m,pch=".")  
+plotDens(tm)
+plotSplom(tm,pch=".")  
 @ 
 
-The MCMC output in \code{glmmADMB} is currently in a very raw form --- in particular, the internal names and variants of the parameters are used:
+The MCMC output in \code{glmmADMB} is currently in a very raw form --- in particular, the internal names and scales of the parameters are used:
 \begin{description}
-  \item[pz] zero-inflation parameter
+  \item[pz] zero-inflation parameter (raw)
   \item[beta] fixed-effect parameter estimates: \textbf{note} that these
     are the versions of the parameters fitted internally, 
     using an orthogonalized version of the original design matrix,
     not the original coefficients.  These can be converted to the original using the \code{phi} matrix 
     as noted in the ``Details'' section of \code{?glmmadmb}
-\item[tmpL] variance-covariance parameters
+\item[tmpL] variance-covariance parameters (log-standard-deviation scale)
+\item[tmpL1] correlation/off-diagonal elements of variance-covariance matrices (``off-diagonal elements of the Cholesky factor of 
+  the correlation matrix'). (If you need to transform these to correlations, 
+  you will need to construct the relevant matrices with 1 on the diagonal and
+  compute the cross-product, $C C^T$ (see \code{tcrossprod}); if this makes no sense to you, contact the maintainers \ldots)
 \item[log\_alpha] log of overdispersion/scale parameter
 \item[u] random effects (unscaled: these can be scaled using the estimated random-effects standard deviations from \code{VarCorr()})
 \end{description}
@@ -426,6 +467,8 @@ The standard set of accessors is available:
   \item[\code{VarCorr}] extract variance-covariance matrices of random effects
   \item[\code{confint}] extract confidence intervals of fixed-effect coefficients
 \end{description} 
+In case this list is out of date, you can try \code{methods(class="glmmadmb")} to
+tell you what methods are currently available.
 
 \section{To do/road map}
 \subsection{Vignette}

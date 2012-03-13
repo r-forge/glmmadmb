@@ -4,6 +4,12 @@
 \title{glmmADMB News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.7.2.8}{
+\itemize{
+  \item  added information to vignette about parameter conversions from MCMC to original scales
+}
+}
+
 \section{Changes in version 0.7.2.7}{
 \itemize{
   \item anova() is a little more flexible, tiny format changes
