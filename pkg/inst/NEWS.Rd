@@ -4,6 +4,15 @@
 \title{glmmADMB News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.7.2.9}{
+\itemize{
+  \item  version bump, new version of saved OwlModels
+  \item added df.residuals and model.frame methods, car::Anova now works
+  \item added car, lme4.0 to Suggests:
+  \item vignette tweaks/additions
+}
+}
+
 \section{Changes in version 0.7.2.8}{
 \itemize{
   \item  added information to vignette about parameter conversions from MCMC to original scales

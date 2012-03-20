@@ -110,3 +110,11 @@ setMethod("VarCorr", signature(x="summary.glmmadmb"), VarCorr.glmmadmb)
 ##          (or save.frame or saveFrame) ?
 
 
+model.frame.glmmadmb <- function(formula,...) {
+    formula$frame
+}
+
+df.residual.glmmadmb <- function(object,...) {
+    nparams <- nrow(object$frame)-object$npar
+    ## FIXME: is npar correct ???
+}
