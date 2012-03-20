@@ -1,5 +1,5 @@
 library(glmmADMB)  ## testing version
-library(lme4)
+library(lme4.0)
 
 load("multrand_batch.RData")
 
@@ -36,7 +36,8 @@ sumfun.glmmadmb <- function(x,times) {
   mm
 }
 
-sumfun.mer <- function(x,times) {
+sumfun.mer <- sumfun.merMod <- function(x,times) {
+    ## should work for old/new lme4 ...
   fixed <- fixef(x)
   ransum <- unlist(lapply(ranef(x),
                           function(z)

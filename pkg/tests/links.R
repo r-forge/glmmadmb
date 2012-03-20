@@ -44,17 +44,20 @@ sapply(mlist,logLik)
 g1 <- glmmadmb(y~x+(1|f)+offset(offset),data=d,
                family="binomial",link="cloglog")
 
-library(lme4)
-g1A <- glmer(y~x+(1|f)+offset(offset),data=d,
-             family=binomial(link="cloglog"))
-c1A <- fixef(g1A)
-r1A <- ranef(g1A)
-v1A <- VarCorr(g1A)
-L1A <- logLik(g1A)
-detach("package:lme4")
+if (FALSE) {  ## FIXME: restore after glmer fixed
+    library(lme4)
+    g1A <- glmer(y~x+(1|f)+offset(offset),data=d,
+                 family=binomial(link="cloglog"))
+    c1A <- fixef(g1A)
+    r1A <- ranef(g1A)
+    v1A <- VarCorr(g1A)
+    L1A <- logLik(g1A)
+    detach("package:lme4")
+    c(logLik(g1),L1A)
+}
 summary(g1)
 
-c(logLik(g1),L1A)
+
 p0 <- predict(g1)
 pb <- predict(g1,type="response")
 

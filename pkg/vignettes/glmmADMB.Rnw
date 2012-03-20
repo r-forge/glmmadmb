@@ -3,7 +3,7 @@
 %\usepackage{lineno}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
-\usepackage[usenames]{color}
+%\usepackage[usenames]{color}
 \usepackage[american]{babel}
 \newcommand{\R}{{\sf R}}
 \newcommand{\Splus}{{\sf S-PLUS}}
@@ -25,13 +25,9 @@
 
 %\linenumbers
 
-\SweaveOpts{eps=TRUE,pdf=TRUE}
+\SweaveOpts{fig.width=5,fig.height=5,out.width="0.8\\textwidth"}
 <<setopts,echo=FALSE>>=
 Rver <- paste(R.version$major,R.version$minor,sep=".")
-options(continue=" ")
-##if (require(cacheSweave)) {
-##  setCacheDir("glmmADMB_vignette")
-##}
 @ 
 <<graphopts,echo=FALSE>>=
 library(ggplot2)
@@ -125,7 +121,7 @@ First we draw some pictures (Figures~\ref{fig:owl1}, \ref{fig:owl2}).
 
 Load the \code{glmmADMB} package to get access to the \code{Owls}
 data set; load the \code{ggplot2} graphics package.
-<<>>=
+<<message=FALSE,warning=FALSE>>=
 library(glmmADMB)
 library(ggplot2)
 @ 
@@ -134,39 +130,45 @@ Various small manipulations of the data set:
 (1) reorder nests by mean negotiations per chick, for plotting
 purposes; (2) add log brood size variable (for offset);
 (3) rename response variable.
-<<>>=
+%% FIXME: I get a warning message ("NAs introduced by coercion")  here, but only in knitr,
+%%  and not on a clean start ... ?
+%% some weird package interaction ?
+<<warning=FALSE>>=
 Owls <- transform(Owls,
-  Nest=reorder(Nest,NegPerChick),
-  logBroodSize=log(BroodSize),
-  NCalls=SiblingNegotiation)
+                  Nest=reorder(Nest,NegPerChick),
+                  NCalls=SiblingNegotiation)
 @ 
+(If you were really using this data set you should start
+with \code{summary(Owls)} \ldots)
 
 \begin{figure}
 \setkeys{Gin}{width=\textwidth}
-<<owlplot1,fig=TRUE,echo=FALSE>>=
+<<owlplot1,echo=FALSE>>=
 G0 <- ggplot(Owls,aes(x=reorder(Nest,NegPerChick),
                       y=NegPerChick))+
   xlab("Nest")+ylab("Negotiations per chick")+coord_flip()+
   facet_grid(FoodTreatment~SexParent)
-print(G0+stat_sum(aes(size=..n..),alpha=0.5)+zmargin+
+G0+stat_sum(aes(size=..n..),alpha=0.5)+zmargin+
       scale_size_continuous(name="# obs",
-                            breaks=seq(1,9,by=2)))
+                            breaks=seq(1,9,by=2))+
+    opts(axis.title.x=theme_text(hjust=0.5,size=12),
+         axis.text.y=theme_text(size=7))
 @ 
 \caption{Basic view of owl data (arrival time not shown).}
 \label{fig:owl1}
 \end{figure}
 
 \begin{figure}
-<<owlplot2,fig=TRUE,echo=FALSE>>=
+<<owlplot2,echo=FALSE,message=FALSE,warning=FALSE>>=
 G1 <- ggplot(Owls,aes(x=ArrivalTime,
                       y=NegPerChick,colour=FoodTreatment,
                       linetype=SexParent,
                       shape=SexParent))
-print(G1+stat_sum(aes(size=factor(..n..)),alpha=0.5)+geom_smooth()+
+G1+stat_sum(aes(size=factor(..n..)),alpha=0.5)+geom_smooth()+
       ## facet_grid(.~SexParent)+zmargin+
       labs(x="Arrival time",y="Negotiations per chick")+
       scale_size_discrete(name="# obs",
-                          breaks=c("1","2")))
+                          breaks=c("1","2"))
 @ 
 \caption{Basic view of owl data, \#2 (nest identity not shown)}
 \label{fig:owl2}
@@ -177,26 +179,27 @@ Now fit some models:
 The basic \code{glmmadmb} fit --- a zero-inflated Poisson model.
 <<time1,echo=FALSE,cache=TRUE>>=
 gt1 <- system.time(glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
-                                     offset(logBroodSize)+(1|Nest),
+                                     offset(log(BroodSize))+(1|Nest),
                                      data=Owls,
                                      zeroInflation=TRUE,
                                      family="poisson"))
 @ 
-<<glmmadmbfit,cache=TRUE>>=
+%% ditto with NA coercion warnings
+<<glmmadmbfit,cache=TRUE,warning=FALSE>>=
 fit_zipoiss <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
-                                     offset(logBroodSize)+(1|Nest),
+                                     offset(log(BroodSize))+(1|Nest),
                                      data=Owls,
                                      zeroInflation=TRUE,
                                      family="poisson")
 @
 
-<<>>=
+<<warning=FALSE>>=
 summary(fit_zipoiss)
 @ 
 
 The \code{coefplot2} package knows about \code{glmmadmb} fits:
 
-<<coefplotmg1,fig=TRUE,width=8>>=
+<<coefplotmg1,fig.width=8,warning=FALSE>>=
 library(coefplot2)
 coefplot2(fit_zipoiss)
 @ 
@@ -205,7 +208,7 @@ We can also try a standard zero-inflated negative binomial model;
 the default is the ``NB2'' parameterization (variance = $\mu(1+\mu/k)$).
 <<glmmadmbnbinomfit,cache=TRUE>>=
 fit_zinbinom <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
-                  offset(logBroodSize)+(1|Nest),
+                  offset(log(BroodSize))+(1|Nest),
                   data=Owls,
                   zeroInflation=TRUE,
                   family="nbinom")
@@ -214,7 +217,7 @@ fit_zinbinom <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
 Alternatively, use an ``NB1'' fit (variance = $\phi \mu$).
 <<glmmadmbnbinom1fit,cache=TRUE>>=
 fit_zinbinom1 <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
-                                     offset(logBroodSize)+(1|Nest),
+                                     offset(log(BroodSize))+(1|Nest),
                                      data=Owls,
                                      zeroInflation=TRUE,
                                      family="nbinom1")
@@ -233,7 +236,7 @@ fit_zinbinom1_bs <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
 Every change we have made so far improves the fit --- changing distributions
 improves it enormously, while changing the role of brood size makes only
 a modest (-1 AIC unit) difference:
-<<>>=
+<<message=FALSE,warning=FALSE>>=
 library(bbmle)
 AICtab(fit_zipoiss,fit_zinbinom,fit_zinbinom1,fit_zinbinom1_bs)
 @ 
@@ -294,6 +297,41 @@ AICtab(fit_count,fit_ccount)
 summary(fit_ccount)
 @ 
 
+\subsection{Testing and inference}
+
+(Sketchy: to be expanded.)
+
+There are many challenging statistical issues surrounding tests
+of terms in GLMMs. Most often people use minor variations of 
+existing approaches (Wald tests, likelihood ratio tests, etc.),
+either accounting for or sweeping under the rug some of the
+differences that should be accounted for when moving either from
+linear mixed models (LMMs) or generalized linear models (GLMs)
+to GLMMs.  See \url{http://glmm.wikidot.com/faq}, or a good
+book on GLMMs (!!), for a discussion of these issues.
+
+In the meantime, keeping the limitations in mind, 
+you can 
+\begin{itemize}
+  \item use AIC to select models or generated weighted predictions (see example above).
+  \item use \code{anova} to perform a likelihood ratio test:
+<<>>=
+anova(fit_zipoiss,fit_zinbinom)
+@     
+\item use \code{Anova} from the \code{car} package to generate Wald tests:
+<<>>=
+car::Anova(fit_zinbinom)
+@   
+\end{itemize}
+
+\begin{itemize}
+  \item coefplot2
+  \item drop1??, 
+  \item simulate??, 
+  \item parametric bootstrapping ??
+  \end{itemize}
+
+
 \subsection{MCMC fitting}
 
 AD Model Builder has the capability to run a \emph{post hoc} Markov chain to
@@ -332,7 +370,7 @@ library(coda)
 m <- as.mcmc(OwlModel_nb1_bs_mcmc$mcmc)
 @ 
 
-<<>>=
+<<mcmc_transform>>=
 mcmc_transform <- function(m,fit) {
   if (missing(fit)) {
     fit0 <- fit
@@ -358,7 +396,7 @@ mcmc_transform <- function(m,fit) {
   logalpha <- m[,grep("^log_alpha",colnames(m)),drop=FALSE]
   t_alpha <- matrix(exp(logalpha),dimnames=list(NULL,"alpha"))
   ## random effects
-  re <- m[,grep("^u\\.[0-9]+",colnames(m)),drop=FALSE]
+  re <- m[,grep("^u\\\\.[0-9]+",colnames(m)),drop=FALSE]
   t_re <- re
   mcmc(cbind(t_pz,t_fixed,t_theta,t_corr,t_alpha,t_re),
        start=start(m),end=end(m),thin=frequency(m))
@@ -562,6 +600,12 @@ summary(glmmPQL(y ~ lbase*trt + lage + V4,
 summary(glmmPQL(y ~ pred, random = ~1 | subject,
                 family = poisson, data = epil3))
      
+@ 
+
+
+<<echo=FALSE>>=
+detach("package:glmmADMB")
+detach("package:ggplot2")
 @ 
 \bibliography{glmmadmb}
 \end{document}
