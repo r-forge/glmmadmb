@@ -325,13 +325,47 @@ car::Anova(fit_zinbinom)
 \end{itemize}
 
 \begin{itemize}
-  \item coefplot2
-  \item drop1??, 
-  \item simulate??, 
-  \item parametric bootstrapping ??
-  \end{itemize}
+\item coefplot2
+\item drop1??, 
+\item simulate??, 
+\item parametric bootstrapping ??
+\end{itemize}
 
 
+\subsection{Integration with lme4}
+
+<<>>=
+library(lme4)
+gm1_lme4 <- glmer(cbind(incidence, size - incidence) ~ period + (1 | herd),
+                  data = cbpp, family = binomial)
+gm1_glmmADMB <- glmmadmb(cbind(incidence, size - incidence) ~ period + (1 | herd),
+                  data = cbpp, family = "binomial")
+fixef(gm1_lme4)
+fixef(gm1_glmmADMB) ## or coef()
+unlist(ranef(gm1_lme4))
+unlist(ranef(gm1_glmmADMB))
+VarCorr(gm1_lme4)
+VarCorr(gm1_glmmADMB)
+@ 
+
+\subsubsection{Convert glmmADMB parameters to lme4}
+<<>>=
+lme4fun <- update(gm1_lme4,devFunOnly=TRUE)
+deviance(gm1_lme4)
+lme4fun(c(0,fixef(gm1_lme4)))  ## variance set to zero
+v1 <- getME(gm1_lme4,"theta")  ## log-Cholesky factor: equal in this case to standard dev
+lme4fun(c(v1,fixef(gm1_lme4))) ## observed variance (*almost* identical)
+v2 <- sqrt(gm1_glmmADMB$S[[1]])
+lme4fun(c(v2,fixef(gm1_lme4))) ## observed variance (*almost* identical)
+lme4fun(c(v2,fixef(gm1_glmmADMB))) ## observed variance (*almost* identical)
+@ 
+
+<<>>=
+glmmadmbfun <- function(
+glmmadmb(cbind(incidence, size - incidence) ~ period + (1 | herd),
+                  data = cbpp, family = "binomial",
+         extra.args=c("maxiter 1"))
+@ 
 \subsection{MCMC fitting}
 
 AD Model Builder has the capability to run a \emph{post hoc} Markov chain to
