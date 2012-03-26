@@ -64,6 +64,28 @@ install.packages("glmmADMB", repos="http://www.math.mcmaster.ca/bolker/R",type="
 </pre>
 or by navigating to <a href="http://www.math.mcmaster.ca/bolker/R/src/contrib">http://www.math.mcmaster.ca/bolker/R/src/contrib</a> and downloading the appropriate file, and following step #3 above.
 </li>
+<li>You can use the following helper function
+to see which versions of glmmADMB are available at a given repository:
+<pre>
+favail <- function(repos="r-forge.r-project.org",
+                   pkg="glmmADMB",
+                   ...) {
+    hdr <- "http://"
+    if (!substr(repos,1,8)==hdr) repos <- paste(hdr,repos,sep="")
+    a <- available.packages(contriburl=contrib.url(repos),...)
+    if (length(grep(pkg,rownames(a)))==0)
+        stop(sprintf("%s unavailable at repos %s",pkg,repos))
+    a[pkg,"Version"]
+}
+</pre>
+You can use <code>type="source"</code> if you want to check for source packages rather than for the binaries for your OS.
+For example:
+<pre>
+favail()              ## r-forge, automatic build (default)
+favail(type="source") ## r-forge, source (the same, for Linux)
+favail("glmmadmb.r-forge.r-project.org/repos")  ## r-forge, alternative location
+</pre>
+</li>
 <li>
 If all else fails, contact the package maintainers.
 </li>
