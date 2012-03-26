@@ -349,6 +349,8 @@ VarCorr(gm1_glmmADMB)
 @ 
 
 \subsubsection{Convert glmmADMB parameters to lme4}
+
+\fixme{this section is under construction}
 <<>>=
 lme4fun <- update(gm1_lme4,devFunOnly=TRUE)
 deviance(gm1_lme4)
@@ -356,15 +358,26 @@ lme4fun(c(0,fixef(gm1_lme4)))  ## variance set to zero
 v1 <- getME(gm1_lme4,"theta")  ## log-Cholesky factor: equal in this case to standard dev
 lme4fun(c(v1,fixef(gm1_lme4))) ## observed variance (*almost* identical)
 v2 <- sqrt(gm1_glmmADMB$S[[1]])
-lme4fun(c(v2,fixef(gm1_lme4))) ## observed variance (*almost* identical)
-lme4fun(c(v2,fixef(gm1_glmmADMB))) ## observed variance (*almost* identical)
+lme4fun(c(v2,fixef(gm1_lme4))) ## ???
 @ 
 
 <<>>=
-glmmadmbfun <- function(
-glmmadmb(cbind(incidence, size - incidence) ~ period + (1 | herd),
-                  data = cbpp, family = "binomial",
-         extra.args=c("maxiter 1"))
+glmmadmbfun <- function(pars,minval=exp(-9.5),verbose=FALSE) {
+    if (pars[1]==0) {
+        warning(sprintf("variance parameter set to min val (%f)",minval))
+        pars[1] <- minval
+    }
+    g0 <- glmmadmb(cbind(incidence, size - incidence) ~ period + (1 | herd),
+                   data = cbpp, family = "binomial",
+                   extra.args=c("-maxfn 1 -phase 6"),
+                   verbose=verbose,
+                   start=list(RE_sd=log(pars[1]), fixed=pars[-1]))
+    -logLik(g0)
+}
+## glmmadmbfun(c(0,fixef(gm1_lme4)))  ## fails
+v2B <- glmmadmbfun(c(v2,fixef(gm1_lme4)))
+v1B <- glmmadmbfun(c(v1,fixef(gm1_lme4)))
+all.equal(v1B,v2B,-logLik(gm1_glmmADMB))
 @ 
 \subsection{MCMC fitting}
 

@@ -80,12 +80,13 @@ stopifnot(all.equal(coef(g2),coef(g2L),tol=1e-5))
 
 g3 <- glmmadmb(y~x+(1|f),data=d,family="gamma",link="log")
 ## "matrix not pos definite in sparse choleski" warning
-library(lme4)
-## boom!
-g3L <- glmer(y~x+(1|f),data=d,family=Gamma(link="log"))
-coef(g3)
-fixef(g3L)  ## NA ... urgh
-
+if (FALSE) {
+  library(lme4)
+   ## boom!
+   g3L <- glmer(y~x+(1|f),data=d,family=Gamma(link="log"))
+   coef(g3)
+   fixef(g3L)  ## NA ... urgh
+}
 
 ## POISSON/identity link
 dd <- data.frame(y=rpois(20,lambda=10),f=factor(rep(1:5,each=4)))
