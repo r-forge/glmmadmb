@@ -30,8 +30,8 @@
 Rver <- paste(R.version$major,R.version$minor,sep=".")
 @ 
 <<graphopts,echo=FALSE>>=
-library(ggplot2)
-library(grid)
+library("ggplot2")
+library("grid")
 theme_update(theme_bw())
 zmargin <- opts(panel.margin=unit(0,"lines"))
 @ 
@@ -99,8 +99,22 @@ In order to fit a model in \code{glmmADMB} you need to:
   entire model --- i.e. it cannot vary across groups or
   with covariates.
 \end{itemize}
-    
+
+This document was
+generated using \Sexpr{R.version$version.string} and package versions:
+<<echo=FALSE,comment=NA>>=
+usedpkgs <- sort(c("coefplot2","ggplot2","glmmADMB","lme4","coda","scapeMCMC",
+                   "bbmle","MASS"))
+i1 <- installed.packages()
+print(i1[usedpkgs,"Version"],quote=FALSE)
+@ 
+
+<<>>=
+citation("glmmADMB")
+@ 
 \section{Owls data}
+
+
 
 These data, taken from \cite{zuur_mixed_2009} and ultimately
 from \cite{roulinbersier_2007}, quantify
@@ -121,9 +135,9 @@ First we draw some pictures (Figures~\ref{fig:owl1}, \ref{fig:owl2}).
 
 Load the \code{glmmADMB} package to get access to the \code{Owls}
 data set; load the \code{ggplot2} graphics package.
-<<message=FALSE,warning=FALSE>>=
-library(glmmADMB)
-library(ggplot2)
+<<loadpkgs,message=FALSE,warning=FALSE>>=
+library("glmmADMB")
+library("ggplot2")
 @ 
 
 Various small manipulations of the data set:
@@ -133,13 +147,14 @@ purposes; (2) add log brood size variable (for offset);
 %% FIXME: I get a warning message ("NAs introduced by coercion")  here, but only in knitr,
 %%  and not on a clean start ... ?
 %% some weird package interaction ?
-<<warning=FALSE>>=
+<<owltransform,warning=FALSE>>=
 Owls <- transform(Owls,
                   Nest=reorder(Nest,NegPerChick),
                   NCalls=SiblingNegotiation)
 @ 
 (If you were really using this data set you should start
-with \code{summary(Owls)} \ldots)
+with \code{summary(Owls)} to see what columns are there
+and what their characteristics are.)
 
 \begin{figure}
 \setkeys{Gin}{width=\textwidth}
@@ -193,14 +208,14 @@ fit_zipoiss <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
                                      family="poisson")
 @
 
-<<warning=FALSE>>=
+<<zipoisssum,warning=FALSE>>=
 summary(fit_zipoiss)
 @ 
 
 The \code{coefplot2} package knows about \code{glmmadmb} fits:
 
-<<coefplotmg1,fig.width=8,warning=FALSE>>=
-library(coefplot2)
+<<coefplotmg1,fig.width=8,warning=FALSE,message=FALSE>>=
+library("coefplot2")
 coefplot2(fit_zipoiss)
 @ 
 
@@ -237,7 +252,7 @@ Every change we have made so far improves the fit --- changing distributions
 improves it enormously, while changing the role of brood size makes only
 a modest (-1 AIC unit) difference:
 <<message=FALSE,warning=FALSE>>=
-library(bbmle)
+library("bbmle")
 AICtab(fit_zipoiss,fit_zinbinom,fit_zinbinom1,fit_zinbinom1_bs)
 @ 
 
@@ -334,34 +349,42 @@ car::Anova(fit_zinbinom)
 
 \subsection{Integration with lme4}
 
-<<>>=
-library(lme4)
+<<lme4_chunk1>>=
+library("lme4")
 gm1_lme4 <- glmer(cbind(incidence, size - incidence) ~ period + (1 | herd),
                   data = cbpp, family = binomial)
 gm1_glmmADMB <- glmmadmb(cbind(incidence, size - incidence) ~ period + (1 | herd),
                   data = cbpp, family = "binomial")
+sessionInfo()
 fixef(gm1_lme4)
 fixef(gm1_glmmADMB) ## or coef()
 unlist(ranef(gm1_lme4))
 unlist(ranef(gm1_glmmADMB))
 VarCorr(gm1_lme4)
+detach("package:lme4")  ## kluge!
 VarCorr(gm1_glmmADMB)
 @ 
 
 \subsubsection{Convert glmmADMB parameters to lme4}
 
-\fixme{this section is under construction}
-<<>>=
-lme4fun <- update(gm1_lme4,devFunOnly=TRUE)
-deviance(gm1_lme4)
-lme4fun(c(0,fixef(gm1_lme4)))  ## variance set to zero
-v1 <- getME(gm1_lme4,"theta")  ## log-Cholesky factor: equal in this case to standard dev
-lme4fun(c(v1,fixef(gm1_lme4))) ## observed variance (*almost* identical)
-v2 <- sqrt(gm1_glmmADMB$S[[1]])
-lme4fun(c(v2,fixef(gm1_lme4))) ## ???
+\fixme{this section is UNDER CONSTRUCTION}
+<<lme4glmmadmbconv,warning=FALSE,message=FALSE>>=
+library("lme4")  ## requires DEVELOPMENT version of lme4 ...
+new_lme4 <- packageVersion("lme4")>"0.999375.42"
+if (new_lme4) {
+    lme4fun <- update(gm1_lme4,devFunOnly=TRUE)
+    deviance(gm1_lme4)
+    lme4fun(c(0,fixef(gm1_lme4)))  ## variance set to zero
+    v1 <- getME(gm1_lme4,"theta")  ## log-Cholesky factor: equal in this case to standard dev
+    lme4fun(c(v1,fixef(gm1_lme4))) ## observed variance (*almost* identical)
+    v2 <- sqrt(gm1_glmmADMB$S[[1]])
+    lme4fun(c(v2,fixef(gm1_lme4))) ## ???
+}
 @ 
 
-<<>>=
+<<lme4glmmadmbconv2,eval=FALSE>>=
+## FIXME: figure out why this crashes knitr in non-interactive mode!!
+## (then turn evaluation back on)
 glmmadmbfun <- function(pars,minval=exp(-9.5),verbose=FALSE) {
     if (pars[1]==0) {
         warning(sprintf("variance parameter set to min val (%f)",minval))
@@ -390,7 +413,7 @@ from a posterior distribution of the parameter distribution (assuming
 flat priors: please see the ADMB documentation, or \cite{Bolker2008}, for
 more details).
 
-<<echo=FALSE>>=
+<<loadowlmodel,echo=FALSE>>=
 L <- load("OwlModel.rda")
 @ 
 This is very convenient, but tends to be a bit slow.  In the example below,
@@ -398,7 +421,7 @@ I ran a chain of 50,000 MCMC iterations --- on examination, the default
 chain of 1000 iterations was much too short --- which took about
 \Sexpr{round(sum(time2[4:5])/(60*60),2)} hours on a modern (2012) desktop.
 
-<<eval=FALSE>>=
+<<fakeowlmodel,eval=FALSE>>=
 OwlModel_nb1_bs_mcmc <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
                                      BroodSize+(1|Nest),
                                      data=Owls,
@@ -412,8 +435,8 @@ OwlModel_nb1_bs_mcmc <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
 Convert the MCMC chain to an \code{mcmc} object which the 
 \code{coda} package can handle:
 
-<<>>=
-library(coda)
+<<loadcodapkg>>=
+library("coda")
 m <- as.mcmc(OwlModel_nb1_bs_mcmc$mcmc)
 @ 
 
@@ -454,11 +477,11 @@ Look at the trace plots.
 (Something a bit odd happens at the end of the chain, so we drop the last few values \ldots
 there may be a bug in the import-handling for MCMC for very long chains \ldots)
 
-<<>>=
+<<mcmcclip>>=
 tm <- window(mcmc_transform(m,OwlModel_nb1_bs),1,320)
 @ 
-<<fig=TRUE>>=
-library(scapeMCMC)
+<<mcmcplot1,fig=TRUE>>=
+library("scapeMCMC")
 plotTrace(tm)
 @ 
 
@@ -466,8 +489,8 @@ The Geweke diagnostic gives $Z$ scores for each
 variable for a comparison
 between (by default) the first 10\% and last 50\% of
 the chain
-<<>>=
-(gg <- geweke.diag(m))
+<<geweke>>=
+(gg <- geweke.diag(tm))
 summary(2*pnorm(abs(gg$z),lower.tail=FALSE))
 @ 
 
@@ -477,7 +500,7 @@ summary(2*pnorm(abs(gg$z),lower.tail=FALSE))
 The most frequently used diagnostic, Gelman-Rubin
 (\code{gelman.diag}), requires multiple chains. The full set of
 diagnostic functions available in \code{coda} is:
-<<echo=FALSE>>=
+<<codafuns,echo=FALSE>>=
 a1 <- apropos(".diag$",where=TRUE)
 print(unname(a1[names(a1)==which(search()=="package:coda")]),
       quote=FALSE)
@@ -487,18 +510,19 @@ print(unname(a1[names(a1)==which(search()=="package:coda")]),
 \code{effectiveSize} gives the effective length of the
 chain for each variable, i.e. the number of samples
 corrected for autocorrelation:
-<<>>=
+<<effsize>>=
 range(effectiveSize(tm))
 @ 
 
 \code{HPDinterval} gives the highest posterior density
 (credible interval):
-<<>>=
+<<HPDintervalCI>>=
+detach("package:lme4") ## kluge!!
 head(HPDinterval(tm))
 @ 
 
 You might prefer inferences based on the quantiles instead:
-<<>>=
+<<qCI>>=
 head(t(apply(tm,2,quantile,c(0.025,0.975))))
 @ 
 
@@ -586,7 +610,7 @@ tell you what methods are currently available.
 %this information as well).
 
 <<loaddat,echo=FALSE,eval=FALSE>>=
-library(MASS)
+library("MASS")
 epil2 <- transform(epil,
                    Base=log(base/4),
                    Age=log(age),
