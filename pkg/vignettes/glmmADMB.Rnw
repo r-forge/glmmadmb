@@ -3,7 +3,7 @@
 %\usepackage{lineno}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
-%\usepackage[usenames]{color}
+\usepackage[usenames]{color}
 \usepackage[american]{babel}
 \newcommand{\R}{{\sf R}}
 \newcommand{\Splus}{{\sf S-PLUS}}
@@ -25,9 +25,11 @@
 
 %\linenumbers
 
-\SweaveOpts{fig.width=5,fig.height=5,out.width="0.8\\textwidth"}
+%\SweaveOpts{fig.width=5,fig.height=5,out.width="0.8\\textwidth"}
+\SweaveOpts{echo=TRUE}
 <<setopts,echo=FALSE>>=
 Rver <- paste(R.version$major,R.version$minor,sep=".")
+options(continue=" ")
 @ 
 <<graphopts,echo=FALSE>>=
 library("ggplot2")
@@ -102,7 +104,7 @@ In order to fit a model in \code{glmmADMB} you need to:
 
 This document was
 generated using \Sexpr{R.version$version.string} and package versions:
-<<echo=FALSE,comment=NA>>=
+<<echo=FALSE>>=
 usedpkgs <- sort(c("coefplot2","ggplot2","glmmADMB","lme4","coda","scapeMCMC",
                    "bbmle","MASS"))
 i1 <- installed.packages()
@@ -135,7 +137,7 @@ First we draw some pictures (Figures~\ref{fig:owl1}, \ref{fig:owl2}).
 
 Load the \code{glmmADMB} package to get access to the \code{Owls}
 data set; load the \code{ggplot2} graphics package.
-<<loadpkgs,message=FALSE,warning=FALSE>>=
+<<loadpkgs>>=
 library("glmmADMB")
 library("ggplot2")
 @ 
@@ -147,7 +149,7 @@ purposes; (2) add log brood size variable (for offset);
 %% FIXME: I get a warning message ("NAs introduced by coercion")  here, but only in knitr,
 %%  and not on a clean start ... ?
 %% some weird package interaction ?
-<<owltransform,warning=FALSE>>=
+<<owltransform>>=
 Owls <- transform(Owls,
                   Nest=reorder(Nest,NegPerChick),
                   NCalls=SiblingNegotiation)
@@ -158,32 +160,32 @@ and what their characteristics are.)
 
 \begin{figure}
 \setkeys{Gin}{width=\textwidth}
-<<owlplot1,echo=FALSE>>=
+<<owlplot1,echo=FALSE,fig=TRUE>>=
 G0 <- ggplot(Owls,aes(x=reorder(Nest,NegPerChick),
                       y=NegPerChick))+
   xlab("Nest")+ylab("Negotiations per chick")+coord_flip()+
   facet_grid(FoodTreatment~SexParent)
-G0+stat_sum(aes(size=..n..),alpha=0.5)+zmargin+
+print(G0+stat_sum(aes(size=..n..),alpha=0.5)+zmargin+
       scale_size_continuous(name="# obs",
                             breaks=seq(1,9,by=2))+
     opts(axis.title.x=theme_text(hjust=0.5,size=12),
-         axis.text.y=theme_text(size=7))
+         axis.text.y=theme_text(size=7)))
 @ 
 \caption{Basic view of owl data (arrival time not shown).}
 \label{fig:owl1}
 \end{figure}
 
 \begin{figure}
-<<owlplot2,echo=FALSE,message=FALSE,warning=FALSE>>=
+<<owlplot2,echo=FALSE,fig=TRUE>>=
 G1 <- ggplot(Owls,aes(x=ArrivalTime,
                       y=NegPerChick,colour=FoodTreatment,
                       linetype=SexParent,
                       shape=SexParent))
-G1+stat_sum(aes(size=factor(..n..)),alpha=0.5)+geom_smooth()+
+print(G1+stat_sum(aes(size=factor(..n..)),alpha=0.5)+geom_smooth()+
       ## facet_grid(.~SexParent)+zmargin+
       labs(x="Arrival time",y="Negotiations per chick")+
       scale_size_discrete(name="# obs",
-                          breaks=c("1","2"))
+                          breaks=c("1","2")))
 @ 
 \caption{Basic view of owl data, \#2 (nest identity not shown)}
 \label{fig:owl2}
@@ -200,7 +202,7 @@ gt1 <- system.time(glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
                                      family="poisson"))
 @ 
 %% ditto with NA coercion warnings
-<<glmmadmbfit,cache=TRUE,warning=FALSE>>=
+<<glmmadmbfit,cache=TRUE>>=
 fit_zipoiss <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
                                      offset(log(BroodSize))+(1|Nest),
                                      data=Owls,
@@ -208,13 +210,13 @@ fit_zipoiss <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
                                      family="poisson")
 @
 
-<<zipoisssum,warning=FALSE>>=
+<<zipoisssum>>=
 summary(fit_zipoiss)
 @ 
 
 The \code{coefplot2} package knows about \code{glmmadmb} fits:
 
-<<coefplotmg1,fig.width=8,warning=FALSE,message=FALSE>>=
+<<coefplotmg1,width=8>>=
 library("coefplot2")
 coefplot2(fit_zipoiss)
 @ 
@@ -251,7 +253,7 @@ fit_zinbinom1_bs <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
 Every change we have made so far improves the fit --- changing distributions
 improves it enormously, while changing the role of brood size makes only
 a modest (-1 AIC unit) difference:
-<<message=FALSE,warning=FALSE>>=
+<<aictab>>=
 library("bbmle")
 AICtab(fit_zipoiss,fit_zinbinom,fit_zinbinom1,fit_zinbinom1_bs)
 @ 
@@ -330,11 +332,11 @@ you can
 \begin{itemize}
   \item use AIC to select models or generated weighted predictions (see example above).
   \item use \code{anova} to perform a likelihood ratio test:
-<<>>=
+<<anovacomp>>=
 anova(fit_zipoiss,fit_zinbinom)
 @     
 \item use \code{Anova} from the \code{car} package to generate Wald tests:
-<<>>=
+<<caranova>>=
 car::Anova(fit_zinbinom)
 @   
 \end{itemize}
@@ -355,7 +357,7 @@ gm1_lme4 <- glmer(cbind(incidence, size - incidence) ~ period + (1 | herd),
                   data = cbpp, family = binomial)
 gm1_glmmADMB <- glmmadmb(cbind(incidence, size - incidence) ~ period + (1 | herd),
                   data = cbpp, family = "binomial")
-sessionInfo()
+## sessionInfo()
 fixef(gm1_lme4)
 fixef(gm1_glmmADMB) ## or coef()
 unlist(ranef(gm1_lme4))
@@ -368,7 +370,7 @@ VarCorr(gm1_glmmADMB)
 \subsubsection{Convert glmmADMB parameters to lme4}
 
 \fixme{this section is UNDER CONSTRUCTION}
-<<lme4glmmadmbconv,warning=FALSE,message=FALSE>>=
+<<lme4glmmadmbconv>>=
 library("lme4")  ## requires DEVELOPMENT version of lme4 ...
 new_lme4 <- packageVersion("lme4")>"0.999375.42"
 if (new_lme4) {
