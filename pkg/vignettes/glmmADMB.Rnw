@@ -216,7 +216,7 @@ summary(fit_zipoiss)
 
 The \code{coefplot2} package knows about \code{glmmadmb} fits:
 
-<<coefplotmg1,width=8>>=
+<<coefplotmg1,width=8,eval=FALSE>>=
 library("coefplot2")
 coefplot2(fit_zipoiss)
 @ 
@@ -259,7 +259,7 @@ AICtab(fit_zipoiss,fit_zinbinom,fit_zinbinom1,fit_zinbinom1_bs)
 @ 
 
 Compare the parameter estimates:
-<<cplot2,fig=TRUE>>=
+<<cplot2,eval=FALSE>>=
 vn <- c("food","arrivaltime","sex","food:sex","arrival:sex","broodsize")
 coefplot2(list(ZIP=fit_zipoiss,
                ZINB=fit_zinbinom,
