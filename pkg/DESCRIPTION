@@ -11,6 +11,6 @@ LazyData: yes
 Description: Fits mixed-effects models using a variety of distributions
 Imports: stats, nlme
 Depends: R (>= 2.13), methods, MASS, R2admb
-Suggests: lattice, lme4, lme4.0, coda, mlmRev, scapeMCMC, ggplot2, coefplot2, bbmle, pscl, knitr, car
+Suggests: lattice, lme4, lme4.0, coda, mlmRev, scapeMCMC, ggplot2, bbmle, pscl, knitr, car
 License: BSD
 URL: http://glmmadmb.r-forge.r-project.org, http://admb-project.org
