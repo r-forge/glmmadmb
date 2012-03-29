@@ -105,9 +105,11 @@ In order to fit a model in \code{glmmADMB} you need to:
 This document was
 generated using \Sexpr{R.version$version.string} and package versions:
 <<echo=FALSE>>=
-usedpkgs <- sort(c("coefplot2","ggplot2","glmmADMB","lme4","coda","scapeMCMC",
+usedpkgs <- sort(c(##"coefplot2",
+                 "ggplot2","glmmADMB","lme4","coda","scapeMCMC",
                    "bbmle","MASS"))
 i1 <- installed.packages()
+usedpkgs <- usedpkgs[usedpkgs %in% rownames(i1)]
 print(i1[usedpkgs,"Version"],quote=FALSE)
 @ 
 

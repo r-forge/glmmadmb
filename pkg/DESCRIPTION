@@ -8,6 +8,7 @@ Author: Hans Skaug <Hans.Skaug@mi.uib.no>, Dave Fournier <otter@otter-rsch.com>,
   Bolker <bolker@mcmaster.ca>
 Maintainer: Ben Bolker <bolker@mcmaster.ca>
 LazyData: yes
+BuildVignettes: no
 Description: Fits mixed-effects models using a variety of distributions
 Imports: stats, nlme
 Depends: R (>= 2.13), methods, MASS, R2admb
