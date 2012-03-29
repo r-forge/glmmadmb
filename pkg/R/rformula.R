@@ -171,7 +171,6 @@ process_randformula <- function(f,random,data) {
 
 ## print to file
 write_randformula <- function(x,name) {
-  require(glmmADMB)
   fn <- if(substring(name,nchar(name)-3)==".dat") {
     name
   } else paste(name,".dat",sep="")
