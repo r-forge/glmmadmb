@@ -30,7 +30,7 @@ print.glmmadmb <- function(x, ...)
     {
       cat("Structure: General positive-definite\n")
       tmp <- cov2cor(object$S)
-      tmp[t(below(nrow(tmp)))] <- NA
+      tmp[upper.tri(tmp,diag=TRUE)] <- NA
       tmp <- cbind(sqrt(diag(object$S)), tmp)
       dimnames(tmp) <- list(rownames(object$S), c("StdDev","Corr",rep("",nrow(tmp)-1)))
       print(tmp, na.print="")
