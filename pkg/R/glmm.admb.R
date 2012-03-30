@@ -1,5 +1,3 @@
-pkgname <- "glmmADMB"
-
 admbControl <- function(impSamp=0,
                         maxfn=500,
                         imaxfn=500,
