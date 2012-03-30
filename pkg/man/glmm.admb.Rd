@@ -181,7 +181,7 @@ bacteria$present <- as.numeric(bacteria$y)-1
   (fm <- glmmadmb(y~Base*trt+Age+Visit+(Visit|subject),
                   data=epil2, family="nbinom"))
 ## Owls data
-data(Owls)
+load(system.file("extdata","Owls.rda",package="glmmADMB"))
  om <- glmmadmb(SiblingNegotiation~FoodTreatment*SexParent+
            (1|Nest)+offset(log(BroodSize)),
           zeroInflation=TRUE,family="nbinom",data=Owls)

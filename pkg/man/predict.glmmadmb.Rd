@@ -68,6 +68,7 @@
   }
 }
 \examples{
+getdata("OwlModel")
 pp <- predict(OwlModel,interval="confidence",type="response")
 pframe <- data.frame(obs=Owls$NegPerChick,pp)
 with(pframe,plot(obs,fit,ylim=c(0,8)))
