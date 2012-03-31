@@ -422,8 +422,8 @@ getdata("OwlModel")
 @ 
 This is very convenient, but tends to be a bit slow.  In the example below,
 I ran a chain of 50,000 MCMC iterations --- on examination, the default
-chain of 1000 iterations was much too short --- which took about
-\Sexpr{round(sum(time2[4:5])/(60*60),2)} hours on a modern (2012) desktop.
+chain of 1000 iterations was much too short --- which took 
+several hours on a modern (2012) desktop.
 
 <<fakeowlmodel,eval=FALSE>>=
 OwlModel_nb1_bs_mcmc <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
