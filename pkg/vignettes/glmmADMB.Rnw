@@ -418,7 +418,7 @@ flat priors: please see the ADMB documentation, or \cite{Bolker2008}, for
 more details).
 
 <<loadowlmodel,echo=FALSE>>=
-L <- load("OwlModel.rda")
+getdata("OwlModel")
 @ 
 This is very convenient, but tends to be a bit slow.  In the example below,
 I ran a chain of 50,000 MCMC iterations --- on examination, the default

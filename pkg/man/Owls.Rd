@@ -55,7 +55,7 @@ bwplot(reorder(Nest,NegPerChick)~NegPerChick|FoodTreatment:SexParent,
 data=Owls)
 dotplot(reorder(Nest,NegPerChick)~NegPerChick|FoodTreatment:SexParent,
 data=Owls)
-load(system.file("extdata","OwlModel.rda",package="glmmADMB"))
+getdata("OwlModel")
 summary(OwlModel)
 }
 \keyword{datasets}

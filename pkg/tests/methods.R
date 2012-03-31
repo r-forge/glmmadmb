@@ -1,5 +1,6 @@
 library(glmmADMB)
 methods(class="glmmadmb")
+getdata("OwlModel")
 AIC(OwlModel)
 coef(OwlModel)
 ## deviance(OwlModel) ## NULL
