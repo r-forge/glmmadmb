@@ -30,6 +30,7 @@ get_fixedformula <- function(f) {
   rchar <- gsub("\\([^)|]+\\|[^)|]+\\)","",rchar) ## parentheses containing |
   rchar <- gsub("(\\+ *\\+ *)+","+",rchar) ## duplicated +
   rchar <- gsub(" *\\++ *$","",rchar) ## terminating + (possibly multiple)
+  if (rchar=="") rchar <- "1"  ## empty fixed formula
   as.formula(paste(lchar,"~",rchar,offsetstr))
 }
 

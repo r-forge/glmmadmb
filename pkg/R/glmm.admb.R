@@ -10,7 +10,52 @@ admbControl <- function(impSamp=0,
        ZI_kluge=ZI_kluge,run=run,maxph=maxph)
   ## FIXME: do something clever with formals/match.call() ?
 }
-  
+
+## FIXME: var-cov parameter names
+## FIXME: correlation terms
+mcmc_transform <- function(m,phi,fnames) {
+    ## zero-inflation
+    t_pz <- NULL
+    if ("pz" %in% colnames(m)) {
+        pz <- m[,"pz",drop=FALSE]
+        t_pz <- pz  ## (not transformed)
+    }
+    ## fixed effects
+    fixed <- m[,grep("^beta",colnames(m)),drop=FALSE]
+    t_fixed <- fixed %*% phi
+    colnames(t_fixed) <- fnames
+    ## variance parameters: log std dev
+    theta <- m[,grep("^tmpL",colnames(m)),drop=FALSE]
+    t_theta <- exp(theta)
+    ## corr parameters ("offdiagonal elements of cholesky-factor of correlation matrix")
+    t_corr <- NULL
+    if (any(corrcols <- grepl("^tmpL1",colnames(m)))) {
+        ## warning("correlation parameters in MCMC not transformed")
+        corr <- m[,corrcols,drop=FALSE]
+        t_corr <- corr
+    }
+    ## scale/overdispersion parameter
+    t_alpha <- NULL
+    if ("log_alpha" %in% colnames(m)) {
+        logalpha <- m[,grep("^log_alpha",colnames(m)),drop=FALSE]
+        t_alpha <- matrix(exp(logalpha),dimnames=list(NULL,"alpha"))
+    }
+    ## random effects
+    ## FIXME: need to scale u by appropriate sd (sigh)
+    t_re <- NULL
+    if (any(recols <- grepl("^u\\.[0-9]+",colnames(m)))) {
+        ## warning("random effects in MCMC not transformed")
+        re <- m[,recols,drop=FALSE]
+        t_re <- re
+    }
+    m2 <- cbind(t_pz,t_fixed,t_theta,t_corr,t_alpha,t_re) 
+    if (require(coda)) {
+        m2 <- mcmc(m2)
+    }
+    ## FIXME: set start, end, thin explicitly?
+    m2
+}
+
 mcmcControl <- function(mcmc=1000,
                          mcmc2=0,
                          mcsave,
@@ -58,7 +103,7 @@ get_bin_loc <- function(file_name="glmmadmb",debug=FALSE) {
      if (substr(R.version$os,1,6)=="darwin") {
        platform <- "macos"
        unameres <- system("uname -v",intern=TRUE)
-       if (grepl(unameres,"Version 9")) {
+       if (grepl("Version 9",unameres)) {
          stop("glmmADMB binaries are not available for Mac OS 10.5 (Leopard). ",
               "Please see http://glmmadmb.r-forge.r-project.org for other options")
        }
@@ -79,7 +124,7 @@ get_bin_loc <- function(file_name="glmmadmb",debug=FALSE) {
                           package="glmmADMB")
    if (debug) cat("bin_loc:",bin_loc,"\n")
    if (nchar(bin_loc)==0) stop(
-              sprintf("glmmadmb binary should be available, but isn't (%s, %d bits) ",platform," ",nbits))
+              sprintf("glmmadmb binary should be available, but isn't (%s, %d bits) ",platform,nbits))
    list(bin_loc=bin_loc,platform=platform)
  }
 
@@ -543,11 +588,18 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   out$residuals <- as.numeric(y-lambda)
   tmp <- par_read(file_name)
   out$npar <- tmp$npar   ## BMB: should this be total number of parameters or number of fixed parameters?
-  bpar <- bar_read(file_name,n=tmp$npar+1)[-1] ## ZI parameter comes first
+  bpar <- bar_read(file_name,n=tmp$npar+1)[-1] ## drop ZI parameter (first)
   if (file.exists("phi.rep")) {
     out$phi <- matrix(scan("phi.rep",quiet=TRUE),nrow=length(out$b),byrow=TRUE)
   }
   tmp$beta <- bpar
+  newb <- bpar[seq_along(out$b)] %*% out$phi
+  ## FIXME: find a way to check consistency between .bar and .par that isn't subject
+  ##        to false positives (i.e., replicate the rounding that ADMB does?)
+  ## if (!isTRUE(all.equal(c(newb),unname(out$b),tol=5e-5))) {
+  ## if (!all(round(newb,3)==round(out$b,3))) {
+  ## warning("apparent discrepancy between .bar and .par values: using .par values")
+  out$b[] <- newb ## replace values
   out$loglik <- tmp$loglik
   out$gradloglik <- tmp$gradient
   nfixpar <- length(out$b)
@@ -565,10 +617,11 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
 
   ## BMB: warning/convergence code for bad hessian?
 
-  ## FIXME: figure out names of parameters
+  ## FIXME: figure out names of parameters (other than fixed)
   if (mcmc) {
-    out$mcmc <- as.matrix(R2admb:::read_psv(file_name))
-    colnames(out$mcmc) <- R2admb:::rep_pars(tmpindex)[1:ncol(out$mcmc)]
+      out$mcmc <- as.matrix(R2admb:::read_psv(file_name))
+      colnames(out$mcmc) <- R2admb:::rep_pars(tmpindex)[1:ncol(out$mcmc)]
+      out$mcmc <- mcmc_transform(out$mcmc,out$phi,fnames=names(out$b))
   }
   
   class(out) <- "glmmadmb"

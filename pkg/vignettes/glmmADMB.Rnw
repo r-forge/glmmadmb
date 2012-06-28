@@ -1,4 +1,12 @@
 % \VignetteIndexEntry{basic examples of glmmADMB usage}
+% \VignetteDepends{scapeMCMC}
+% \VignetteDepends{ggplot2}
+% \VignetteDepends{grid}
+% \VignetteDepends{coefplot2}
+% \VignetteDepends{bbmle}
+% \VignetteDepends{lme4}
+% \VignetteDepends{coda}
+% \VignetteDepends{MASS}
 \documentclass{article}
 %\usepackage{lineno}
 \usepackage[utf8]{inputenc}
@@ -14,8 +22,9 @@
 \usepackage{alltt}
 \newcommand{\code}[1]{{\tt #1}}
 \usepackage{fancyvrb}
+\usepackage{natbib}
 \VerbatimFootnotes
-\bibliographystyle{plain}
+\bibliographystyle{chicago}
 
 \title{Getting started with the \code{glmmADMB} package}
 \author{Ben Bolker, Hans Skaug, Arni Magnusson, Anders Nielsen}
@@ -113,12 +122,17 @@ usedpkgs <- usedpkgs[usedpkgs %in% rownames(i1)]
 print(i1[usedpkgs,"Version"],quote=FALSE)
 @ 
 
+%% fixme: would like to deal with smart quotes
+<<echo=FALSE>>=
+op <- options(useFancyQuotes=FALSE)
+@ 
 <<>>=
 citation("glmmADMB")
 @ 
+<<echo=FALSE>>=
+options(op)
+@ 
 \section{Owls data}
-
-
 
 These data, taken from \cite{zuur_mixed_2009} and ultimately
 from \cite{roulinbersier_2007}, quantify
@@ -173,7 +187,8 @@ print(G0+stat_sum(aes(size=..n..),alpha=0.5)+zmargin+
     opts(axis.title.x=theme_text(hjust=0.5,size=12),
          axis.text.y=theme_text(size=7)))
 @ 
-\caption{Basic view of owl data (arrival time not shown).}
+\caption{Basic view of owl data (arrival time not shown).
+FIXME: clip at zero?}
 \label{fig:owl1}
 \end{figure}
 
@@ -408,19 +423,20 @@ all.equal(v1B,v2B,-logLik(gm1_glmmADMB))
 @ 
 \subsection{MCMC fitting}
 
-AD Model Builder has the capability to run a \emph{post hoc} Markov chain to
+AD Model Builder can run a \emph{post hoc} Markov chain to
 assess variability --- that is, it uses the MLE as a starting point and the
 estimated sampling distribution (variance-covariance matrix) of the parameters
 as a candidate distribution, and ``jumps around'' the parameter space in
-a consistent way (Metropolis-Hastings?) to generate a series of samples
-from a posterior distribution of the parameter distribution (assuming
-flat priors: please see the ADMB documentation, or \cite{Bolker2008}, for
+a consistent way (using Metropolis-Hastings updating with a multivariate
+normal candidate distribution) to generate a series of samples
+from a posterior distribution of the parameter distribution (by default assuming
+flat, usually improper, priors: please see the ADMB documentation, or \cite{Bolker2008}, for
 more details).
 
 <<loadowlmodel,echo=FALSE>>=
 getdata("OwlModel")
 @ 
-This is very convenient, but tends to be a bit slow.  In the example below,
+This is a useful way to find confidence intervals etc., but is often slow.  In the example below,
 I ran a chain of 50,000 MCMC iterations --- on examination, the default
 chain of 1000 iterations was much too short --- which took 
 several hours on a modern (2012) desktop.
@@ -436,54 +452,25 @@ OwlModel_nb1_bs_mcmc <- glmmadmb(NCalls~(FoodTreatment+ArrivalTime)*SexParent+
 @ 
 
 
-Convert the MCMC chain to an \code{mcmc} object which the 
-\code{coda} package can handle:
+Extract the MCMC chain from the fit;
+load the \code{coda} package for analyzing and plotting MCMC results.
 
 <<loadcodapkg>>=
 library("coda")
-m <- as.mcmc(OwlModel_nb1_bs_mcmc$mcmc)
-@ 
-
-<<mcmc_transform>>=
-mcmc_transform <- function(m,fit) {
-  if (missing(fit)) {
-    fit0 <- fit
-    m <- fit$mcmc
-    fit <- fit0
-  }
-  if (!is(m,"mcmc")) stop("m must be an 'mcmc' object")
-  if (!is(fit,"glmmadmb")) stop("fit must a 'glmmadmb' object")
-  ## zero-inflation
-  pz <- m[,"pz",drop=FALSE]
-  t_pz <- pz  ## (not transformed)
-  ## fixed effects
-  fixed <- m[,grep("^beta",colnames(m)),drop=FALSE]
-  t_fixed <- as.mcmc(fixed %*% fit$phi)
-  colnames(t_fixed) <- names(fixef(fit))
-  ## variance parameters: log std dev
-  theta <- m[,grep("^tmpL",colnames(m)),drop=FALSE]
-  t_theta <- exp(theta)
-  ## corr parameters ("offdiagonal elements of cholesky-factor of correlation matrix")
-  corr <- m[,grep("^tmpL1",colnames(m)),drop=FALSE]
-  t_corr <- corr
-  ## scale/overdispersion parameter
-  logalpha <- m[,grep("^log_alpha",colnames(m)),drop=FALSE]
-  t_alpha <- matrix(exp(logalpha),dimnames=list(NULL,"alpha"))
-  ## random effects
-  re <- m[,grep("^u\\\\.[0-9]+",colnames(m)),drop=FALSE]
-  t_re <- re
-  mcmc(cbind(t_pz,t_fixed,t_theta,t_corr,t_alpha,t_re),
-       start=start(m),end=end(m),thin=frequency(m))
-}
+m <- OwlModel_nb1_bs_mcmc$mcmc
 @ 
 
 Look at the trace plots.
 (Something a bit odd happens at the end of the chain, so we drop the last few values \ldots
 there may be a bug in the import-handling for MCMC for very long chains \ldots)
+For convenience and brevity, I will discard the random-effects columns, which start with 
+\code{u.}:
 
 <<mcmcclip>>=
-tm <- window(mcmc_transform(m,OwlModel_nb1_bs),1,320)
+tm <- window(m,1,320)
+tm <- tm[,!grepl("^u\\.",colnames(m))]
 @ 
+
 <<mcmcplot1,fig=TRUE>>=
 library("scapeMCMC")
 plotTrace(tm)
@@ -522,41 +509,38 @@ range(effectiveSize(tm))
 (credible interval):
 <<HPDintervalCI>>=
 detach("package:lme4") ## kluge!!
-head(HPDinterval(tm))
+HPDinterval(tm)
 @ 
 
 You might prefer inferences based on the quantiles instead:
 <<qCI>>=
-head(t(apply(tm,2,quantile,c(0.025,0.975))))
+t(apply(tm,2,quantile,c(0.025,0.975)))
 @ 
 
 You can also look at density plots or pairwise scatterplots
 (``splom'' in \code{lattice} and
-\code{scapeMCMC}, for \textbf{S}catter\textbf{plo}t \textbf{m}atrices),
-although these are not particularly useful for this large a set
-of parameters:
+\code{scapeMCMC}, for \textbf{S}catter\textbf{plo}t \textbf{m}atrices)
+(not shown):
 <<eval=FALSE>>=
 plotDens(tm)
 plotSplom(tm,pch=".")  
 @ 
 
-The MCMC output in \code{glmmADMB} is currently in a very raw form --- in particular, the internal names and scales of the parameters are used:
+The MCMC output in \code{glmmADMB} is not completely translated.
+It includes, in order:
 \begin{description}
   \item[pz] zero-inflation parameter (raw)
-  \item[beta] fixed-effect parameter estimates: \textbf{note} that these
-    are the versions of the parameters fitted internally, 
-    using an orthogonalized version of the original design matrix,
-    not the original coefficients.  These can be converted to the original using the \code{phi} matrix 
-    as noted in the ``Details'' section of \code{?glmmadmb}
-\item[tmpL] variance-covariance parameters (log-standard-deviation scale)
+  \item[fixed effect parameters] Named in the same way as the results of \code{coef()}
+    or \code{fixef()}.
+\item[tmpL] variances (standard-deviation scale)
 \item[tmpL1] correlation/off-diagonal elements of variance-covariance matrices (``off-diagonal elements of the Cholesky factor of 
   the correlation matrix'). (If you need to transform these to correlations, 
   you will need to construct the relevant matrices with 1 on the diagonal and
   compute the cross-product, $C C^T$ (see \code{tcrossprod}); if this makes no sense to you, contact the maintainers \ldots)
-\item[log\_alpha] log of overdispersion/scale parameter
-\item[u] random effects (unscaled: these can be scaled using the estimated random-effects standard deviations from \code{VarCorr()})
+\item[alpha] overdispersion/scale parameter
+\item[u] random effects (\emph{unscaled}: these can be scaled using the estimated random-effects standard deviations from \code{VarCorr()})
 \end{description}
- If you need to use the MCMC output and can't figure out how, please contact the maintainers and encourage them to work on them some more  (!)
+If you need to some insufficiently-processed component of the MCMC output and can't figure out how, please contact the maintainers and encourage them to work on them some more  (!)
  
 \section{Other information}
 The standard set of accessors is available:
@@ -605,6 +589,10 @@ tell you what methods are currently available.
   \end{itemize}
   \item Improve \code{predict} method: allow prediction based on REs
   \item \code{simulate} method
+  \item fix \code{step}/\code{stepAIC} (???)
+  \item instructions for evaluating likelihood at a particular set of parameters/
+    translating parameters (and log-likelihoods) to scales/parameterizations used
+    by other packages
 \end{itemize}
 
 
