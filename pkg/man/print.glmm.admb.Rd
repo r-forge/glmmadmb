@@ -17,7 +17,7 @@
 \description{Basic accessor methods for \code{glmmadmb} objects:
   print, retrieve coefficients, etc.}
 \usage{
-stdEr(x,\ldots)
+stdEr(object,\ldots)
 fixef(object,\ldots)
 \method{print}{glmmadmb}(x,\dots)
 \method{coef}{glmmadmb}(object,\dots)
@@ -25,7 +25,7 @@ fixef(object,\ldots)
 \method{residuals}{glmmadmb}(object,type=c("pearson", "response"),\dots)
 \method{fitted}{glmmadmb}(object,\dots)
 \method{vcov}{glmmadmb}(object,\dots)
-\method{stdEr}{glmmadmb}(x,\dots)
+\method{stdEr}{glmmadmb}(object,\dots)
 \method{VarCorr}{glmmadmb}(x,sigma=1,rdig=3)
 \method{VarCorr}{summary.glmmadmb}(x,sigma=1,rdig=3)
 }

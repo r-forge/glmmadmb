@@ -26,6 +26,7 @@ time2 <- system.time(OwlModel_nb1_bs_mcmc <- glmmadmb(NCalls~(FoodTreatment+Arri
                                                       mcmc.opts=mcmcControl(mcmc=50000)))
 
 save(list=c(ls(pattern="time"),ls(pattern="OwlModel")),file="OwlModel.rda")
+file.copy("OwlModel.rda","../inst/extdata/OwlModel.rda",overwrite=TRUE)
 
 if (FALSE) {
   load("owls_mcmcbatch.RData")

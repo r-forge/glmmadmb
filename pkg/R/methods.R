@@ -47,12 +47,13 @@ fitted.glmmadmb <- function(object, ...) {
   object$fitted
 }
 
-stdEr <- function(x, ...) {
-  UseMethod("stdEr")
-}
+## generic is defined in R2admb
+## stdEr <- function(x, ...) {
+##   UseMethod("stdEr")
+## }
 
-stdEr.glmmadmb <- function(x, ...) {
-  x$stdbeta
+stdEr.glmmadmb <- function(object, ...) {
+  object$stdbeta
 }
 
 vcov.glmmadmb <- function(object, ...) {
@@ -117,4 +118,16 @@ model.frame.glmmadmb <- function(formula,...) {
 df.residual.glmmadmb <- function(object,...) {
     nparams <- nrow(object$frame)-object$npar
     ## FIXME: is npar correct ???
+}
+
+## for drop1 etc.
+extractAIC.glmmadmb <- function(fit,scale,k=2,...) {
+    if (!missing(scale) && scale!=1) warning("ignored explicit specification of scale")
+    L <- logLik(fit)
+    edf <- attr(L,"df")
+    c(edf=edf,AIC=-2*L+k*edf)
+}
+
+step <- stepAIC <- function(...) {
+    stop("functions step and MASS::stepAIC are **not** currently compatible with glmmADMB.  Sorry.")
 }

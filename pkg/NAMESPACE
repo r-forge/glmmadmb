@@ -1,19 +1,21 @@
 export(glmmadmb,glmm.admb,admbControl,mcmcControl,get_bin_version,getdata)
 
 importFrom(nlme,ranef,fixef,VarCorr)
-importFrom(R2admb,dat_write)
-importFrom(stats,nobs)
+importFrom(R2admb,dat_write,stdEr)
+importFrom(stats,nobs,extractAIC)
 ## importMethodsFrom("nlme",ranef,VarCorr)
 export(ranef) ## (needs to be explicit even if using generic exportPattern)
 export(fixef)
 export(stdEr)
 export(VarCorr)
+export(step,stepAIC) ## STUBS to try to intercept ...
 ## export(dat_write) ## now use R2admb version
 ## export(nobs)
 
 S3method(anova,glmmadmb)
 S3method(coef,glmmadmb)
 S3method(df.residual,glmmadmb)
+S3method(extractAIC,glmmadmb)
 S3method(fitted,glmmadmb)
 S3method(fixef,glmmadmb)
 S3method(logLik,glmmadmb)

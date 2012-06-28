@@ -9,7 +9,7 @@ print.glmmadmb <- function(x, ...)
 
   cat("\nGLMM's in R powered by AD Model Builder:\n\n")
   cat("  Family:", object$family, "\n")
-  if(!is.null(object$family)) ## == "nbinom")
+  if(!is.null(object$alpha)) ## == "nbinom")
       cat("  alpha =", object$alpha, "\n")
   if(!is.null(object$link)) ##  && object$family=="nbinom")
       cat("  link =", object$link, "\n")

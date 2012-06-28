@@ -4,6 +4,22 @@
 \title{glmmADMB News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.7.2.12}{
+\itemize{
+  \item added citation info
+  \item MCMC results transformed automatically (but *not* correlation
+  parameters or random effects; the function warns of this)
+  \item fixed buglet with empty fixed formula
+  \item drop1() works
+  \item fixed tiny glitch in glmmADMB model printing (alpha printed even
+  if not relevant)
+  \item now uses results from .bar file for greater precision in fixed
+  effects (mostly useful for cross-package comparisons)
+  \item step, stepAIC **DO NOT WORK**; added masking functions
+  \item fixed MacOS X.5 detection code (throws warning)
+}
+}
+
 \section{Changes in version 0.7.2.9}{
 \itemize{
   \item  version bump, new version of saved OwlModels

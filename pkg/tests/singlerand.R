@@ -43,7 +43,8 @@ eta <- model.matrix(~x,data=d2) %*% beta + u[as.numeric(d2$f)]+
   u[as.numeric(d2$f)]*d$x
 d2$y <- rpois(N,exp(eta))
 
-##old style: g2 <- glmm.admb(y~x,random=~x,group="f",family="poisson",data=d2)
+##old style:
+g2 <- glmmadmb(y~x,random=~x|f,family="poisson",data=d2)
 
 library(lme4)
 g2B <- glmer(y~x+(1|f)+(0+x|f),family="poisson",data=d2)
