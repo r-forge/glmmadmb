@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2012-01-01 r58032)
+R Under development (unstable) (2012-05-12 r59340) -- "Unsuffered Consequences"
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: i686-pc-linux-gnu (32-bit)
@@ -24,22 +24,19 @@ Loading required package: R2admb
 
 Attaching package: ‘glmmADMB’
 
-The following object(s) are masked from ‘package:R2admb’:
+The following object(s) are masked from ‘package:MASS’:
 
-    stdEr
+    stepAIC
 
-> library(lme4)
+The following object(s) are masked from ‘package:stats’:
+
+    step
+
+> library(lme4.0)
 Loading required package: Matrix
 Loading required package: lattice
 
-Attaching package: ‘Matrix’
-
-The following object(s) are masked from ‘package:base’:
-
-    det
-
-
-Attaching package: ‘lme4’
+Attaching package: ‘lme4.0’
 
 The following object(s) are masked from ‘package:glmmADMB’:
 
@@ -87,7 +84,8 @@ The following object(s) are masked from ‘package:stats’:
 +   mm
 + }
 > 
-> sumfun.mer <- function(x,times) {
+> sumfun.mer <- sumfun.merMod <- function(x,times) {
++     ## should work for old/new lme4 ...
 +   fixed <- fixef(x)
 +   ransum <- unlist(lapply(ranef(x),
 +                           function(z)
@@ -162,4 +160,4 @@ time                   1.020100e+03  6.510000e+00
 > 
 > proc.time()
    user  system elapsed 
-  2.972   1.280   4.267 
+  5.076   2.552   7.484 

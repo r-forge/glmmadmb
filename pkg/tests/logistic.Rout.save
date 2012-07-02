@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2012-01-01 r58032)
+R Under development (unstable) (2012-05-12 r59340) -- "Unsuffered Consequences"
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: i686-pc-linux-gnu (32-bit)
@@ -24,14 +24,15 @@ Loading required package: R2admb
 
 Attaching package: ‘glmmADMB’
 
-The following object(s) are masked from ‘package:R2admb’:
+The following object(s) are masked from ‘package:MASS’:
 
-    stdEr
+    stepAIC
+
+The following object(s) are masked from ‘package:stats’:
+
+    step
 
 > library(bbmle)
-Loading required package: stats4
-Loading required package: numDeriv
-Loading required package: lattice
 
 Attaching package: ‘bbmle’
 
@@ -66,7 +67,7 @@ Estimated covariance matrix may not be positive definite
  9.88218e-06 0.728547 0.746143
 > coef(m2)
 (Intercept)           x 
-     1.0320      2.0216 
+   1.031988    2.021615 
 > 
 > ## glmmadmb FIXME: bogus printout in number of observations
 > ##  should return sigma/log-sigma info
@@ -74,4 +75,4 @@ Estimated covariance matrix may not be positive definite
 > 
 > proc.time()
    user  system elapsed 
-  0.824   1.296   2.070 
+  1.512   1.924   3.278 

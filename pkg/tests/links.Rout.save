@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2012-01-01 r58032)
+R Under development (unstable) (2012-05-12 r59340) -- "Unsuffered Consequences"
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: i686-pc-linux-gnu (32-bit)
@@ -25,9 +25,13 @@ Loading required package: R2admb
 
 Attaching package: ‘glmmADMB’
 
-The following object(s) are masked from ‘package:R2admb’:
+The following object(s) are masked from ‘package:MASS’:
 
-    stdEr
+    stepAIC
+
+The following object(s) are masked from ‘package:stats’:
+
+    step
 
 > 
 > set.seed(1002)
@@ -75,7 +79,7 @@ Warning messages:
 > 
 > t(sapply(mlist,coef))
           (Intercept)         x
-glmmadmb0   0.2989400 0.4219400
+glmmadmb0   0.2989378 0.4219393
 glm0        0.2989406 0.4219311
 > sapply(mlist,logLik)
 glmmadmb0      glm0 
@@ -85,36 +89,17 @@ glmmadmb0      glm0
 > g1 <- glmmadmb(y~x+(1|f)+offset(offset),data=d,
 +                family="binomial",link="cloglog")
 > 
-> library(lme4)
-Loading required package: Matrix
-Loading required package: lattice
-
-Attaching package: ‘Matrix’
-
-The following object(s) are masked from ‘package:base’:
-
-    det
-
-
-Attaching package: ‘lme4’
-
-The following object(s) are masked from ‘package:glmmADMB’:
-
-    VarCorr
-
-The following object(s) are masked from ‘package:stats’:
-
-    AIC, BIC
-
-> g1A <- glmer(y~x+(1|f)+offset(offset),data=d,
-+              family=binomial(link="cloglog"))
-Warning message:
-glm.fit: fitted probabilities numerically 0 or 1 occurred 
-> c1A <- fixef(g1A)
-> r1A <- ranef(g1A)
-> v1A <- VarCorr(g1A)
-> L1A <- logLik(g1A)
-> detach("package:lme4")
+> if (FALSE) {  ## FIXME: restore after glmer fixed
++     library(lme4)
++     g1A <- glmer(y~x+(1|f)+offset(offset),data=d,
++                  family=binomial(link="cloglog"))
++     c1A <- fixef(g1A)
++     r1A <- ranef(g1A)
++     v1A <- VarCorr(g1A)
++     L1A <- logLik(g1A)
++     detach("package:lme4")
++     c(logLik(g1),L1A)
++ }
 > summary(g1)
 
 Call:
@@ -137,8 +122,7 @@ Group=f
 
 Log-likelihood: -96.7505 
 > 
-> c(logLik(g1),L1A)
-[1] -96.75050 -97.01224
+> 
 > p0 <- predict(g1)
 > pb <- predict(g1,type="response")
 > 
@@ -163,27 +147,13 @@ Estimated covariance matrix may not be positive definite
 > 
 > g3 <- glmmadmb(y~x+(1|f),data=d,family="gamma",link="log")
 > ## "matrix not pos definite in sparse choleski" warning
-> library(lme4)
-
-Attaching package: ‘lme4’
-
-The following object(s) are masked from ‘package:glmmADMB’:
-
-    VarCorr
-
-The following object(s) are masked from ‘package:stats’:
-
-    AIC, BIC
-
-> ## boom!
-> g3L <- glmer(y~x+(1|f),data=d,family=Gamma(link="log"))
-> coef(g3)
-(Intercept)           x 
-    3.17430    -0.68899 
-> fixef(g3L)  ## NA ... urgh
-(Intercept)           x 
-        NaN         NaN 
-> 
+> if (FALSE) {
++   library(lme4)
++    ## boom!
++    g3L <- glmer(y~x+(1|f),data=d,family=Gamma(link="log"))
++    coef(g3)
++    fixef(g3L)  ## NA ... urgh
++ }
 > 
 > ## POISSON/identity link
 > dd <- data.frame(y=rpois(20,lambda=10),f=factor(rep(1:5,each=4)))
@@ -200,10 +170,10 @@ Estimated covariance matrix may not be positive definite
 > 
 > coef(g5)
 (Intercept) 
-      10.25 
+   10.25001 
 > coef(g5R)
 (Intercept) 
-      10.25 
+   10.25001 
 > 
 > ### GAUSSIAN/IDENTITY LINK
 > d$mu0 <- d$eta0
@@ -223,4 +193,4 @@ Estimated covariance matrix may not be positive definite
 > 
 > proc.time()
    user  system elapsed 
- 15.628   3.384  19.010 
+ 23.965   4.536  28.433 

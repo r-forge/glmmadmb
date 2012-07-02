@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2012-01-01 r58032)
+R Under development (unstable) (2012-05-12 r59340) -- "Unsuffered Consequences"
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: i686-pc-linux-gnu (32-bit)
@@ -24,9 +24,13 @@ Loading required package: R2admb
 
 Attaching package: ‘glmmADMB’
 
-The following object(s) are masked from ‘package:R2admb’:
+The following object(s) are masked from ‘package:MASS’:
 
-    stdEr
+    stepAIC
+
+The following object(s) are masked from ‘package:stats’:
+
+    step
 
 > 
 > set.seed(1002)
@@ -45,7 +49,7 @@ The following object(s) are masked from ‘package:R2admb’:
 > 
 > coef(g1)
 (Intercept)           x 
-    0.54786     0.39559 
+  0.5478649   0.3955906 
 > VarCorr(g1)
 Group=f
             Variance StdDev
@@ -75,4 +79,4 @@ Log-likelihood: 352.738
 > 
 > proc.time()
    user  system elapsed 
-  7.260   2.456   9.703 
+ 13.544   2.332  15.894 

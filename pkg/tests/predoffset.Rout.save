@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2012-01-01 r58032)
+R Under development (unstable) (2012-05-12 r59340) -- "Unsuffered Consequences"
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: i686-pc-linux-gnu (32-bit)
@@ -25,9 +25,13 @@ Loading required package: R2admb
 
 Attaching package: ‘glmmADMB’
 
-The following object(s) are masked from ‘package:R2admb’:
+The following object(s) are masked from ‘package:MASS’:
 
-    stdEr
+    stepAIC
+
+The following object(s) are masked from ‘package:stats’:
+
+    step
 
 > 
 > set.seed(1001)
@@ -59,11 +63,11 @@ Estimated covariance matrix may not be positive definite
 > stopifnot(all.equal(predict(L4),predict(L4,newdata=d)))
 > stopifnot(all.equal(predict(L4,newdata=d),p1,tolerance=5e-6))
 > predict(L3,newdata=data.frame(x=1:3,logS=0:2))
-[1] -0.294388  0.774544  1.843476
+[1] -0.2943896  0.7745421  1.8434738
 > predict(L4,newdata=data.frame(x=1:3,s=1:3))
-[1] -0.2943880  0.4676912  0.9420883
+[1] -0.2943896  0.4676893  0.9420861
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.300   1.024   1.261 
+  0.748   1.756   2.334 
