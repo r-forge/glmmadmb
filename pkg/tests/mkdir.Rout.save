@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2012-01-01 r58032)
+R Under development (unstable) (2012-05-12 r59340) -- "Unsuffered Consequences"
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: i686-pc-linux-gnu (32-bit)
@@ -28,9 +28,13 @@ Loading required package: R2admb
 
 Attaching package: ‘glmmADMB’
 
-The following object(s) are masked from ‘package:R2admb’:
+The following object(s) are masked from ‘package:MASS’:
 
-    stdEr
+    stepAIC
+
+The following object(s) are masked from ‘package:stats’:
+
+    step
 
 > g2 <- glmmadmb(counts~outcome+treatment,family="poisson",data=d)
 Estimated covariance matrix may not be positive definite
@@ -48,4 +52,4 @@ Estimated covariance matrix may not be positive definite
 > 
 > proc.time()
    user  system elapsed 
-  0.320   2.080   2.334 
+  0.628   1.864   2.377 

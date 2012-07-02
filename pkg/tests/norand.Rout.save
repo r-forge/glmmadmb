@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2012-01-01 r58032)
+R Under development (unstable) (2012-05-12 r59340) -- "Unsuffered Consequences"
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: i686-pc-linux-gnu (32-bit)
@@ -24,9 +24,13 @@ Loading required package: R2admb
 
 Attaching package: ‘glmmADMB’
 
-The following object(s) are masked from ‘package:R2admb’:
+The following object(s) are masked from ‘package:MASS’:
 
-    stdEr
+    stepAIC
+
+The following object(s) are masked from ‘package:stats’:
+
+    step
 
 > 
 > ## Dobson (1990) Page 93: Randomized Controlled Trial :
@@ -47,11 +51,11 @@ Estimated covariance matrix may not be positive definite
   (Intercept)      outcome2      outcome3    treatment2    treatment3 
  3.044522e+00 -4.542553e-01 -2.929871e-01  8.716884e-16  4.557335e-16 
 > coef(g2)
-(Intercept)    outcome2    outcome3  treatment2  treatment3 
- 3.0445e+00 -4.5425e-01 -2.9299e-01 -1.9584e-08  4.2321e-09 
+  (Intercept)      outcome2      outcome3    treatment2    treatment3 
+ 3.044519e+00 -4.542545e-01 -2.929868e-01 -1.958412e-08  4.232310e-09 
 > 
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.524   1.628   2.567 
+  0.656   1.472   1.988 

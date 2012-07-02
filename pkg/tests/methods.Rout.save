@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2012-03-04 r58577)
+R Under development (unstable) (2012-05-12 r59340) -- "Unsuffered Consequences"
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: i686-pc-linux-gnu (32-bit)
@@ -24,19 +24,24 @@ Loading required package: R2admb
 
 Attaching package: ‘glmmADMB’
 
-The following object(s) are masked from ‘package:R2admb’:
+The following object(s) are masked from ‘package:MASS’:
 
-    stdEr
+    stepAIC
+
+The following object(s) are masked from ‘package:stats’:
+
+    step
 
 > methods(class="glmmadmb")
  [1] anova.glmmadmb*       coef.glmmadmb*        df.residual.glmmadmb*
- [4] fitted.glmmadmb*      fixef.glmmadmb*       logLik.glmmadmb*     
- [7] model.frame.glmmadmb* nobs.glmmadmb*        predict.glmmadmb*    
-[10] print.glmmadmb*       ranef.glmmadmb*       residuals.glmmadmb*  
-[13] stdEr.glmmadmb*       summary.glmmadmb*     VarCorr.glmmadmb*    
-[16] vcov.glmmadmb*       
+ [4] extractAIC.glmmadmb*  fitted.glmmadmb*      fixef.glmmadmb*      
+ [7] logLik.glmmadmb*      model.frame.glmmadmb* nobs.glmmadmb*       
+[10] predict.glmmadmb*     print.glmmadmb*       ranef.glmmadmb*      
+[13] residuals.glmmadmb*   stdEr.glmmadmb*       summary.glmmadmb*    
+[16] VarCorr.glmmadmb*     vcov.glmmadmb*       
 
    Non-visible functions are asterisked
+> getdata("OwlModel")
 > AIC(OwlModel)
 [1] 3418.28
 > coef(OwlModel)
@@ -268,4 +273,4 @@ ArrivalTime:SexParentMale                        0.0015542518
 > 
 > proc.time()
    user  system elapsed 
-  0.480   0.760   1.191 
+  0.648   1.412   1.959 

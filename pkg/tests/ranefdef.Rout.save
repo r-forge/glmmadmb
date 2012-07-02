@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2012-01-01 r58032)
+R Under development (unstable) (2012-05-12 r59340) -- "Unsuffered Consequences"
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: i686-pc-linux-gnu (32-bit)
@@ -20,43 +20,31 @@ Type 'q()' to quit R.
 
 > ## Make sure that ranef() definition coexists nicely
 > library(lme4)
-Loading required package: Matrix
 Loading required package: lattice
-
-Attaching package: ‘Matrix’
-
-The following object(s) are masked from ‘package:base’:
-
-    det
-
-
-Attaching package: ‘lme4’
-
-The following object(s) are masked from ‘package:stats’:
-
-    AIC, BIC
-
+Loading required package: Matrix
 > gm1 <- glmer(cbind(incidence, size - incidence) ~ period + (1 | herd),
 +                    family = binomial, data = cbpp)
 > ranef(gm1)
 $herd
    (Intercept)
-1   0.59002543
-2  -0.29889417
-3   0.40626540
-4   0.03928257
-5  -0.19001102
-6  -0.40025999
-7   0.88940374
-8   0.59937373
-9  -0.23764977
-10 -0.54092635
-11 -0.08462816
-12 -0.06481190
-13 -0.68991231
-14  0.97071999
-15 -0.53046901
+1   0.59000669
+2  -0.29888183
+3   0.40625350
+4   0.03928060
+5  -0.19000256
+6  -0.40024695
+7   0.88937484
+8   0.59935407
+9  -0.23763745
+10 -0.54091011
+11 -0.08462763
+12 -0.06480970
+13 -0.68989219
+14  0.97068572
+15 -0.53044946
 
+attr(,"class")
+[1] "ranef.mer"
 > 
 > library(glmmADMB)
 Loading required package: MASS
@@ -64,13 +52,13 @@ Loading required package: R2admb
 
 Attaching package: ‘glmmADMB’
 
-The following object(s) are masked from ‘package:R2admb’:
+The following object(s) are masked from ‘package:MASS’:
 
-    stdEr
+    stepAIC
 
-The following object(s) are masked from ‘package:lme4’:
+The following object(s) are masked from ‘package:stats’:
 
-    fixef, ranef
+    step
 
 > 
 > ## ranef should now work for glmm.admb fits, should *still*
@@ -92,7 +80,7 @@ The following object(s) are masked from ‘package:glmmADMB’:
 
 The following object(s) are masked from ‘package:lme4’:
 
-    fixef, lmList, ranef, VarCorr
+    lmList
 
 > ranef(x)
 [1] "a"
@@ -101,4 +89,4 @@ The following object(s) are masked from ‘package:lme4’:
 > 
 > proc.time()
    user  system elapsed 
-  2.120   1.476   3.610 
+  3.804   2.312   6.073 

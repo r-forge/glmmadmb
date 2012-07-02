@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2012-01-01 r58032)
+R Under development (unstable) (2012-05-12 r59340) -- "Unsuffered Consequences"
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: i686-pc-linux-gnu (32-bit)
@@ -24,9 +24,13 @@ Loading required package: R2admb
 
 Attaching package: ‘glmmADMB’
 
-The following object(s) are masked from ‘package:R2admb’:
+The following object(s) are masked from ‘package:MASS’:
 
-    stdEr
+    stepAIC
+
+The following object(s) are masked from ‘package:stats’:
+
+    step
 
 > ## source("glmmadmb.R")
 > 
@@ -44,7 +48,7 @@ The following object(s) are masked from ‘package:R2admb’:
 > g1 <- glmmadmb(y~x+(1|f),family="poisson",data=d)
 > coef(g1)
 (Intercept)           x 
-  -0.036484    0.402420 
+-0.03648328  0.40241579 
 > VarCorr(g1)
 Group=f
             Variance StdDev
@@ -52,11 +56,105 @@ Group=f
 > 
 > g1M <- glmmadmb(y~x+(1|f),family="poisson",data=d,mcmc=TRUE,
 +                  mcmc.opts=mcmcControl(mcmc=100))
-> library(coda)
+Loading required package: coda
 Loading required package: lattice
+> 
+> library(coda)
+> HPDinterval(g1M$mcmc)
+                  lower       upper
+(Intercept) -0.46699299  1.02997982
+x            0.03170716  0.70667208
+tmpL         0.81912712  1.75208068
+u.01        -1.76262159 -0.55037198
+u.02        -1.16092080  0.09197113
+u.03         0.23110174  1.85361741
+u.04        -1.14668261  0.09318089
+u.05        -1.02043031  0.18418269
+u.06         0.33510216  2.06255374
+u.07        -2.07963212 -0.90429018
+u.08        -0.07736999  1.24881191
+u.09        -0.45955597  0.63056518
+u.10        -0.69925048  0.46819955
+attr(,"Probability")
+[1] 0.95
+> summary(g1M$mcmc)
+
+Iterations = 1:100
+Thinning interval = 1 
+Number of chains = 1 
+Sample size per chain = 100 
+
+1. Empirical mean and standard deviation for each variable,
+   plus standard error of the mean:
+
+                Mean     SD Naive SE Time-series SE
+(Intercept)  0.16424 0.4351  0.04351        0.07854
+x            0.35548 0.1833  0.01833        0.03388
+tmpL         1.26121 0.3149  0.03149        0.06057
+u.01        -1.08044 0.3590  0.03590        0.06211
+u.02        -0.54671 0.3241  0.03241        0.05599
+u.03         1.05921 0.4354  0.04354        0.08769
+u.04        -0.53604 0.3231  0.03231        0.05576
+u.05        -0.41994 0.3205  0.03205        0.05576
+u.06         1.21100 0.4629  0.04629        0.09437
+u.07        -1.39073 0.3704  0.03704        0.06423
+u.08         0.60842 0.3667  0.03667        0.07016
+u.09         0.05854 0.3199  0.03199        0.05754
+u.10        -0.13876 0.3183  0.03183        0.05662
+
+2. Quantiles for each variable:
+
+                 2.5%     25%      50%      75%    97.5%
+(Intercept) -0.466993 -0.1303 -0.03648  0.55777  1.02998
+x            0.006593  0.2550  0.38552  0.43663  0.68677
+tmpL         0.822136  0.9840  1.26337  1.46799  1.75208
+u.01        -1.762622 -1.3002 -1.09782 -0.80101 -0.55037
+u.02        -1.160921 -0.8522 -0.48674 -0.27288  0.09197
+u.03         0.231102  0.7284  1.14110  1.38317  2.00472
+u.04        -1.146683 -0.8381 -0.46805 -0.25938  0.09318
+u.05        -1.020430 -0.7018 -0.34726 -0.15974  0.23548
+u.06         0.335102  0.9077  1.27209  1.57263  2.21401
+u.07        -2.079632 -1.6141 -1.43083 -1.13004 -0.90429
+u.08        -0.077370  0.2515  0.70263  0.86143  1.39620
+u.09        -0.459556 -0.2089  0.16542  0.25491  0.75510
+u.10        -0.699250 -0.3572 -0.04233  0.03999  0.57537
+
+Warning message:
+glm.fit: algorithm did not converge 
+> fixef(g1M)
+(Intercept)           x 
+-0.03648328  0.40241579 
 > ## xyplot(as.mcmc(g1M$mcmc),layout=c(4,4),aspect="fill")
 > ## densityplot(as.mcmc(g1M$mcmc),layout=c(4,4),aspect="fill")
 > 
+> ### try example from simon.chamaille@cefe.cnrs.fr
+> 
+> nblock <- 8
+> indperblock <- 10
+> nperind <- 5
+> sd.u <- 1
+> ntot <- nblock*indperblock*nperind
+> d <- expand.grid(f=factor(rep(LETTERS[1:nblock],each=nperblock)),
++                  ind=factor(rep(1:indperblock)),
++                  rep=rep(1:nperind))
+> d$x <- runif(ntot)
+> u1 <- rnorm(nblock,mean=0,sd=sd.u)
+> u2 <- rnorm(nblock*indperblock,mean=0,sd=sd.u)
+> d$eta <- with(d,0.2+0.5*x+u1[f]+u2[interaction(f,ind)])
+> d$mu <- exp(d$eta)
+> d$y <- rpois(ntot,lambda=d$mu)
+> 
+> if (FALSE) {
++     ## slow!
++     mod.admb <- glmmadmb(formula=y~1+(1|f/ind),
++                          data=d,
++                          family="nbinom1",link="log",
++                          admb.opts=admbControl(shess=FALSE,noinit=FALSE),
++                          mcmc=TRUE,mcmc.opts=mcmcControl(mcmc=100),
++                          extra.args="-ndi 60000",
++                          verbose=TRUE)
++ }
+> 
 > proc.time()
    user  system elapsed 
-  7.924   2.252  10.211 
+ 11.908   2.932  14.703 
