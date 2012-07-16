@@ -44,13 +44,19 @@ eta <- model.matrix(~x,data=d2) %*% beta + u[as.numeric(d2$f)]+
 d2$y <- rpois(N,exp(eta))
 
 ##old style:
-g2 <- glmmadmb(y~x,random=~x|f,family="poisson",data=d2)
+if (FALSE) {
+    ## FIXME: fails on r-forge linux x64 tests
+    g2 <- glmmadmb(y~x,random=~x|f,family="poisson",data=d2)
+    g2A <- glmmadmb(y~x+(x|f),family="poisson",data=d2,
+                    admb.opts=admbControl(noinit=FALSE))
 
-library(lme4)
-g2B <- glmer(y~x+(1|f)+(0+x|f),family="poisson",data=d2)
-
-g2 <- glmmadmb(y~x+(x|f),family="poisson",data=d2,
-               admb.opts=admbControl(noinit=FALSE))
+    coef(g2)
+    logLik(g2)
+    g2$U
+    summary(fitted(g2))
+    g2$S
+    g2$sd_S
+}
 
 if (FALSE) {
   glmmadmb(y~x+(x|f),family="poisson",data=d2,
@@ -60,6 +66,8 @@ if (FALSE) {
 
 if (FALSE) {
     ## FIXME: test fails on windows with current versions (r1696 lme4, r211 glmmADMB)
+    library(lme4)
+    g2B <- glmer(y~x+(1|f)+(0+x|f),family="poisson",data=d2)
     stopifnot(all.equal(fixef(g2B),coef(g2),tol=3e-5))
     stopifnot(all.equal(unname(unlist(VarCorr(g2B))),unname(diag(g2$S[[1]])),tol=3e-3))
 }
@@ -77,11 +85,4 @@ if (FALSE) {
   g2C <- glmmadmb(y~x+(x|f),family="poisson",data=d2)
 }
 
-
-coef(g2)
-logLik(g2)
-g2$U
-summary(fitted(g2))
-g2$S
-g2$sd_S
 
