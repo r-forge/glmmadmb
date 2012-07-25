@@ -387,7 +387,8 @@ VarCorr(gm1_glmmADMB)
 \subsubsection{Convert glmmADMB parameters to lme4}
 
 \fixme{this section is UNDER CONSTRUCTION}
-<<lme4glmmadmbconv>>=
+<<lme4glmmadmbconv,eval=FALSE>>=
+## seems to crash r-forge tests at the moment?
 library("lme4")  ## requires DEVELOPMENT version of lme4 ...
 new_lme4 <- packageVersion("lme4")>"0.999375.42"
 if (new_lme4) {

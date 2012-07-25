@@ -21,27 +21,19 @@ print.glmmadmb <- function(x, ...)
   cat("  Formula:", deparse(object$formula), "\n")
   print(object$b)
 
+  ## FIXME: broken now that object no longer necessarily includes 'random'
+  ##  fix by re-incorporating 'random'?
   if(!is.null(object$random))
   {
     cat("\nRandom effects:\n")
     ## cat("  Grouping factor:", object$group, "\n")
     ## cat("  Formula:", deparse(object$random), "\n")
-    if(object$corStruct == "full")
-    {
-      cat("Structure: General positive-definite\n")
-      tmp <- cov2cor(object$S)
-      tmp[upper.tri(tmp,diag=TRUE)] <- NA
-      tmp <- cbind(sqrt(diag(object$S)), tmp)
-      dimnames(tmp) <- list(rownames(object$S), c("StdDev","Corr",rep("",nrow(tmp)-1)))
-      print(tmp, na.print="")
+    if(object$corStruct == "full") {
+        cat("Structure: General positive-definite\n")
+    } else {
+        cat("Structure: Diagonal matrix\n")
     }
-    else
-    {
-      cat("Structure: Diagonal matrix\n")
-      tmp <- sqrt(diag(object$S))
-      names(tmp) <- colnames(object$S)
-      print(tmp)
-    }
+    print(VarCorr(object))
     if(sd_S_print)
     {
       cat("\nCovariance matrix of random effects vector (left) and corresponding standard deviations (right): \n\n")
@@ -50,8 +42,9 @@ print.glmmadmb <- function(x, ...)
     }
   }
 
-  cat("\nNumber of Observations:", object$n, "\n")
-  cat("Number of Groups:", object$q, "\n")
+  cat("\n","Number of observations: total=",x$n,", ",sep="")
+  cat(paste(names(x$q),x$q,sep="=",collapse=", "),"\n")
+
   if(abs(object$gradloglik) >= 0.001)
     warning("Object has a large gradient component")
 
