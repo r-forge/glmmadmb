@@ -623,6 +623,8 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
       colnames(out$mcmc) <- R2admb:::rep_pars(tmpindex)[1:ncol(out$mcmc)]
       out$mcmc <- mcmc_transform(out$mcmc,out$phi,fnames=names(out$b))
   }
+
+  if (has_rand) out$random <- REmat$rstring
   
   class(out) <- "glmmadmb"
 
