@@ -1,4 +1,5 @@
 % \VignetteIndexEntry{basic examples of glmmADMB usage}
+% \VignettePackage{glmmADMB}
 % \VignetteDepends{scapeMCMC}
 % \VignetteDepends{ggplot2}
 % \VignetteDepends{grid}
