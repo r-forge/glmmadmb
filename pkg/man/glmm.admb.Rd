@@ -184,7 +184,8 @@ d$eta <- with(d,u[f]+1+4*x)
 pz <- 0.3
 zi <- rbinom(100,size=1,prob=pz)
 d$y <- ifelse(zi,0,rpois(100,lambda=exp(d$eta)))
-##
+## fit
+zipmodel <- glmmadmb(y~x+(1|f),data=d,family="poisson",zeroInflation=TRUE)
 
 \dontrun{
 ## Epilepsy data
