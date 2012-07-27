@@ -170,10 +170,22 @@ glmm.admb(\dots)  ## deprecated
   \code{\link{glmmADMB-package}, }.
 }
 \examples{
+## Australian H. influenzae data from MASS
 data(bacteria,package="MASS")
 bacteria$present <- as.numeric(bacteria$y)-1
 (bfit <-  glmmadmb(present ~ trt + I(week > 2), random = ~ 1 | ID,
                      family = "binomial", data = bacteria))
+## simple simulated zero-inflated Poisson example
+### simulate values
+set.seed(101)
+d <- data.frame(f=factor(rep(LETTERS[1:10],each=10)),x=runif(100))
+u <- rnorm(10,sd=2)
+d$eta <- with(d,u[f]+1+4*x)
+pz <- 0.3
+zi <- rbinom(100,size=1,prob=pz)
+d$y <- ifelse(zi,0,rpois(100,lambda=exp(d$eta)))
+##
+
 \dontrun{
 ## Epilepsy data
 ## all grouping variables must be factors:
