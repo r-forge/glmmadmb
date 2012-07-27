@@ -387,9 +387,12 @@ VarCorr(gm1_glmmADMB)
 \subsubsection{Convert glmmADMB parameters to lme4}
 
 \fixme{this section is UNDER CONSTRUCTION}
+<<>>=
+library("lme4") 
+@ 
 <<lme4glmmadmbconv,eval=FALSE>>=
 ## seems to crash r-forge tests at the moment?
-library("lme4")  ## requires DEVELOPMENT version of lme4 ...
+ ## requires DEVELOPMENT version of lme4 ...
 new_lme4 <- packageVersion("lme4")>"0.999375.42"
 if (new_lme4) {
     lme4fun <- update(gm1_lme4,devFunOnly=TRUE)
@@ -509,7 +512,7 @@ range(effectiveSize(tm))
 \code{HPDinterval} gives the highest posterior density
 (credible interval):
 <<HPDintervalCI>>=
-detach("package:lme4") ## kluge!!
+try(detach("package:lme4")) ## kluge!!
 HPDinterval(tm)
 @ 
 
