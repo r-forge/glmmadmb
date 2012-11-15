@@ -44,7 +44,7 @@ options(continue=" ")
 <<graphopts,echo=FALSE>>=
 library("ggplot2")
 library("grid")
-theme_update(theme_bw())
+theme_set(theme_bw())
 zmargin <- opts(panel.margin=unit(0,"lines"))
 @ 
 
