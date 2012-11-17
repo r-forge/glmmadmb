@@ -562,20 +562,19 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
 
   mu <- as.numeric(X %*% out$b)
   ## BMB: doesn't include influence of random effects?
-  lambda <- 0
+  ## lambda <- 0
 
   ## for(i in 1:n)
   ## lambda[i] <- exp(mu[i] + rowSums(Z * allU))
   if (has_rand) {
-    eta <- mu + rowSums(Z*allU)
+      sdvals <- unlist(lapply(out$S,function(z)sqrt(diag(z))))
+      eta <- mu + rowSums(Z * sweep(allU,2,sdvals,"*"))
   } else eta <- mu
   
   lambda <- ilinkfun(eta)
 
-  if(family == "binomial")
-    out$fitted <- lambda / (1+lambda)
-  else
-    out$fitted <- lambda
+  out$fitted <- lambda
+
   out$sd.est <- with(out,switch(family,
                                 poisson=sqrt(lambda),
                                 nbinom=sqrt(lambda*(1+lambda/alpha)),
@@ -585,7 +584,9 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
                                 rep(NA,length(lambda))))
   ##  stop("sd.est not defined for family",family))
 
-  out$residuals <- as.numeric(y-lambda)
+  if (family=="binomial" && p_y>1) {
+      out$residuals <- y[,1]/nyobs-lambda
+  } else  out$residuals <- y-lambda
   tmp <- par_read(file_name)
   out$npar <- tmp$npar   ## BMB: should this be total number of parameters or number of fixed parameters?
   bpar <- bar_read(file_name,n=tmp$npar+1)[-1] ## drop ZI parameter (first)

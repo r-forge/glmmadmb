@@ -22,7 +22,9 @@ summary(g2)
 
 ## need another test with another component:
 
+## FIXME: does this model make sense?  feels like we have a (1|f1) term repeated ...
 g3 <- glmmadmb(y~1+(1|f1/f2)+(x|f1),family="gaussian",data=d)
+VarCorr(g3)
 
 g4 <- glmmadmb(y~1+(x|f1),corStruct="full",family="gaussian",data=d)
 VarCorr(g4)
