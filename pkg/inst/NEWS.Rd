@@ -4,6 +4,13 @@
 \title{glmmADMB News}
 \encoding{UTF-8}
 
+
+\section{Changes in version 0.7.3 (17-11-2012)}{
+ \itemize{
+\item fixed bug in fitted/residuals calculation (failed to scale random effects)
+}
+}
+
 \section{Changes in version 0.7.2.12}{
 \itemize{
   \item added citation info
