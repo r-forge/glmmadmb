@@ -591,16 +591,16 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   out$npar <- tmp$npar   ## BMB: should this be total number of parameters or number of fixed parameters?
   bpar <- bar_read(file_name,n=tmp$npar+1)[-1] ## drop ZI parameter (first)
   if (file.exists("phi.rep")) {
-    out$phi <- matrix(scan("phi.rep",quiet=TRUE),nrow=length(out$b),byrow=TRUE)
-  }
-  tmp$beta <- bpar
-  newb <- bpar[seq_along(out$b)] %*% out$phi
-  ## FIXME: find a way to check consistency between .bar and .par that isn't subject
-  ##        to false positives (i.e., replicate the rounding that ADMB does?)
-  ## if (!isTRUE(all.equal(c(newb),unname(out$b),tol=5e-5))) {
-  ## if (!all(round(newb,3)==round(out$b,3))) {
-  ## warning("apparent discrepancy between .bar and .par values: using .par values")
-  out$b[] <- newb ## replace values
+      out$phi <- matrix(scan("phi.rep",quiet=TRUE),nrow=length(out$b),byrow=TRUE)
+      ## tmp$beta <- bpar
+      newb <- bpar[seq_along(out$b)] %*% out$phi
+      ## FIXME: find a way to check consistency between .bar and .par that isn't subject
+      ##        to false positives (i.e., replicate the rounding that ADMB does?)
+      ## if (!isTRUE(all.equal(c(newb),unname(out$b),tol=5e-5))) {
+      ## if (!all(round(newb,3)==round(out$b,3))) {
+      ## warning("apparent discrepancy between .bar and .par values: using .par values")
+      out$b[] <- newb ## replace values
+  }  ## FIXME: should figure out why phi.rep is not getting created on MacOS -- binary created from old TPL?
   out$loglik <- tmp$loglik
   out$gradloglik <- tmp$gradient
   nfixpar <- length(out$b)
