@@ -1,5 +1,6 @@
 library(glmmADMB)
-if (is.null(testLevel <- Sys.getenv("GLMMADMB_TEST_LEVEL"))) testLevel <- 1
+testLevel <- if (nzchar(s <- Sys.getenv("GLMMADMB_TEST_LEVEL"))) as.numeric(s) else 1
+
 ## slow, only run when requested
 if (testLevel>1) {
 Owls <- transform(Owls,
