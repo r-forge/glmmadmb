@@ -1,4 +1,7 @@
-buildbot_base <- "http://www.admb-project.org/buildbot/glmmadmb/glmmadmb-admb-"
+## functions to download glmmADMB binaries from buildbot
+
+## buildbot_base <- "http://www.admb-project.org/buildbot/glmmadmb/glmmadmb-admb-"
+buildbot_base <- "http://www.admb-project.org/buildbot/glmmadmb/glmmadmb-"
 ## assume we are starting from the root of the package directory
 ## 27 Dec: change gcc 4.5 -> 4.6
 platform_str <- c(linux32="ubuntu11-gcc4.6-32bit-",
