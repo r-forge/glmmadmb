@@ -42,9 +42,13 @@ print.glmmadmb <- function(x, ...)
     }
   }
 
-  cat("\n","Number of observations: total=",x$n,", ",sep="")
-  cat(paste(names(x$q),x$q,sep="=",collapse=", "),"\n")
-
+  cat("\n","Number of observations: total=",x$n,sep="")
+  if(!is.null(object$random)) {
+      cat(", ")
+      cat(paste(names(x$q),x$q,sep="=",collapse=", "))
+  }
+  cat("\n")
+  
   if(abs(object$gradloglik) >= 0.001)
     warning("Object has a large gradient component")
 

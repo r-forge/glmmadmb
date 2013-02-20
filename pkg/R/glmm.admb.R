@@ -79,6 +79,7 @@ mcmcArgs <- function(L) {
   paste(unlist(argstr),collapse=" ")
 }
 
+## FIXME: use .Deprecated?
 glmm.admb <- function(...) {
   warning("'glmm.admb' has been renamed to 'glmmadmb' in the new version; please modify your code")
   glmmadmb(...)
@@ -171,11 +172,13 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   file_name <- "glmmadmb"
 
   if (!missing(easyFlag)) warning("easyFlag argument ignored")
-  
+
+  ## find platform, binary location information
   res <- get_bin_loc(file_name,debug=debug)
   platform <- res$platform
   if (is.null(bin_loc)) bin_loc <- res$bin_loc
 
+  ## extract admb.opts contents
   impSamp <- admb.opts$impSamp
   maxfn <- admb.opts$maxfn
   imaxfn <- admb.opts$imaxfn
@@ -208,6 +211,16 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
             add=TRUE)
   }
 
+  zi_model_flag <- alpha_model_flag <- FALSE
+  if (is.list(formula)) {
+      if (!is.null(zi_model <- formula[["zi"]])) zi_model_flag <- TRUE
+      if (!is.null(alpha_model <- formula[["alpha"]])) alpha_model_flag <- TRUE
+      formula <- if (names(formula)[1]=="") formula[[1]] else formula[["eta"]]
+  }
+
+  if (zi_model_flag || alpha_model_flag)
+      stop("models for zero-inflation and dispersion parameters not yet implemented")
+  
   call <- match.call()
   ## FIXME: corStruct could be a vector, corresponding to the random
   ##    effects in order?
@@ -221,6 +234,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
 
   if (!is.character(family)) stop("must specify 'family' as a character string")
   family <- tolower(family)
+  family <- gsub("binomial","binom",family)
   nbinom1_flag <- 0
   if (family %in% c("nbinom1","truncnbinom1") ) {
     nbinom1_flag <- 1
@@ -229,15 +243,17 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   if (length(grep("nbinom",family))>0)
     family <- gsub("[12]$","",family)
 
-  like_type_flag <- switch(family,poisson=0,binomial=1,nbinom=2,gamma=3,beta=4,gaussian=5,
-                           truncpoiss=6,truncnbinom=7,logistic=8,
+  like_type_flag <- switch(family,poisson=0,binom=1,nbinom=2,gamma=3,beta=4,gaussian=5,
+                           truncpoiss=6,truncnbinom=7,logistic=8,betabinom=9,
                            stop("unknown family"))
-  has_alpha <- family %in% c("nbinom","gamma","beta","gaussian","truncnbinom","logistic")
+  has_alpha <- family %in% c("nbinom","gamma","beta","gaussian","truncnbinom","logistic",
+                             "betabinom")
 
   if (missing(link)) {
-    link <- switch(family, binomial=, beta="logit",
-                   nbinom=, poisson=, truncpoiss=, truncnbinom=, gamma="log",
-                   gaussian=, logistic="identity")
+      link <- switch(family,
+                     binom=, beta=, betabinom="logit",
+                     nbinom=, poisson=, truncpoiss=, truncnbinom=, gamma="log",
+                     gaussian=, logistic="identity")
   }
   linkfun <- switch(link,log=log,logit=qlogis,probit=qnorm,inverse=function(x) {1/x},
                     cloglog=function(x) {log(-log(1-x))},
@@ -251,7 +267,6 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
                        identity=identity
                      )
 
-
   link_type_flag <- switch(link,log=0,logit=1,probit=2,inverse=3,cloglog=4,identity=5)
   
   ## from glm()
@@ -259,16 +274,30 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   if (missing(data)) 
     data <- environment(formula)
   mf <- match.call(expand.dots = FALSE)
+  
   m <- match(c("formula", "data", "subset", "na.action", 
                "offset"), names(mf), 0L)
   mf <- mf[c(1L, m)]
   ## FIXME/WARNING!!! added parent.frame().  Does this always work???
   mf$formula <- get_fixedformula(eval(mf$formula,parent.frame()))
+
+  comb_formula <- function(old,new) {
+      if (is.null(new)) return(old)
+      update.formula(old,paste0(".~.+",as.character(new)[2]))
+  }
+
+  ## FIXME: use Reduce()?
+  if (alpha_model_flag) {
+      mf$formula <- comb_formula(mf$formula,alpha_model)
+  }
+  if (zi_model_flag) {
+      mf$formula <- comb_formula(mf$formula,zi_model)
+  }
+
   mf$drop.unused.levels <- TRUE
   mf[[1L]] <- as.name("model.frame")
 
   ## FIXME: warning on evaluation with nested factors?
-  ##
   mf_orig <- mf
   mf <- eval(mf, parent.frame())
 
@@ -280,12 +309,14 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   
   y <- model.response(mf, "any") # e.g. factors are allowed
   if (inherits(y,"factor")) {
-    if (family!="binomial") stop("factors as response variables only allowed for binomial models")
+    if (family!="binom") stop("factors as response variables only allowed for binomial models")
     ## slightly odd, but this is how glm() defines it: first level is failure, all others success
     y <- 1-as.numeric(as.numeric(y)==1)
   }
   y <- as.matrix(y)
-  if (family %in% c("nbinom","truncnbinom","poisson","truncpoiss","binomial") && any(y!=floor(y))) {
+  ## FIXME: add tolerance to this test ...
+  if (family %in% c("nbinom","truncnbinom","poisson","truncpoiss","binom","betabinom") &&
+      any(y!=floor(y))) {
     warning("non-integer response values in discrete family")
   }
   if (substr(family,1,5)=="trunc" && any(y==0)) {
@@ -295,7 +326,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   n <- nrow(y)
   p_y <- ncol(y)
 
-  nyobs <- if (family=="binomial") rowSums(y) else 1
+  nyobs <- if (family %in% c("binom","betabinom")) rowSums(y) else 1
 
   ## BMB: nobs() method? model.matrix, model.frame, terms methods?
 
@@ -305,6 +336,20 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
 
   X <- model.matrix(mt,mf)  ## BMB: allow contrasts?
   p <- ncol(X)
+
+  zi_p <- 1
+  zi_X <- matrix(0,1,1)
+  if (zi_model_flag) {
+      zi_X <- model.matrix(zi_model,mf)
+      zi_p <- ncol(zi_X)
+  }
+  
+  alpha_p <- 1
+  alpha_X <- matrix(0,1,1)
+  if (alpha_model_flag) {
+      alpha_X <- model.matrix(alpha_model,mf)
+      alpha_p <- ncol(alpha_X)
+  }
 
   if (has_rand) {
     REmat <- process_randformula(formula,random,data=data)
@@ -374,62 +419,73 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   if (has_rand && impSamp>0) cmdoptions <- paste(cmdoptions,"-is",impSamp)
   if (mcmc) cmdoptions <- paste(cmdoptions,mcmcArgs(mcmc.opts))
   if (!missing(extra.args)) cmdoptions <- paste(cmdoptions,extra.args)
-  dat_list = list(n=n, p_y=p_y,
-    y=y, p=p, X=X, M=M, q=q, m=m, ncolZ=ncol(Z),Z=Z, II=II, 
-    cor_flag=rep(0,M),
-    cor_block_start=cor_block_start,
-    cor_block_stop=cor_block_stop,
-    numb_cor_params=numb_cor_params,
-    like_type_flag=like_type_flag,
-    link_type_flag=link_type_flag,
-    rlinkflag=1L,   ## always robust (for now)
-    ## as.numeric(family=="poisson"||(family=="binomial"&&link=="logit")),
-    no_rand_flag=as.numeric(!has_rand),
-    zi_flag=as.numeric(zeroInflation),
-    zi_kluge=as.numeric(admb.opts$ZI_kluge),
-    nbinom1_flag=as.numeric(nbinom1_flag),
-    intermediate_maxfn=imaxfn, 
-    has_offset=as.numeric(has_offset), 
-    offset=offset)
+  dat_list <- list(n=n, p_y=p_y,
+                   y=y, p=p, X=X, M=M, q=q, m=m, ncolZ=ncol(Z),Z=Z, II=II, 
+                   cor_flag=rep(0,M),
+                   cor_block_start=cor_block_start,
+                   cor_block_stop=cor_block_stop,
+                   numb_cor_params=numb_cor_params,
+                   like_type_flag=like_type_flag,
+                   link_type_flag=link_type_flag,
+                   rlinkflag=1L,   ## always robust (for now)
+                   ## as.numeric(family=="poisson"||(family=="binomial"&&link=="logit")),
+                   no_rand_flag=as.numeric(!has_rand),
+                   zi_flag=as.numeric(zeroInflation),
+                   zi_kluge=as.numeric(admb.opts$ZI_kluge),
+                   nbinom1_flag=as.numeric(nbinom1_flag),
+                   intermediate_maxfn=imaxfn, 
+                   has_offset=as.numeric(has_offset), 
+                   offset=offset)
 
-  
-  ## BMB: pz=0.0001 should be clearly specified, possibly made into a control parameter
-  pin_list = list(pz=if(zeroInflation) 0.02 else 0.0001,  ## ZI
-    b=numeric(p),                                         ## fixed effects
-    tmpL=0.25+numeric(sum(m)),                            ## log-std dev of RE
-    tmpL1=0.0001+numeric(numb_cor_params),                ## off-diag of cholesky factor of corr matrix
-    log_alpha=1.0,                                        ## overdispersion param
-    u=rep(0,sum(m*q)))  
+  ## TO DO: implement models for zero-inflation and dispersion parameters
+  ## zi_model_flag=as.numeric(zi_model_flag),
+  ## zi_X=zi_X,
+  ## zi_p=zi_p,
+  ## alpha_model_flag=as.numeric(alpha_model_flag),
+  ## alpha_X=alpha_X,
+  ## alpha_p=alpha_p)
 
+
+  ## FIXME: pz=0.0001 should be clearly specified,
+  ##    possibly made into a control parameter
+  pz_start <- c(if(zeroInflation) 0.02 else 0.0001,rep(0,zi_p-1))
+  log_alpha_start <- c(1.0,rep(0,alpha_p-1))
+  pin_list <- list(pz=pz_start,
+                   b=numeric(p),                        ## fixed effects
+                   tmpL=0.25+numeric(sum(m)),           ## log-std dev of RE
+                   tmpL1=1e-4+numeric(numb_cor_params), ## off-diag of cholesky factor of corr matrix
+                   log_alpha=log_alpha_start,           ## dispersion param
+                   u=rep(0,sum(m*q)))                   ## random effects/conditional modes
 
   if (!missing(start) && !is.null(start$fixed)) {
-    ## message("converting fixed to orthogonalized variant ...")
-    phi <- make_phi(X)
-    start$fixed <- start$fixed %*% solve(phi)
+      ## message("converting fixed to orthogonalized variant ...")
+      phi <- make_phi(X)
+      start$fixed <- start$fixed %*% solve(phi)
   }
 
   rnames <- list(c("fixed","b"),
                  c("RE_sd","tmpL"),
-                 c("RE_cor","tmpL1"))
+                 c("RE_cor","tmpL1"),
+                 c("pz","pz"),
+                 c("log_alpha","log_alpha"))
   if (!missing(start)) {
-    for (i in seq_along(rnames)) {
-      names(start)[names(start)==rnames[[i]][1]] <- rnames[[i]][2]
-    }
-    ns <- names(start)
-    for (i in seq_along(start)) {
-      pp <- pin_list[[ns[i]]]
-      if (is.null(pp)) {
-        stop("unmatched start component ",ns[i])
+      for (i in seq_along(rnames)) {
+          names(start)[names(start)==rnames[[i]][1]] <- rnames[[i]][2]
       }
-      if (length(pp) != length(start[[i]])) {
-        stop("length mismatch in start component ",ns[i],
-             ": ",length(pp),"!=",length(start[[i]]))
+      ns <- names(start)
+      for (i in seq_along(start)) {
+          pp <- pin_list[[ns[i]]]
+          if (is.null(pp)) {
+              stop("unmatched start component ",ns[i])
+          }
+          if (length(pp) != length(start[[i]])) {
+              stop("length mismatch in start component ",ns[i],
+                   ": ",length(pp),"!=",length(start[[i]]))
+          }
+          pin_list[[ns[i]]] <- start[[i]]
       }
-      pin_list[[ns[i]]] <- start[[i]]
-    }
   }
 
-  
   dat_write(file_name, dat_list)
   pin_write(file_name, pin_list)
   std_file <- paste(file_name, ".std", sep="")
@@ -579,12 +635,12 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
                                 poisson=sqrt(lambda),
                                 nbinom=sqrt(lambda*(1+lambda/alpha)),
                                 nbinom1=sqrt(lambda*alpha),
-                                binomial=sqrt(fitted*(1-fitted)/nyobs),
+                                betabinom=, binom=sqrt(fitted*(1-fitted)/nyobs),
                                 beta=sqrt(fitted*(1-fitted)/(1+alpha)),
                                 rep(NA,length(lambda))))
   ##  stop("sd.est not defined for family",family))
 
-  if (family=="binomial" && p_y>1) {
+  if (family %in% c("binom","betabinom") && p_y>1) {
       out$residuals <- y[,1]/nyobs-lambda
   } else  out$residuals <- y-lambda
   tmp <- par_read(file_name)
