@@ -15,14 +15,17 @@ platform_str <- c(linux32="ubuntu11-gcc4.6-32bit-",
   ##   linux64="linux-gcc4.5.2-64bit",
   ##   macos32="macos10.6.7-xcode3.2.6-32bit",
   ##   macos64="macos10.6.7-xcode3.2.6-64bit")
+
+## assumed that we are starting in the head package directory ...
 if (!file.exists("inst/bin")) {
   setwd("../..")  ## try moving up
   if (!file.exists("inst/bin")) {
     stop("can't find bin directory -- are you in the package root?")
   }
 }
-setwd("inst/bin")
+setwd("inst/bin") ## move to bin directory
 
+## get new versions of all binaries
 get_allbin <- function(release) {
   if (missing(release)) {
     g <- suppressWarnings(get_bbot_versions())

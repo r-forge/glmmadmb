@@ -5,6 +5,15 @@
 \encoding{UTF-8}
 
 
+\section{Changes in version 0.7.4 (20-02-2013)}{
+ \itemize{
+\item updated glmmADMB binaries
+\item beta-binomial models (NOT YET WORKING)
+\item stubs for model matrices for alpha, zi effects
+\item output tweaks
+}
+}
+
 \section{Changes in version 0.7.3 (17-11-2012)}{
  \itemize{
 \item fixed bug in fitted/residuals calculation (failed to scale random effects)

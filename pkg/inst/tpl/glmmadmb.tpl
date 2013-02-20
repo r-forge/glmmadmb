@@ -18,7 +18,7 @@ DATA_SECTION
   init_ivector cor_block_start(1,M) 		// Not used: remove
   init_ivector cor_block_stop(1,M) 		// Not used: remove
   init_int numb_cor_params			// Total number of correlation parameters to be estimated
-  init_int like_type_flag   			// 0 poisson 1 binomial 2 negative binomial 3 Gamma 4 beta 5 gaussian 6 truncated poisson 7 trunc NB
+  init_int like_type_flag   			// 0 poisson 1 binomial 2 negative binomial 3 Gamma 4 beta 5 gaussian 6 truncated poisson 7 trunc NB 8 logistic 9 betabinomial
   init_int link_type_flag   			// 0 log 1 logit 2 probit 3 inverse 4 cloglog 5 identity
   init_int rlinkflag                            // robust link function?
   init_int no_rand_flag   			// 0 have random effects 1 no random effects
@@ -97,7 +97,7 @@ PARAMETER_SECTION
 
   // Determines "phases", i.e. when the various parameters  becomes active in the optimization process
   int pctr = 2;		// "Current phase" in the stagewise procedure
-  // FIXME: move trunc_poisson earlier in like_type hierarchy (or add a scale parameter flag vector)
+  // FIXME: move trunc_poisson, logistic earlier in like_type hierarchy (or add a scale parameter flag vector)
   int alpha_phase = like_type_flag>1 && like_type_flag!=6 ? pctr++ : -1;        // Phase 2 if active
   int zi_phase = zi_flag ? pctr++ : -1;                      			// After alpha
   int rand_phase = no_rand_flag==0 ? pctr++ : -1;    				// SD of RE's
@@ -446,9 +446,15 @@ SEPARABLE_FUNCTION void log_lik(int _i,const dvar_vector& tmpL,const dvar_vector
         tmpl = log_negbinomial_density(y(_i,1),lambda,tau)-log(1.0-pow(1.0+lambda/alpha,-alpha));
       break;
     case 8: // logistic 
-      tmpl = -log(alpha) + (y(_i,1)-lambda)/alpha - 2*log(1+exp((y(_i,1)-lambda)/alpha));
+	tmpl = -log(alpha) + (y(_i,1)-lambda)/alpha - 2*log(1+exp((y(_i,1)-lambda)/alpha));
       break;
-    default:
+    case 9: // beta-binomial
+	Ni = sum(y(_i));
+	tmpl = log_comb(Ni,y(_i,1)) + // log(C(Ni,y(_i,1)))
+	    gammln(y(_i,2)+alpha*(1-lambda))+gammln(y(_i,1)+alpha*lambda)-gammln(Ni+alpha) + // lbeta(...)
+	    -(gammln(alpha*(1-lambda))+gammln(alpha*lambda)-gammln(alpha)); // lbeta(...)
+	break;
+  default:
       cerr << "Illegal value for like_type_flag" << endl;
       ad_exit(1);
   }
