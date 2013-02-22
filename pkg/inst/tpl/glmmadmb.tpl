@@ -414,9 +414,11 @@ SEPARABLE_FUNCTION void log_lik(int _i,const dvar_vector& tmpL,const dvar_vector
       break;
     case 2:   // neg binomial
       if (cph<2)  // would like to use alpha_phase rather than 2 but it's in local_calcs
-        tmpl = -square(log(1.0+y(_i,1))-log(1.0+lambda));
+      	   tmpl = -square(log(1.0+y(_i,1))-log(1.0+lambda));
+      if (cph<4)  
+	  tmpl = -(1.0+y(_i,1))*square(log(1.0+y(_i,1))-log(1.0+lambda));
       else
-        tmpl = log_negbinomial_density(y(_i,1),lambda,tau);
+	  tmpl = log_negbinomial_density(y(_i,1),lambda,tau);
       break;
     case 3: // Gamma 
         tmpl = log_gamma_density(y(_i,1),alpha,alpha/lambda);

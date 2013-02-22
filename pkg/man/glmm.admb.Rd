@@ -44,7 +44,7 @@ glmm.admb(\dots)  ## deprecated
       \code{"nbinom1"} (negative binomial ``type 1'': see Details),
       \code{"nbinom2"} (a synonym for \code{"nbinom"})
       \item extended distributions: \code{"beta"} (logit),
-      \code{"logistic"} (identity)
+      \code{"logistic"} (identity), \code{"betabinomial"} (logit)
       \item truncated distributions (log):
       \code{"truncpoiss"}, \code{"truncnbinom"}, \code{"truncnbinom1"}
       (these can be used to fit hurdle models)
@@ -99,6 +99,7 @@ glmm.admb(\dots)  ## deprecated
 }
 \details{
   \itemize{
+    \item For advice on troubleshooting, see \code{\link{admbControl}}.
     \item Parameterization of the negative binomial distribution:
     \itemize{
       \item for \code{family=="nbinom"}:
@@ -111,6 +112,16 @@ glmm.admb(\dots)  ## deprecated
       (i.e. Hardin and Hilbe NB1: \code{alpha} corresponds to the scale
       parameter in a quasi-Poisson model)
     }
+    \item Parameterization of the beta-binomial distribution:
+    as in Morris (1997), in terms of \eqn{N} (number of trials),
+    \eqn{p} (per-trial probability, determined by the inverse-link
+    function applied to the linear predictor), \eqn{alpha}
+    (overdispersion parameter: as \eqn{alpha} becomes large,
+    the distribution converges to binomial). The density function is
+    \deqn{p(x) = \frac{C(N,x) \mbox{Beta}(N-x+\theta(1-p),x+\theta p)}%
+      {\mbox{Beta}(\theta(1-p),\theta p)}%
+    }{p(x) = (C(N,x)*Beta(N-x+theta*(1-p),x+theta*p))/Beta(theta*(1-p),theta*p)}.
+
     \item Zero-inflation: With probability \eqn{1-pz}, \eqn{Y} comes from a
     Poisson (or negative binomial) distribution, and with probability
     \eqn{pz}, \eqn{Y} is zero (Bohning et al. 1999).
@@ -132,10 +143,9 @@ glmm.admb(\dots)  ## deprecated
       \%*\% solve(phi).}  Fixed effects specified in the starting values
     are automatically orthogonalized.
     \item If you are specifying starting values from a different GLMM
- fit for more than the fixed-effect parameters, you may want to use
- \code{extra.args="-phase 5"} to skip over the estimation phase where
- ADMB fits the model without random effects.
-    \item For advice on troubleshooting, see \code{\link{admbControl}}.
+    fit for more than the fixed-effect parameters, you may want to use
+    \code{extra.args="-phase 5"} to skip over the estimation phase where
+    ADMB fits the model without random effects.
   }
 }
 \value{
@@ -165,9 +175,11 @@ glmm.admb(\dots)  ## deprecated
   Skaug, H.J. and D.A. Fournier. 2006. Automatic approximation of the
   marginal likelihood in non-Gaussian hierarchical models. Computational
   Statistics & Data Analysis 51:699--709.
+
+  Morris, W. 1997. American Naturalist 150:299-327
 }
 \seealso{
-  \code{\link{glmmADMB-package}, }.
+  \code{\link{glmmADMB-package}}.
 }
 \examples{
 ## Australian H. influenzae data from MASS
