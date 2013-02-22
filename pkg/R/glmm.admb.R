@@ -488,17 +488,29 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
 
   dat_write(file_name, dat_list)
   pin_write(file_name, pin_list)
-  std_file <- paste(file_name, ".std", sep="")
+  par_file <- paste0(file_name, ".par")
+  std_file <- paste0(file_name, ".std")
   if(file.exists(std_file) && run) warning("file ",std_file," exists: overwriting")
   ## file.remove(std_file)
 
   sys.result <- run_bin(platform,bin_loc,file_name,cmdoptions,run,
                         rm_binary=!use_tmp_dir,debug=debug,verbose=verbose)
   
-  ## FIXME: try to continue without std file ??
   if (!file.exists(std_file)) {
-    if (run) stop("The function maximizer failed (couldn't find STD file)")
-    message("'run=FALSE' specified, no files found: stopping")
+    if (run) {
+        if (file.exists(par_file)) {
+            message("Parameters were estimated, but not standard errors were not: ",
+                    "the most likely problem is that the curvature at MLE was zero or negative")
+            ##
+            ## would like to read parameter files, but not exactly in standard format ...
+            ## cat("Parameter file:\n")
+            ## file.show(par_file)
+        }
+        stop("The function maximizer failed (couldn't find STD file)",
+             " Troubleshooting steps include (1) run with 'save.dir' set ",
+             "and inspect output files; (2) change run parameters: see '?admbControl'")
+    }
+    message("'run=FALSE' specified, STD file not found: stopping")
     return(NULL)
   }
   ## parameter order:
