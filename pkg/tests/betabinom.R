@@ -23,6 +23,8 @@ if (FALSE) {
     with(d,plot(x,y0))
     with(d,curve(20*plogis(-3+5*x),col=2,add=TRUE))
 }
+if (FALSE) {
+  ## comment out until binaries are updated on all platforms
 g0 <- glmmadmb(cbind(y0,20-y0)~x,data=d,family="betabinomial")
 
 coef(g0)
@@ -33,4 +35,5 @@ if (FALSE) {
     coef(g1)
     VarCorr(g1)
     summary(g1)
+}
 }
