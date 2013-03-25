@@ -61,7 +61,11 @@ admbControl(impSamp=0,maxfn=500,imaxfn=500,maxph=5,noinit=TRUE,shess=TRUE,
 	and read them into a \code{glmmadmb} object.  You can also try sending
 	the \code{glmmadmb.pin} and \code{glmmadmb.dat} files to an ADMB
 	expert for diagnosis.
-	\item
+	\item if the ADMB output shows a statement like "Use the [] command line option ...",
+        use the \code{extra.args} argument to \code{\link{glmmadmb}} to set command line
+        options for ADMB. ADMB's diagnostic statements are usually fairly specific about
+        which command line options to use, but see the ADMB reference manuals (linked from Details below)
+        for more information. 
       }
     }
 }

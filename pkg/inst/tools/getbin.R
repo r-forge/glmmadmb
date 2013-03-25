@@ -114,3 +114,4 @@ test_allbin <- function(...) {
 }
 
 ## test_allbin()
+## get_allbin()
