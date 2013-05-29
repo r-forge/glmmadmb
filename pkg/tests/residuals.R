@@ -11,7 +11,7 @@ d.AD <- data.frame(counts=c(18,17,15,20,10,20,25,13,12),
 glm.D93 <- glm(counts ~ outcome + treatment, family=poisson,
                data=d.AD)
 glm.D93.admb <- glmmadmb(counts~outcome+treatment, family="poisson",
-          data=d.AD)
+          data=d.AD, extra.args="-crit 1.e-6")
 r1P <- residuals(glm.D93,type="pearson")
 r2P <- residuals(glm.D93.admb,type="pearson")
 stopifnot(max(abs(r1P-r2P))<2e-4)
@@ -32,15 +32,15 @@ OwlModel_poiss.glmer <- glmer(SiblingNegotiation ~ FoodTreatment * SexParent +
 
 
 OwlModel_poiss.admb <- glmmadmb(SiblingNegotiation~FoodTreatment*SexParent+
-                                 (1|Nest)+offset(logBroodSize),
-                                 data=Owls, family="poisson",
-                                 easyFlag=FALSE)
+                                (1|Nest)+offset(logBroodSize),
+                                data=Owls, family="poisson")
 
 OwlModel_poiss.glmer2 <- glmer(SiblingNegotiation ~ FoodTreatment * SexParent +
-                              (1|Nest)+offset(logBroodSize),
-                              data=Owls, family=poisson,
+                               (1|Nest)+offset(logBroodSize),
+                               data=Owls, family=poisson,
                                start=list(fixed=coef(OwlModel_poiss.admb)))
 
+## matrix not pos definite in sparse choleski
 ## "Estimated covariance matrix may not be positive definite"
 logLik(OwlModel_poiss.admb)
 logLik(OwlModel_poiss.glmer)

@@ -1,7 +1,6 @@
 
-R Under development (unstable) (2012-05-12 r59340) -- "Unsuffered Consequences"
-Copyright (C) 2012 The R Foundation for Statistical Computing
-ISBN 3-900051-07-0
+R Under development (unstable) (2013-04-25 r62670) -- "Unsuffered Consequences"
+Copyright (C) 2013 The R Foundation for Statistical Computing
 Platform: i686-pc-linux-gnu (32-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -22,26 +21,28 @@ Type 'q()' to quit R.
 > library(lme4)
 Loading required package: lattice
 Loading required package: Matrix
+Loading required package: Rcpp
+Loading required package: RcppEigen
 > gm1 <- glmer(cbind(incidence, size - incidence) ~ period + (1 | herd),
 +                    family = binomial, data = cbpp)
 > ranef(gm1)
 $herd
    (Intercept)
-1   0.59000669
-2  -0.29888183
-3   0.40625350
-4   0.03928060
-5  -0.19000256
-6  -0.40024695
-7   0.88937484
-8   0.59935407
-9  -0.23763745
-10 -0.54091011
-11 -0.08462763
-12 -0.06480970
-13 -0.68989219
-14  0.97068572
-15 -0.53044946
+1   0.58999772
+2  -0.29889518
+3   0.40623984
+4   0.03927058
+5  -0.19001593
+6  -0.40026161
+7   0.88936536
+8   0.59934680
+9  -0.23764864
+10 -0.54092437
+11 -0.08464142
+12 -0.06481863
+13 -0.68990696
+14  0.97067927
+15 -0.53046350
 
 attr(,"class")
 [1] "ranef.mer"
@@ -52,11 +53,11 @@ Loading required package: R2admb
 
 Attaching package: ‘glmmADMB’
 
-The following object(s) are masked from ‘package:MASS’:
+The following object is masked from ‘package:MASS’:
 
     stepAIC
 
-The following object(s) are masked from ‘package:stats’:
+The following object is masked from ‘package:stats’:
 
     step
 
@@ -64,21 +65,20 @@ The following object(s) are masked from ‘package:stats’:
 > ## ranef should now work for glmm.admb fits, should *still*
 > ## work for lme4 models
 > 
-> 
 > ranef.x <- function(object,...) print("a")
 > x <- 1
 > class(x) <- "x"
-> try(ranef(x)) ## Error: could not find function "ranef"
+> try(ranef(x)) ## Error: could not find function "ranef" (not any more!)
 [1] "a"
 > library(nlme)
 
 Attaching package: ‘nlme’
 
-The following object(s) are masked from ‘package:glmmADMB’:
+The following object is masked from ‘package:glmmADMB’:
 
     VarCorr
 
-The following object(s) are masked from ‘package:lme4’:
+The following object is masked from ‘package:lme4’:
 
     lmList
 
@@ -89,4 +89,4 @@ The following object(s) are masked from ‘package:lme4’:
 > 
 > proc.time()
    user  system elapsed 
-  3.804   2.312   6.073 
+  4.584   3.884   8.340 

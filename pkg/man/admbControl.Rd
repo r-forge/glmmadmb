@@ -8,7 +8,7 @@
 }
 \usage{
 admbControl(impSamp=0,maxfn=500,imaxfn=500,maxph=5,noinit=TRUE,shess=TRUE,
-  run=TRUE, ZI_kluge=FALSE)
+  run=TRUE, ZI_kluge=FALSE, poiss_prob_bound=TRUE)
 }
 \arguments{
   \item{impSamp}{
@@ -28,6 +28,7 @@ admbControl(impSamp=0,maxfn=500,imaxfn=500,maxph=5,noinit=TRUE,shess=TRUE,
   }
   \item{ZI_kluge}{retain a zero-inflation term of 0.001 even when \code{zeroInflation=FALSE} (for backward
     compatibility/testing; deprecated)}
+  \item{poiss_prob_bound}{add a small term to prevent estimated Poisson probabilities of zero}
   \item{run}{Whether to run ADMB at all. This will write out files to the appropriate working directory, \emph{or} read existing
     output files in the working directory
     (\code{glmmadmb.\{std,bar,par,cor\}}) into a \code{glmmadmb} object.}

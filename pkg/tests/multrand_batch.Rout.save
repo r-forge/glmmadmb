@@ -1,7 +1,6 @@
 
-R Under development (unstable) (2012-05-12 r59340) -- "Unsuffered Consequences"
-Copyright (C) 2012 The R Foundation for Statistical Computing
-ISBN 3-900051-07-0
+R Under development (unstable) (2013-04-25 r62670) -- "Unsuffered Consequences"
+Copyright (C) 2013 The R Foundation for Statistical Computing
 Platform: i686-pc-linux-gnu (32-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -24,11 +23,11 @@ Loading required package: R2admb
 
 Attaching package: ‘glmmADMB’
 
-The following object(s) are masked from ‘package:MASS’:
+The following object is masked from ‘package:MASS’:
 
     stepAIC
 
-The following object(s) are masked from ‘package:stats’:
+The following object is masked from ‘package:stats’:
 
     step
 
@@ -89,4 +88,4 @@ The following object(s) are masked from ‘package:stats’:
 > 
 > proc.time()
    user  system elapsed 
-  3.840   1.996   5.701 
+  4.528   2.520   6.906 

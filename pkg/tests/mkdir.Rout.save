@@ -1,7 +1,6 @@
 
-R Under development (unstable) (2012-05-12 r59340) -- "Unsuffered Consequences"
-Copyright (C) 2012 The R Foundation for Statistical Computing
-ISBN 3-900051-07-0
+R Under development (unstable) (2013-04-25 r62670) -- "Unsuffered Consequences"
+Copyright (C) 2013 The R Foundation for Statistical Computing
 Platform: i686-pc-linux-gnu (32-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -28,20 +27,22 @@ Loading required package: R2admb
 
 Attaching package: ‘glmmADMB’
 
-The following object(s) are masked from ‘package:MASS’:
+The following object is masked from ‘package:MASS’:
 
     stepAIC
 
-The following object(s) are masked from ‘package:stats’:
+The following object is masked from ‘package:stats’:
 
     step
 
-> g2 <- glmmadmb(counts~outcome+treatment,family="poisson",data=d)
+> g2 <- glmmadmb(counts~outcome+treatment,family="poisson",data=d,
++                admb.opts=admbControl(poisshack=FALSE))
 Estimated covariance matrix may not be positive definite
  0.0476191 0.06 0.06 0.0638298 0.075
 Estimated covariance matrix may not be positive definite
  0.0476191 0.06 0.06 0.0638298 0.075
 > g2 <- glmmadmb(counts~outcome+treatment,family="poisson",data=d,
++                admb.opts=admbControl(poisshack=FALSE),
 +                save.dir="dirtst")
 Estimated covariance matrix may not be positive definite
  0.0476191 0.06 0.06 0.0638298 0.075
@@ -52,4 +53,4 @@ Estimated covariance matrix may not be positive definite
 > 
 > proc.time()
    user  system elapsed 
-  0.628   1.864   2.377 
+  0.752   2.184   2.802 

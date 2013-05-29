@@ -1,6 +1,7 @@
 library(glmmADMB)
 ## source("glmmadmb.R")
 
+options(digits=3)
 set.seed(1002)
 nblock <- 10
 nperblock <- 20

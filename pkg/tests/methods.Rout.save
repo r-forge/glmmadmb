@@ -1,7 +1,6 @@
 
-R Under development (unstable) (2012-05-12 r59340) -- "Unsuffered Consequences"
-Copyright (C) 2012 The R Foundation for Statistical Computing
-ISBN 3-900051-07-0
+R Under development (unstable) (2013-04-25 r62670) -- "Unsuffered Consequences"
+Copyright (C) 2013 The R Foundation for Statistical Computing
 Platform: i686-pc-linux-gnu (32-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -24,11 +23,11 @@ Loading required package: R2admb
 
 Attaching package: ‘glmmADMB’
 
-The following object(s) are masked from ‘package:MASS’:
+The following object is masked from ‘package:MASS’:
 
     stepAIC
 
-The following object(s) are masked from ‘package:stats’:
+The following object is masked from ‘package:stats’:
 
     step
 
@@ -46,11 +45,11 @@ The following object(s) are masked from ‘package:stats’:
 [1] 3418.28
 > coef(OwlModel)
                         (Intercept)               FoodTreatmentSatiated 
-                           3.070200                           -0.409040 
+                         3.07022000                         -0.40904117 
                         ArrivalTime                       SexParentMale 
-                          -0.090866                           -0.396770 
+                        -0.09086546                         -0.39677483 
 FoodTreatmentSatiated:SexParentMale           ArrivalTime:SexParentMale 
-                           0.162400                            0.013149 
+                         0.16239940                          0.01314935 
 > ## deviance(OwlModel) ## NULL
 > df.residual(OwlModel)
 > fitted(OwlModel)
@@ -142,11 +141,11 @@ FoodTreatmentSatiated:SexParentMale           ArrivalTime:SexParentMale
 [596] 0.9708642 0.9568174 0.9151809 0.6145880
 > fixef(OwlModel)
                         (Intercept)               FoodTreatmentSatiated 
-                           3.070200                           -0.409040 
+                         3.07022000                         -0.40904117 
                         ArrivalTime                       SexParentMale 
-                          -0.090866                           -0.396770 
+                        -0.09086546                         -0.39677483 
 FoodTreatmentSatiated:SexParentMale           ArrivalTime:SexParentMale 
-                           0.162400                            0.013149 
+                         0.16239940                          0.01314935 
 > logLik(OwlModel)
 'log Lik.' -1700.14 (df=9)
 > head(model.frame(OwlModel))
@@ -160,9 +159,9 @@ FoodTreatmentSatiated:SexParentMale           ArrivalTime:SexParentMale
 > nobs(OwlModel)
 [1] 599
 > head(predict(OwlModel))
-[1] 2.553665 2.296921 2.531904 2.529572 2.525687 2.522578
+[1] 2.553700 2.296955 2.531939 2.529608 2.525722 2.522613
 > predict(OwlModel,newdata=data.frame(model.frame(OwlModel)[1:5,],BroodSize=5))
-[1] 2.553665 2.296921 2.531904 2.529572 2.525687
+[1] 2.553700 2.296955 2.531939 2.529608 2.525722
 > ranef(OwlModel)
 $Nest
                 (Intercept)
@@ -210,6 +209,7 @@ glmmadmb(formula = NCalls ~ (FoodTreatment + ArrivalTime) * SexParent +
     offset(log(BroodSize)) + (1 | Nest), data = Owls, family = "nbinom", 
     zeroInflation = TRUE)
 
+AIC: 3418.3 
 
 Coefficients:
                                     Estimate Std. Error z value Pr(>|z|)    
@@ -220,13 +220,14 @@ SexParentMale                        -0.3968     0.9745   -0.41   0.6839
 FoodTreatmentSatiated:SexParentMale   0.1624     0.1628    1.00   0.3184    
 ArrivalTime:SexParentMale             0.0131     0.0394    0.33   0.7387    
 ---
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 Number of observations: total=599, Nest=27 
 Random effect variance(s):
 Group=Nest
             Variance StdDev
 (Intercept)  0.06029 0.2455
+
 Negative binomial dispersion parameter: 2.3053 (std. err.: 0.27326)
 Zero-inflation: 0.21786  (std. err.:  0.020846 )
 
@@ -273,4 +274,4 @@ ArrivalTime:SexParentMale                        0.0015542518
 > 
 > proc.time()
    user  system elapsed 
-  0.648   1.412   1.959 
+  0.752   1.736   2.402 

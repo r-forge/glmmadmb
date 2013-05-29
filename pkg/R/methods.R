@@ -87,7 +87,8 @@ print.VarCorr <- function(x, digits=4, ...) {
       print(vmat,digits=digits)
     } else {
       cmat <- matrix("",nrow=nrow(vmat),ncol=nrow(vmat)-1)
-      cmat[lower.tri(cmat)] <- format(vc[lower.tri(vc)],digits=digits)
+      cc <- cov2cor(vc)
+      cmat[lower.tri(cmat)] <- format(cc[lower.tri(cc)],digits=digits)
       colnames(cmat) <- c("Corr",rep("",ncol(cmat)-1))
       cmat[1,] <- abbreviate(rownames(vc)[-nrow(vc)],digits+2)
       vmat <- format(vmat,digits=digits)

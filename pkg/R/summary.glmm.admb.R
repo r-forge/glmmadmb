@@ -28,11 +28,11 @@ summary.glmmadmb <- function(object, ...)
   ans
 }
 
-print.summary.glmmadmb <- function(x, digits = max(3, getOption("digits") - 4),
-                              symbolic.cor = x$symbolic.cor,
-                              signif.stars = getOption("show.signif.stars"),
-                              ...)
-  {
+print.summary.glmmadmb <- function(x, digits=max(3, getOption("digits") - 4),
+                                   symbolic.cor=x$symbolic.cor,
+                                   signif.stars=getOption("show.signif.stars"),
+                                   ...)
+{
     cat("\nCall:\n",
         paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep="")
     ## print deviance residuals?
@@ -76,6 +76,5 @@ print.summary.glmmadmb <- function(x, digits = max(3, getOption("digits") - 4),
 
     cat("\nLog-likelihood:",x$loglik,"\n")
     ## offset
-    ## cat("\nOffset:\n")
-  }
-    
+    ## cat("\nOffset:\
+}

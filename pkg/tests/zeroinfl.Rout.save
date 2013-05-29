@@ -1,7 +1,6 @@
 
-R Under development (unstable) (2012-05-12 r59340) -- "Unsuffered Consequences"
-Copyright (C) 2012 The R Foundation for Statistical Computing
-ISBN 3-900051-07-0
+R Under development (unstable) (2013-04-25 r62670) -- "Unsuffered Consequences"
+Copyright (C) 2013 The R Foundation for Statistical Computing
 Platform: i686-pc-linux-gnu (32-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -24,11 +23,11 @@ Loading required package: R2admb
 
 Attaching package: ‘glmmADMB’
 
-The following object(s) are masked from ‘package:MASS’:
+The following object is masked from ‘package:MASS’:
 
     stepAIC
 
-The following object(s) are masked from ‘package:stats’:
+The following object is masked from ‘package:stats’:
 
     step
 
@@ -66,7 +65,7 @@ Estimated covariance matrix may not be positive definite
 > 
 > g1 <- glmmadmb(y0~1,family="nbinom",zeroInflation=TRUE)
 Estimated covariance matrix may not be positive definite
- 0.00012695 0.138122 2.82781
+ 0.00012695 0.137985 2.82781
 > 
 > logLik(g0)
 'log Lik.' -928.811 (df=2)
@@ -78,7 +77,7 @@ Estimated covariance matrix may not be positive definite
  0.000259257 7.18386
 > g4 <- glmmadmb(y~1,family="nbinom",zeroInflation=TRUE)
 Estimated covariance matrix may not be positive definite
- 0.000267842 0.0254406 230.097
+ 0.000267842 0.0254396 230.066
 > 
 > ##  library(bbmle)
 > ##  m2 <- mle2(y~dzinbinom(mu=mu,size=alpha,zprob=zprob),
@@ -104,4 +103,4 @@ There were 14 warnings (use warnings() to see them)
 > 
 > proc.time()
    user  system elapsed 
-  1.900   2.096   3.915 
+  2.256   2.380   4.547 

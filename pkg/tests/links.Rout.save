@@ -1,7 +1,6 @@
 
-R Under development (unstable) (2012-05-12 r59340) -- "Unsuffered Consequences"
-Copyright (C) 2012 The R Foundation for Statistical Computing
-ISBN 3-900051-07-0
+R Under development (unstable) (2013-04-25 r62670) -- "Unsuffered Consequences"
+Copyright (C) 2013 The R Foundation for Statistical Computing
 Platform: i686-pc-linux-gnu (32-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -25,11 +24,11 @@ Loading required package: R2admb
 
 Attaching package: ‘glmmADMB’
 
-The following object(s) are masked from ‘package:MASS’:
+The following object is masked from ‘package:MASS’:
 
     stepAIC
 
-The following object(s) are masked from ‘package:stats’:
+The following object is masked from ‘package:stats’:
 
     step
 
@@ -106,19 +105,21 @@ Call:
 glmmadmb(formula = y ~ x + (1 | f) + offset(offset), data = d, 
     family = "binomial", link = "cloglog")
 
+AIC: 199.5 
 
 Coefficients:
             Estimate Std. Error z value Pr(>|z|)  
 (Intercept)   0.9646     0.5681    1.70     0.09 .
 x             0.0397     0.3434    0.12     0.91  
 ---
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 Number of observations: total=500, f=10 
 Random effect variance(s):
 Group=f
             Variance StdDev
 (Intercept)    1.181  1.087
+
 
 Log-likelihood: -96.7505 
 > 
@@ -161,19 +162,19 @@ Estimated covariance matrix may not be positive definite
 +          start=list(fixed=10),
 +          family="poisson",link="identity")
 Estimated covariance matrix may not be positive definite
- 10.25
+ 10.2545
 Estimated covariance matrix may not be positive definite
- 10.25
+ 10.2545
 > g5R <- glmmadmb(y~1+(1|f),data=dd,
 +          start=list(fixed=10),
 +          family="poisson",link="identity")
 > 
 > coef(g5)
 (Intercept) 
-   10.25001 
+   10.25002 
 > coef(g5R)
 (Intercept) 
-   10.25001 
+   10.25002 
 > 
 > ### GAUSSIAN/IDENTITY LINK
 > d$mu0 <- d$eta0
@@ -193,4 +194,4 @@ Estimated covariance matrix may not be positive definite
 > 
 > proc.time()
    user  system elapsed 
- 23.965   4.536  28.433 
+ 24.137   5.000  29.945 
