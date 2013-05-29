@@ -5,9 +5,10 @@ admbControl <- function(impSamp=0,
                         noinit=TRUE,
                         shess=TRUE,
                         run=TRUE,
-                        ZI_kluge=FALSE) {
+                        ZI_kluge=FALSE,
+                        poiss_prob_bound=TRUE) {
   list(impSamp=impSamp,maxfn=maxfn,imaxfn=imaxfn,noinit=noinit,shess=shess,
-       ZI_kluge=ZI_kluge,run=run,maxph=maxph)
+       ZI_kluge=ZI_kluge,run=run,maxph=maxph,poiss_prob_bound=poiss_prob_bound)
   ## FIXME: do something clever with formals/match.call() ?
 }
 
@@ -222,15 +223,11 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
       stop("models for zero-inflation and dispersion parameters not yet implemented")
   
   call <- match.call()
-  ## FIXME: corStruct could be a vector, corresponding to the random
-  ##    effects in order?
-  if(!(corStruct %in% c("diag","full")))
-    stop("Argument \"corStruct\" must be either \"diag\" or \"full\"")
   has_rand <- !missing(random) || length(grep("\\|",as.character(formula)[3]))>0
   ## FIXME: we can no longer tell easily if impSamp was specified
   ##  (because it is specified via admb.control())
   if (!has_rand && (!missing(corStruct))) 
-    stop("No random effects specified: \"corStruct\" does not make sense")
+      stop("No random effects specified: \"corStruct\" does not make sense")
 
   if (!is.character(family)) stop("must specify 'family' as a character string")
   family <- tolower(family)
@@ -337,6 +334,9 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   X <- model.matrix(mt,mf)  ## BMB: allow contrasts?
   p <- ncol(X)
 
+  if ((rankX <- rankMatrix(X))<p)
+      stop(gettextf("rank of X = %d < ncol(X) = %d", rankX, p))
+
   zi_p <- 1
   zi_X <- matrix(0,1,1)
   if (zi_model_flag) {
@@ -369,14 +369,23 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
     
     ## Number of random effects within each crossed term
     m <- sapply(REmat$mmats, ncol)
+
     ## Number of crossed terms
     M <- length(m)
+
+    ## FIXME: allow variable corStructs
+    ## if (length(corStruct)>1) {
+    ## stop("varying corStructs for different random effects not yet implemented")
+    ## }
+    corStruct <- rep(corStruct,length.out=M)
+    ## if (!all(corStruct %in% c("diag","full"))) stop("corStruct must be either 'diag' or 'full'")
+
+    m2 <- ifelse(corStruct=="diag",m,m*(m+1)/2)
+
     ## Number of levels of each crossed term
     q <- sapply(REmat$levels,length)
 
     ## Construct design matrix (Z) for random effects
-
-
     Z <- do.call(cbind,REmat$mmats)
     colnames(Z) <- paste(rep(names(REmat$mmat),m),
                          unlist(sapply(REmat$mmat,colnames)),sep=".")
@@ -412,6 +421,8 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
     cor_block_start <- cor_block_stop <- 1
     numb_cor_params <- 1
   }
+
+  
   cmdoptions <- paste("-maxfn",maxfn)
   if (!is.null(admb.opts$maxph) && !is.na(admb.opts$maxph)) cmdoptions <- paste(cmdoptions,"-maxph",admb.opts$maxph)
   if (admb.opts$noinit) cmdoptions <- paste(cmdoptions,"-noinit")
@@ -419,9 +430,10 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   if (has_rand && impSamp>0) cmdoptions <- paste(cmdoptions,"-is",impSamp)
   if (mcmc) cmdoptions <- paste(cmdoptions,mcmcArgs(mcmc.opts))
   if (!missing(extra.args)) cmdoptions <- paste(cmdoptions,extra.args)
+  cor_flag <- as.numeric(corStruct=="full")
   dat_list <- list(n=n, p_y=p_y,
                    y=y, p=p, X=X, M=M, q=q, m=m, ncolZ=ncol(Z),Z=Z, II=II, 
-                   cor_flag=rep(0,M),
+                   cor_flag=cor_flag,
                    cor_block_start=cor_block_start,
                    cor_block_stop=cor_block_stop,
                    numb_cor_params=numb_cor_params,
@@ -432,6 +444,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
                    no_rand_flag=as.numeric(!has_rand),
                    zi_flag=as.numeric(zeroInflation),
                    zi_kluge=as.numeric(admb.opts$ZI_kluge),
+                   poiss_prob_bound=as.numeric(admb.opts$poiss_prob_bound),
                    nbinom1_flag=as.numeric(nbinom1_flag),
                    intermediate_maxfn=imaxfn, 
                    has_offset=as.numeric(has_offset), 
@@ -556,59 +569,70 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   out$ilinkfun <- ilinkfun
   
   if(has_rand) {
-    ## BMB: fixme! make sure this works for multiple random effects
-    Svec <- tmp[tmpindex=="S",3]
-    parnames <- lapply(REmat$mmat,colnames)
-    groupnames <- names(REmat$mmats)
-    dn <- mapply(list,
-                 parnames,
-                 parnames,SIMPLIFY=FALSE)
-    out$S <- mapply(matrix,split(Svec,rep(1:length(m),m)),
-                    nrow=m,
-                    ncol=m,
-                    dimnames=dn,
-                    MoreArgs=list(byrow=FALSE),
-                    SIMPLIFY=FALSE)
-    sd_Svec <- tmp[tmpindex=="S",4]
-    out$sd_S <- mapply(matrix,split(sd_Svec,rep(1:length(m),m)),
-                       nrow=m,
-                       ncol=m,
-                       dimnames=dn,
-                       MoreArgs=list(byrow=FALSE),
-                       SIMPLIFY=FALSE)
-    names(out$S) <- names(out$sd_S) <- groupnames
-    if(corStruct == "diag")
-      {
-        replace_offdiag <- function(m,r=0) {
-          m[upper.tri(m) | lower.tri(m)] <- r
+      ## BMB: fixme! make sure this works for multiple random effects
+      ## reconstruct variance-covariance matrices
+      Svec <- tmp[tmpindex=="S",3]  ## lower triangle??
+      parnames <- lapply(REmat$mmat,colnames)
+      groupnames <- names(REmat$mmats)
+      dn <- mapply(list,
+                   parnames,
+                   parnames,SIMPLIFY=FALSE)
+      ##
+      ## construct matrix from diagonal or lower triangle
+      mkmat <- function(x,n,dimnames) {
+          if (length(x)==1) { ## single element (circumvent diag(x) weirdness)
+              m <- matrix(x)
+          } else if (length(x)==n) {
+              m <- diag(x)
+          } else {
+              m <- matrix(NA,nrow=n,ncol=n)
+              m[lower.tri(m,diag=TRUE)] <- x
+              m[upper.tri(m)] <- t(m)[upper.tri(m)] ## symmetrize
+          }
+          dimnames(m) <- dimnames
           m
-        }
-        out$S <- lapply(out$S,replace_offdiag)
-        out$sd_S <- lapply(out$sd_S,replace_offdiag)
-        ## FIXME: replace with NA for sd_S?
       }
-    ## out$random <- random
-    ## FIXME: check dimnames for a wider range of cases ...
-    uvec <- tmp[tmpindex=="u",3]
-    ulist <- split(uvec,rep(1:length(q),q*m))
-    dn <- mapply(list,
-                 REmat$levels, ## lapply(REmat$mmat,attr,which="levels"),
-                 parnames,
-                 SIMPLIFY=FALSE)
-    out$U <- mapply(matrix,
-                    ulist,
-                    ncol=m,
-                    nrow=q,
-                    dimnames=dn,
-                    SIMPLIFY=FALSE)
-    names(out$U) <- groupnames
-    ## BMB/FIXME: should this be byrow or not? check ...
-    ii <- 1
-    allU <- matrix(nrow=n,ncol=sum(m))
-    for (i in 1:length(m)) {
-      allU[,ii:(ii+m[i]-1)] <- out$U[[i]][c(REmat$codes[[i]]),]
-      ii <- ii+m[i]
-    }
+      out$S <- mapply(mkmat,split(Svec,rep(1:length(m),m2)),
+                      n=m,
+                      dimnames=dn,
+                      SIMPLIFY=FALSE)
+      sd_Svec <- tmp[tmpindex=="S",4]
+      out$sd_S <- mapply(mkmat,split(sd_Svec,rep(1:length(m),m2)),
+                         n=m,
+                         dimnames=dn,
+                         SIMPLIFY=FALSE)
+      names(out$S) <- names(out$sd_S) <- groupnames
+      ## if(corStruct == "diag") {
+      ##     replace_offdiag <- function(m,r=0) {
+      ##         m[upper.tri(m) | lower.tri(m)] <- r
+      ##         m
+      ##     }
+      ##     out$S <- lapply(out$S,replace_offdiag)
+      ##     out$sd_S <- lapply(out$sd_S,replace_offdiag)
+      ##     ## FIXME: replace with NA for sd_S?
+      ## }
+      ## out$random <- random
+      ## FIXME: check dimnames for a wider range of cases ...
+      uvec <- tmp[tmpindex=="u",3]
+      ulist <- split(uvec,rep(1:length(q),q*m))
+      dn <- mapply(list,
+                   REmat$levels, ## lapply(REmat$mmat,attr,which="levels"),
+                   parnames,
+                   SIMPLIFY=FALSE)
+      out$U <- mapply(matrix,
+                      ulist,
+                      ncol=m,
+                      nrow=q,
+                      dimnames=dn,
+                      SIMPLIFY=FALSE)
+      names(out$U) <- groupnames
+      ## BMB/FIXME: should this be byrow or not? check ...
+      ii <- 1
+      allU <- matrix(nrow=n,ncol=sum(m))
+      for (i in 1:length(m)) {
+          allU[,ii:(ii+m[i]-1)] <- out$U[[i]][c(REmat$codes[[i]]),]
+          ii <- ii+m[i]
+      }
     ## U <- matrix(as.numeric(tmp[tmpindex=="u",3]), ncol=m, byrow=TRUE,
     ## ## dimnames=list(data[,group][group_d[-1]-1],colnames(Z)))
     ## dimnames=list(NULL,colnames(Z)))
@@ -698,4 +722,4 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   class(out) <- "glmmadmb"
 
   return(out)
-}
+}  

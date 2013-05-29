@@ -4,6 +4,28 @@
 \title{glmmADMB News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.7.6 (21-05-2013)}{
+  \itemize{
+    \item added Poisson-zeroprob hack to TPL (only in Linux binary so far)
+    \item stubbed out possibility of corStruct>1; added comments
+  }
+}
+
+\section{Changes in version 0.7.5 (7-05-2013)}{
+  \itemize{
+    \item vignette tweaks
+    \item fixed corStruct="full"
+  }
+}
+
+\section{Changes in version 0.7.4 (20-02-2013)}{
+ \itemize{
+\item updated glmmADMB binaries
+\item beta-binomial models (NOT YET WORKING)
+\item stubs for model matrices for alpha, zi effects
+\item output tweaks
+}
+}
 
 \section{Changes in version 0.7.4 (20-02-2013)}{
  \itemize{

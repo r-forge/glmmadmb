@@ -1,7 +1,6 @@
 
-R Under development (unstable) (2012-05-12 r59340) -- "Unsuffered Consequences"
-Copyright (C) 2012 The R Foundation for Statistical Computing
-ISBN 3-900051-07-0
+R Under development (unstable) (2013-04-25 r62670) -- "Unsuffered Consequences"
+Copyright (C) 2013 The R Foundation for Statistical Computing
 Platform: i686-pc-linux-gnu (32-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -25,11 +24,11 @@ Loading required package: R2admb
 
 Attaching package: ‘glmmADMB’
 
-The following object(s) are masked from ‘package:MASS’:
+The following object is masked from ‘package:MASS’:
 
     stepAIC
 
-The following object(s) are masked from ‘package:stats’:
+The following object is masked from ‘package:stats’:
 
     step
 
@@ -46,7 +45,6 @@ The following object(s) are masked from ‘package:stats’:
 > 
 > t1 <- system.time(g1 <- glmmadmb(y~1+(1|f1/f2),family="gaussian",data=d))
 > t2 <- system.time(g2 <- glmmadmb(y~1+(1|f1/f12),family="gaussian",data=d))
-> 
 > VarCorr(g1)
 Group=f1
              Variance    StdDev
@@ -60,12 +58,13 @@ Group=f1:f2
 Call:
 glmmadmb(formula = y ~ 1 + (1 | f1/f2), data = d, family = "gaussian")
 
+AIC: 205.2 
 
 Coefficients:
             Estimate Std. Error z value Pr(>|z|)  
 (Intercept)   -0.238      0.104   -2.29    0.022 *
 ---
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 Number of observations: total=75, f1=5, f1:f2=15 
 Random effect variance(s):
@@ -75,6 +74,7 @@ Group=f1
 Group=f1:f2
              Variance    StdDev
 (Intercept) 3.021e-09 5.496e-05
+
 Residual variance: 0.90267 (std. err.: 0.073705)
 
 Log-likelihood: -98.6118 
@@ -83,12 +83,13 @@ Log-likelihood: -98.6118
 Call:
 glmmadmb(formula = y ~ 1 + (1 | f1/f12), data = d, family = "gaussian")
 
+AIC: 205.2 
 
 Coefficients:
             Estimate Std. Error z value Pr(>|z|)  
 (Intercept)   -0.238      0.104   -2.29    0.022 *
 ---
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 Number of observations: total=75, f1=5, f1:f12=15 
 Random effect variance(s):
@@ -98,6 +99,7 @@ Group=f1
 Group=f1:f12
              Variance    StdDev
 (Intercept) 3.021e-09 5.496e-05
+
 Residual variance: 0.90267 (std. err.: 0.073705)
 
 Log-likelihood: -98.6118 
@@ -105,22 +107,29 @@ Log-likelihood: -98.6118
 > 
 > ## need another test with another component:
 > 
+> ## FIXME: does this model make sense?  feels like we have a (1|f1) term repeated ...
 > g3 <- glmmadmb(y~1+(1|f1/f2)+(x|f1),family="gaussian",data=d)
-> 
-> g4 <- glmmadmb(y~1+(x|f1),corStruct="full",family="gaussian",data=d)
-> VarCorr(g4)
+> VarCorr(g3)
 Group=f1
-            Variance  StdDev    Corr     
-(Intercept) 2.661e-09 5.159e-05 (Intr)   
-x           1.339e-08 1.157e-04 1.339e-08
-> 
-> g5 <- glmmadmb(y~1+(x+x2|f1),corStruct="full",family="gaussian",data=d)
-> VarCorr(g5)
+             Variance    StdDev
+(Intercept) 4.909e-09 7.006e-05
+Group=f1:f2
+             Variance    StdDev
+(Intercept) 1.432e-08 0.0001197
 Group=f1
-            Variance  StdDev    Corr               
-(Intercept) 2.676e-09 5.173e-05 (Intr)    x        
-x           5.304e-09 7.283e-05 5.304e-09          
-x2          4.191e-09 6.474e-05 4.191e-09 4.191e-09
+             Variance    StdDev
+(Intercept) 4.891e-09 6.994e-05
+x           3.625e-09 6.021e-05
+> 
+> if (FALSE) {
++     ## FIXME: these don't work, but because of non-pos-def errors rather
++     ##  than anything essentially wrong?
++     g4 <- glmmadmb(y~1+(x|f1),corStruct="full",family="gaussian",data=d)
++     VarCorr(g4)
++ 
++     g5 <- glmmadmb(y~1+(x+x2|f1),corStruct="full",family="gaussian",data=d)
++     VarCorr(g5)
++ }
 > 
 > ## m5 <- lme(y~1,random=~x+x2|f1,data=d)
 > ## needs work.
@@ -141,4 +150,4 @@ x2          4.191e-09 6.474e-05 4.191e-09 4.191e-09
 > 
 > proc.time()
    user  system elapsed 
-  8.108   3.520  11.625 
+  5.840   2.876   8.558 

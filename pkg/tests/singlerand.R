@@ -72,17 +72,4 @@ if (FALSE) {
     stopifnot(all.equal(unname(unlist(VarCorr(g2B))),unname(diag(g2$S[[1]])),tol=3e-3))
 }
 
-
-
-g2D <- glmmadmb(y~x+(x|f),family="poisson",data=d2,
-               admb.opts=admbControl(maxph=NA))
-
-g2E <- glmmadmb(y~x+(x|f),family="poisson",data=d2,
-               admb.opts=admbControl(noinit=FALSE))
-
-if (FALSE) {
-  ## this one still doesn't work
-  g2C <- glmmadmb(y~x+(x|f),family="poisson",data=d2)
-}
-
-
+g2D <- glmmadmb(y~x+(x|f),family="poisson",data=d2)

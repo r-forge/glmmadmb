@@ -1,7 +1,6 @@
 
-R Under development (unstable) (2012-05-12 r59340) -- "Unsuffered Consequences"
-Copyright (C) 2012 The R Foundation for Statistical Computing
-ISBN 3-900051-07-0
+R Under development (unstable) (2013-04-25 r62670) -- "Unsuffered Consequences"
+Copyright (C) 2013 The R Foundation for Statistical Computing
 Platform: i686-pc-linux-gnu (32-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -24,21 +23,23 @@ Loading required package: R2admb
 
 Attaching package: ‘glmmADMB’
 
-The following object(s) are masked from ‘package:MASS’:
+The following object is masked from ‘package:MASS’:
 
     stepAIC
 
-The following object(s) are masked from ‘package:stats’:
+The following object is masked from ‘package:stats’:
 
     step
 
 > library(lme4)
 Loading required package: lattice
 Loading required package: Matrix
+Loading required package: Rcpp
+Loading required package: RcppEigen
 
 Attaching package: ‘lme4’
 
-The following object(s) are masked from ‘package:glmmADMB’:
+The following object is masked from ‘package:glmmADMB’:
 
     VarCorr
 
@@ -53,7 +54,7 @@ The following object(s) are masked from ‘package:glmmADMB’:
 > glm.D93 <- glm(counts ~ outcome + treatment, family=poisson,
 +                data=d.AD)
 > glm.D93.admb <- glmmadmb(counts~outcome+treatment, family="poisson",
-+           data=d.AD)
++           data=d.AD, admb.opts=admbControl(poisshack=FALSE))
 Estimated covariance matrix may not be positive definite
  0.0476191 0.06 0.06 0.0638298 0.075
 Estimated covariance matrix may not be positive definite
@@ -70,7 +71,7 @@ Estimated covariance matrix may not be positive definite
  3.044522e+00 -4.542553e-01 -2.929871e-01  8.716884e-16  4.557335e-16 
 > coef(glm.D93.admb)
   (Intercept)      outcome2      outcome3    treatment2    treatment3 
- 3.044519e+00 -4.542545e-01 -2.929868e-01 -1.958412e-08  4.232310e-09 
+ 3.044519e+00 -4.542545e-01 -2.929868e-01 -1.958447e-08  4.232022e-09 
 > ## zero-inflated negative binomial is probably best for fitting data:
 > ## glmer can do Poisson-lognormal, not NB, and not zero-inflation
 > 
@@ -82,18 +83,16 @@ Estimated covariance matrix may not be positive definite
 > 
 > 
 > OwlModel_poiss.admb <- glmmadmb(SiblingNegotiation~FoodTreatment*SexParent+
-+                                  (1|Nest)+offset(logBroodSize),
-+                                  data=Owls, family="poisson",
-+                                  easyFlag=FALSE)
-Warning message:
-In glmmadmb(SiblingNegotiation ~ FoodTreatment * SexParent + (1 |  :
-  easyFlag argument ignored
++                                 (1|Nest)+offset(logBroodSize),
++                                 data=Owls, family="poisson",
++                                 admb.opts=admbControl(poisshack=FALSE))
 > 
 > OwlModel_poiss.glmer2 <- glmer(SiblingNegotiation ~ FoodTreatment * SexParent +
-+                               (1|Nest)+offset(logBroodSize),
-+                               data=Owls, family=poisson,
++                                (1|Nest)+offset(logBroodSize),
++                                data=Owls, family=poisson,
 +                                start=list(fixed=coef(OwlModel_poiss.admb)))
 > 
+> ## matrix not pos definite in sparse choleski
 > ## "Estimated covariance matrix may not be positive definite"
 > logLik(OwlModel_poiss.admb)
 'log Lik.' -2601.39 (df=5)
@@ -118,4 +117,4 @@ In glmmadmb(SiblingNegotiation ~ FoodTreatment * SexParent + (1 |  :
 > 
 > proc.time()
    user  system elapsed 
- 18.104   3.716  21.751 
+ 19.992   5.256  25.483 

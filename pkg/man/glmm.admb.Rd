@@ -74,7 +74,9 @@ glmm.admb(\dots)  ## deprecated
     random effects vector. Two types of covariance matrices are
     currently implemented: \code{"diag"} (diagonal matrix) and
     \code{"full"} (positive definite matrix with all elements being
-    estimated).}
+    estimated).  At present the same covariance structure must be
+    specified for all grouping variables in the model; at some point
+    in the future this requirement may be relaxed.}
   \item{easyFlag}{(\emph{currently inactive}: whether a faster but less robust optimization
     algorithm should be employed (only \code{"poisson"} and
     \code{"nbinom"} families).}

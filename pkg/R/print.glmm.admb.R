@@ -28,11 +28,16 @@ print.glmmadmb <- function(x, ...)
     cat("\nRandom effects:\n")
     ## cat("  Grouping factor:", object$group, "\n")
     ## cat("  Formula:", deparse(object$random), "\n")
-    if(object$corStruct == "full") {
+    if(all(object$corStruct == "full")) {
         cat("Structure: General positive-definite\n")
     } else {
-        cat("Structure: Diagonal matrix\n")
+        if(all(object$corStruct == "diag")) {
+            cat("Structure: Diagonal matrix\n")
+        } else {
+            cat("mixed structures\n")
+        }
     }
+       
     print(VarCorr(object))
     if(sd_S_print)
     {

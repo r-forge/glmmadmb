@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2013-05-22 r62774) -- "Unsuffered Consequences"
+R Under development (unstable) (2013-04-25 r62670) -- "Unsuffered Consequences"
 Copyright (C) 2013 The R Foundation for Statistical Computing
 Platform: i686-pc-linux-gnu (32-bit)
 
@@ -31,53 +31,37 @@ The following object is masked from ‘package:stats’:
 
     step
 
+> ## source("glmmadmb.R")
 > 
 > set.seed(1002)
 > nblock <- 10
-> nperblock <- 50
+> nperblock <- 20
 > sd.u <- 1
 > ntot <- nblock*nperblock
 > d <- data.frame(x=runif(ntot),f=factor(rep(LETTERS[1:nblock],each=nperblock)))
 > r <- rnorm(nblock,mean=0,sd=sd.u)
-> phi <- 2
 > d$eta <- with(d,0.2+0.5*x+r[f])
-> d$mu <- plogis(d$eta)
-> d$y <- rbeta(ntot,shape1=d$mu*phi,shape2=(1-d$mu)*phi)
+> d$mu <- exp(d$eta)
+> d$y <- rpois(ntot,lambda=d$mu)
 > 
-> g1 <- glmmadmb(y~x+(1|f),data=d,family="beta")
+> g1 <- glmmadmb(y~x+(1|f),family="poisson",data=d)
 > 
-> coef(g1)
-(Intercept)           x 
-  0.5478649   0.3955906 
-> VarCorr(g1)
-Group=f
-            Variance StdDev
-(Intercept)   0.9082  0.953
-> summary(g1)
+> drop1(g1,test="Chisq")
+Single term deletions
 
-Call:
-glmmadmb(formula = y ~ x + (1 | f), data = d, family = "beta")
-
-AIC: -697.5 
-
-Coefficients:
-            Estimate Std. Error z value Pr(>|z|)  
-(Intercept)    0.548      0.317    1.73    0.084 .
-x              0.396      0.170    2.33    0.020 *
+Model:
+y ~ x + (1 | f)
+       Df    AIC  LRT Pr(>Chi)  
+<none>    596.75                
+x       1 599.50 4.75   0.0293 *
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-Number of observations: total=500, f=10 
-Random effect variance(s):
-Group=f
-            Variance StdDev
-(Intercept)   0.9082  0.953
-
-Beta dispersion parameter: 2.163 (std. err.: 0.13171)
-
-Log-likelihood: 352.738 
-> 
+Warning messages:
+1: In extractAIC.glmmadmb(object, scale, k = k, ...) :
+  ignored explicit specification of scale
+2: In extractAIC.glmmadmb(nfit, scale, k = k, ...) :
+  ignored explicit specification of scale
 > 
 > proc.time()
    user  system elapsed 
- 15.572   3.296  18.920 
+  5.352   2.564   7.830 

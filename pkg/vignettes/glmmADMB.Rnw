@@ -8,11 +8,12 @@
 % \VignetteDepends{lme4}
 % \VignetteDepends{coda}
 % \VignetteDepends{MASS}
+%\VignetteEngine{knitr::knitr}
 \documentclass{article}
 %\usepackage{lineno}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
-\usepackage[usenames]{color}
+%\usepackage[usenames]{color}
 \usepackage[american]{babel}
 \newcommand{\R}{{\sf R}}
 \newcommand{\Splus}{{\sf S-PLUS}}
@@ -36,16 +37,17 @@
 %\linenumbers
 
 %\SweaveOpts{fig.width=5,fig.height=5,out.width="0.8\\textwidth"}
-\SweaveOpts{echo=TRUE}
 <<setopts,echo=FALSE>>=
+require("knitr")
+opts_chunk$set(fig.width=5,fig.height=5,out.width="0.8\\textwidth",echo=TRUE)
 Rver <- paste(R.version$major,R.version$minor,sep=".")
-options(continue=" ")
 @ 
+
 <<graphopts,echo=FALSE>>=
 library("ggplot2")
 library("grid")
 theme_set(theme_bw())
-zmargin <- opts(panel.margin=unit(0,"lines"))
+zmargin <- theme(panel.margin=unit(0,"lines"))
 @ 
 
 
@@ -114,7 +116,7 @@ In order to fit a model in \code{glmmADMB} you need to:
 
 This document was
 generated using \Sexpr{R.version$version.string} and package versions:
-<<echo=FALSE>>=
+<<pkgversions,echo=FALSE>>=
 usedpkgs <- sort(c(##"coefplot2",
                  "ggplot2","glmmADMB","lme4","coda","scapeMCMC",
                    "bbmle","MASS"))
@@ -124,13 +126,13 @@ print(i1[usedpkgs,"Version"],quote=FALSE)
 @ 
 
 %% fixme: would like to deal with smart quotes
-<<echo=FALSE>>=
+<<smartquotes,echo=FALSE>>=
 op <- options(useFancyQuotes=FALSE)
 @ 
-<<>>=
+<<citation>>=
 citation("glmmADMB")
 @ 
-<<echo=FALSE>>=
+<<unsmartquotes,echo=FALSE>>=
 options(op)
 @ 
 \section{Owls data}
@@ -154,7 +156,7 @@ First we draw some pictures (Figures~\ref{fig:owl1}, \ref{fig:owl2}).
 
 Load the \code{glmmADMB} package to get access to the \code{Owls}
 data set; load the \code{ggplot2} graphics package.
-<<loadpkgs>>=
+<<loadpkgs,message=FALSE,warning=FALSE>>=
 library("glmmADMB")
 library("ggplot2")
 @ 
@@ -166,7 +168,7 @@ purposes; (2) add log brood size variable (for offset);
 %% FIXME: I get a warning message ("NAs introduced by coercion")  here, but only in knitr,
 %%  and not on a clean start ... ?
 %% some weird package interaction ?
-<<owltransform>>=
+<<owltransform,warning=FALSE>>=
 Owls <- transform(Owls,
                   Nest=reorder(Nest,NegPerChick),
                   NCalls=SiblingNegotiation)
@@ -175,39 +177,29 @@ Owls <- transform(Owls,
 with \code{summary(Owls)} to see what columns are there
 and what their characteristics are.)
 
-\begin{figure}
-\setkeys{Gin}{width=\textwidth}
-<<owlplot1,echo=FALSE,fig=TRUE>>=
+<<owlplot1,echo=FALSE,warning=FALSE,fig.cap="Basic view of owl data (arrival time not shown). (FIXME: clip at zero?)",fig.ref="fig:owl1">>=
 G0 <- ggplot(Owls,aes(x=reorder(Nest,NegPerChick),
                       y=NegPerChick))+
   xlab("Nest")+ylab("Negotiations per chick")+coord_flip()+
   facet_grid(FoodTreatment~SexParent)
-print(G0+stat_sum(aes(size=..n..),alpha=0.5)+zmargin+
+G0+stat_sum(aes(size=..n..),alpha=0.5)+zmargin+
       scale_size_continuous(name="# obs",
                             breaks=seq(1,9,by=2))+
-    opts(axis.title.x=theme_text(hjust=0.5,size=12),
-         axis.text.y=theme_text(size=7)))
+    theme(axis.title.x=theme_text(hjust=0.5,size=12),
+         axis.text.y=theme_text(size=7))
 @ 
-\caption{Basic view of owl data (arrival time not shown).
-FIXME: clip at zero?}
-\label{fig:owl1}
-\end{figure}
 
-\begin{figure}
-<<owlplot2,echo=FALSE,fig=TRUE>>=
+<<owlplot2,echo=FALSE,fig.cap="Basic view of owl data, \\#2 (nest identity not shown)",fig.ref="fig:owl2">>=
 G1 <- ggplot(Owls,aes(x=ArrivalTime,
                       y=NegPerChick,colour=FoodTreatment,
                       linetype=SexParent,
                       shape=SexParent))
-print(G1+stat_sum(aes(size=factor(..n..)),alpha=0.5)+geom_smooth()+
+G1+stat_sum(aes(size=factor(..n..)),alpha=0.5)+geom_smooth()+
       ## facet_grid(.~SexParent)+zmargin+
       labs(x="Arrival time",y="Negotiations per chick")+
       scale_size_discrete(name="# obs",
-                          breaks=c("1","2")))
+                          breaks=c("1","2"))
 @ 
-\caption{Basic view of owl data, \#2 (nest identity not shown)}
-\label{fig:owl2}
-\end{figure}
 
 Now fit some models:
 
@@ -234,7 +226,7 @@ summary(fit_zipoiss)
 
 The \code{coefplot2} package knows about \code{glmmadmb} fits:
 
-<<coefplotmg1,width=8,eval=FALSE>>=
+<<coefplotmg1,fig.width=8,eval=FALSE>>=
 library("coefplot2")
 coefplot2(fit_zipoiss)
 @ 
@@ -369,7 +361,8 @@ car::Anova(fit_zinbinom)
 
 \subsection{Integration with lme4}
 
-<<lme4_chunk1>>=
+FIXME: commented out while \code{lme4} bugs are being ironed out!
+<<lme4_chunk1,eval=FALSE>>=
 library("lme4")
 gm1_lme4 <- glmer(cbind(incidence, size - incidence) ~ period + (1 | herd),
                   data = cbpp, family = binomial)
@@ -388,7 +381,7 @@ VarCorr(gm1_glmmADMB)
 \subsubsection{Convert glmmADMB parameters to lme4}
 
 \fixme{this section is UNDER CONSTRUCTION}
-<<>>=
+<<getlme4>>=
 library("lme4") 
 @ 
 <<lme4glmmadmbconv,eval=FALSE>>=
@@ -476,7 +469,7 @@ tm <- window(m,1,320)
 tm <- tm[,!grepl("^u\\.",colnames(m))]
 @ 
 
-<<mcmcplot1,fig=TRUE>>=
+<<mcmcplot1>>=
 library("scapeMCMC")
 plotTrace(tm)
 @ 
@@ -616,10 +609,10 @@ epil2 <- transform(epil,
 @ 
 
 <<echo=FALSE,eval=FALSE>>=
-print(ggplot(epil2,aes(x=base,y=log(1+y),colour=trt))+
+ggplot(epil2,aes(x=base,y=log(1+y),colour=trt))+
        stat_sum(aes(size=factor(..n..)),alpha=0.5)+
   facet_wrap(~period)+
-  scale_x_log10()+geom_smooth()+zspace)
+  scale_x_log10()+geom_smooth()+zspace
 @ 
 
 <<fit1,echo=FALSE,eval=FALSE>>=
