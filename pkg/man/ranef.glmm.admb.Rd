@@ -3,7 +3,7 @@
 \alias{ranef.glmmadmb}
 \title{Extract Random Effects}
 \description{
-  Extract random effects from fittted \code{glmmadmb} models, and
+  Extract random effects from fitted \code{glmmadmb} models, and
   (optionally) their standard deviations.
 }
 \usage{
