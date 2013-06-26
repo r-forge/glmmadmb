@@ -4,13 +4,15 @@
 buildbot_base <- "http://www.admb-project.org/buildbot/glmmadmb/glmmadmb-"
 ## assume we are starting from the root of the package directory
 ## 27 Dec: change gcc 4.5 -> 4.6
-platform_str <- c(linux32="ubuntu11-gcc4.6-32bit-",
-                  linux64="ubuntu11-gcc4.6-64bit-",
-                  macos32="macos10.6-xcode3.2-32bit-",
-                  macos64="macos10.6-xcode3.2-64bit-",
-                  windows32="windows7-borland-32bit-",
+platform_str <- c(linux32="ubuntu12-gcc4.6-32bit",
+                  linux64="ubuntu12-gcc4.6-64bit",
+                  macos32="macos10.8-xcode4.6-32bit",
+                  macos64="macos10.8-xcode4.6-64bit",
+                  ## windows32="windows7-borland-32bit-",
+                  windows32="windows8-mingw",
                   ## FIXME: 
-                  windows64="windows7-vc10-64bit-64bit-")
+                  ## windows64="windows7-vc10-64bit-64bit-"
+                  windows64="windows8-mingw")
   ## c(linux32="linux-gcc4.5.2-32bit",
   ##   linux64="linux-gcc4.5.2-64bit",
   ##   macos32="macos10.6.7-xcode3.2.6-32bit",
@@ -31,11 +33,13 @@ get_allbin <- function(release) {
     g <- suppressWarnings(get_bbot_versions())
     ## suppress "incomplete final line" warning
     m <- sapply(platform_str,grep,g$desc)
+    OK <- sapply(m,length)>0
+    m <- unlist(m)
     release <- paste("r",g[m,]$ver,sep="")
   }
   cdir <- getwd()
   on.exit(setwd(cdir))
-  plist <- names(platform_str)
+  plist <- names(platform_str)[OK]
   status <- rep(NA,length(plist))
   names(status) <- plist
   for (i in seq_along(plist)) {
@@ -44,7 +48,8 @@ get_allbin <- function(release) {
     setwd(p)
     srcext <- if (grepl("windows",p)) ".exe" else ".bin"
     destext <- if (grepl("windows",p)) ".exe" else ""
-    fn <- paste(buildbot_base,platform_str[p],release[i],
+    fn <- paste(buildbot_base,release[i],"-",
+                platform_str[p],
                 srcext,sep="")
     tt <- try(download.file(fn,
                             destfile=paste("glmmadmb",destext,sep="")))
@@ -78,11 +83,12 @@ get_bbot_versions <- function(os="all",rev="latest",bits="all") {
   if (os!="all") d <- d[grep(os,d$desc),]
   if (bits!="all") d <- d[grep(paste(d$bits,"bit",sep="")),]
   if (rev=="latest") {
-    d$type <- gsub("-r[0-9]+.*$","",d$desc)
-    d$ver <- as.numeric(gsub(".*-r([0-9]+).*$","\\1",d$desc))
-    d <- droplevels(ddply(d, .(type), function(x) x[which.max(x$ver),]))
+      ## d$type <- gsub("-r[0-9]+.*$","",d$desc)
+      d$type <- gsub("\\.bin$","",gsub("glmmadmb-r[0-9]+-","",d$desc))
+      d$ver <- as.numeric(gsub(".*-r([0-9]+).*$","\\1",d$desc))
+      d <- droplevels(ddply(d, .(type), function(x) x[which.max(x$ver),]))
   } else if (ver!="all") {
-    d <- d[d$ver==ver,]
+      d <- d[d$ver==ver,]
   }
   d <- transform(d,desc=as.character(desc),type=as.character(type))
   d

@@ -652,12 +652,8 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
     out$U <- out$sd_U <- matrix(rep(0,q), ncol=1, byrow=TRUE)
   } ## !has_rand
 
-  mu <- as.numeric(X %*% out$b)
-  ## BMB: doesn't include influence of random effects?
-  ## lambda <- 0
+  mu <- as.numeric(X %*% out$b) + offset
 
-  ## for(i in 1:n)
-  ## lambda[i] <- exp(mu[i] + rowSums(Z * allU))
   if (has_rand) {
       sdvals <- unlist(lapply(out$S,function(z)sqrt(diag(z))))
       eta <- mu + rowSums(Z * sweep(allU,2,sdvals,"*"))
@@ -666,6 +662,9 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   lambda <- ilinkfun(eta)
 
   out$fitted <- lambda
+  if(zeroInflation) {
+      out$fitted <- out$fitted * (1-out$pz)
+  }
 
   out$sd.est <- with(out,switch(family,
                                 poisson=sqrt(lambda),
