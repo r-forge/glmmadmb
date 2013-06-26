@@ -1,5 +1,5 @@
 Package: glmmADMB
-Version: 0.7.6
+Version: 0.7.7
 Revision: $Revision$
 Date: $Date$
 Title: Generalized Linear Mixed Models using AD Model Builder
@@ -47,6 +47,5 @@ Collate:
     'plot.glmm.admb.R'
     'predict.R'
     'print.glmm.admb.R'
-    'ranef.glmm.admb.R'
     'rformula.R'
     'summary.glmm.admb.R'
