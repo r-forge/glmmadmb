@@ -60,9 +60,10 @@ install.packages("glmmADMB_xxxx.tar.gz",repos=NULL, type="source")
 </li>
 <li>If the most recent build of glmmADMB is messed up (usually the maintainers' fault), you may be able to find/install a fairly recent version via
 <pre>
-install.packages("glmmADMB", repos="http://www.math.mcmaster.ca/bolker/R",type="source")
+install.packages("glmmADMB", 
+    repos=c("http://glmmadmb.r-forge.r-project.org",getOption("repos")))
 </pre>
-or by navigating to <a href="http://www.math.mcmaster.ca/bolker/R/src/contrib">http://www.math.mcmaster.ca/bolker/R/src/contrib</a> and downloading the appropriate file, and following step #3 above.
+or by <a href="repos">going directly to the repository</a>, downloading the appropriate file, and following step #3 above.
 </li>
 <li>You can use the following helper function
 to see which versions of glmmADMB are available at a given repository:

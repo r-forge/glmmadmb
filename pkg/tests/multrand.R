@@ -1,5 +1,5 @@
 library(glmmADMB)  ## testing version
-library(lme4.0)
+library(lme4)
 
 load("multrand_batch.RData")
 
