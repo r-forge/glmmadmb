@@ -4,15 +4,15 @@
 buildbot_base <- "http://www.admb-project.org/buildbot/glmmadmb/glmmadmb-"
 ## assume we are starting from the root of the package directory
 ## 27 Dec: change gcc 4.5 -> 4.6
-platform_str <- c(linux32="ubuntu12-gcc4.6-32bit",
+platform_str <- c(linux32="fedora18-gcc4.7-32bit",
                   linux64="ubuntu12-gcc4.6-64bit",
                   macos32="macos10.8-xcode4.6-32bit",
                   macos64="macos10.8-xcode4.6-64bit",
-                  ## windows32="windows7-borland-32bit-",
-                  windows32="windows8-mingw",
+                  windows32="windows7-vc10-32bit",
+                  windows64="windows7-vc10-64bit")
                   ## FIXME: 
                   ## windows64="windows7-vc10-64bit-64bit-"
-                  windows64="windows8-mingw")
+                  ## windows64="windows8-mingw")
   ## c(linux32="linux-gcc4.5.2-32bit",
   ##   linux64="linux-gcc4.5.2-64bit",
   ##   macos32="macos10.6.7-xcode3.2.6-32bit",
