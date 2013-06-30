@@ -30,10 +30,13 @@
 \examples{
   data(epil2)
   epil2$subject <- factor(epil2$subject)
+\dontrun{
+  ## currently (June 2013) having trouble with Windows checks on r-forge, CRAN
   f1 <- glmmadmb(y~Base*trt+Age+Visit+(Visit|subject),
                 data=epil2, family="nbinom")
   f2 <- glmmadmb(y~Base*trt+Age+(Visit|subject),
                 data=epil2, family="nbinom")
   anova(f2,f1)
+}
 }
 \keyword{models}
