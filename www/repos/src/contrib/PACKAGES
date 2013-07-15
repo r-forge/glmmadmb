@@ -5,6 +5,6 @@ Imports: stats, Matrix, nlme, R2admb
 Suggests: lattice, lme4, coda, mlmRev, scapeMCMC, ggplot2, bbmle, pscl,
         knitr, car
 License: BSD
-MD5sum: d88d72e257b16f096cfdf0a0a20e5374
+MD5sum: f2167bb0df74ac60c5ddc0fc22d2fb46
 NeedsCompilation: no
 
