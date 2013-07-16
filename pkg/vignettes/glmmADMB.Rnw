@@ -189,7 +189,7 @@ G0+stat_sum(aes(size=..n..),alpha=0.5)+zmargin+
          axis.text.y=theme_text(size=7))
 @ 
 
-<<owlplot2,echo=FALSE,fig.cap="Basic view of owl data, \\#2 (nest identity not shown)",fig.ref="fig:owl2">>=
+<<owlplot2,echo=FALSE,fig.cap="Basic view of owl data \\#2 (nest identity not shown)",fig.ref="fig:owl2">>=
 G1 <- ggplot(Owls,aes(x=ArrivalTime,
                       y=NegPerChick,colour=FoodTreatment,
                       linetype=SexParent,
