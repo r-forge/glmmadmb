@@ -38,7 +38,7 @@ OwlModel_poiss.admb <- glmmadmb(SiblingNegotiation~FoodTreatment*SexParent+
 OwlModel_poiss.glmer2 <- glmer(SiblingNegotiation ~ FoodTreatment * SexParent +
                                (1|Nest)+offset(logBroodSize),
                                data=Owls, family=poisson,
-                               start=list(fixed=coef(OwlModel_poiss.admb)))
+                               start=list(fixef=coef(OwlModel_poiss.admb)))
 
 ## matrix not pos definite in sparse choleski
 ## "Estimated covariance matrix may not be positive definite"

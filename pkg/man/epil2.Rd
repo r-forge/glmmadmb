@@ -37,7 +37,9 @@
 }
 \examples{
 epil2$subject <- factor(epil2$subject)
+\dontrun{
 (fm <- glmmadmb(y~Base*trt+Age+Visit+(Visit|subject),
                 data=epil2, family="nbinom"))
+}
 }
 \keyword{datasets}
