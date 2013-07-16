@@ -44,19 +44,6 @@ sapply(mlist,logLik)
 g1 <- glmmadmb(y~x+(1|f)+offset(offset),data=d,
                family="binomial",link="cloglog")
 
-if (FALSE) {  ## FIXME: restore after glmer fixed
-    library(lme4)
-    g1A <- glmer(y~x+(1|f)+offset(offset),data=d,
-                 family=binomial(link="cloglog"))
-    c1A <- fixef(g1A)
-    r1A <- ranef(g1A)
-    v1A <- VarCorr(g1A)
-    L1A <- logLik(g1A)
-    detach("package:lme4")
-    c(logLik(g1),L1A)
-}
-summary(g1)
-
 
 p0 <- predict(g1)
 pb <- predict(g1,type="response")
@@ -80,25 +67,20 @@ stopifnot(all.equal(coef(g2),coef(g2L),tol=1e-5))
 
 g3 <- glmmadmb(y~x+(1|f),data=d,family="gamma",link="log")
 ## "matrix not pos definite in sparse choleski" warning
-if (FALSE) {
-  library(lme4)
-   ## boom!
-   g3L <- glmer(y~x+(1|f),data=d,family=Gamma(link="log"))
-   coef(g3)
-   fixef(g3L)  ## NA ... urgh
-}
 
 ## POISSON/identity link
+## FIXME: allow on Windows
+## FIXME: fails on Fedora 18 (A. Magnusson) ?
 if (.Platform$OS.type=="unix") {
-dd <- data.frame(y=rpois(20,lambda=10),f=factor(rep(1:5,each=4)))
-g5 <- glmmadmb(y~1,data=dd,
+  dd <- data.frame(y=rpois(20,lambda=10),f=factor(rep(1:5,each=4)))
+   g5 <- glmmadmb(y~1,data=dd,
          start=list(fixed=10),
          family="poisson",link="identity")
-g5R <- glmmadmb(y~1+(1|f),data=dd,
+   g5R <- glmmadmb(y~1+(1|f),data=dd,
          start=list(fixed=10),
          family="poisson",link="identity")
 
-coef(g5)
+   coef(g5)
 coef(g5R)
 
 ### GAUSSIAN/IDENTITY LINK

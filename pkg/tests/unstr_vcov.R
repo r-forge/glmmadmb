@@ -34,6 +34,8 @@ mv_diag <- structure(c(2.416804256, 0, 0, 0.007746916),
                                        c("(Intercept)", "age"),
                                        c("(Intercept)", "age")))
 
+if (.Platform$OS=="unix") {
+    ## FIXME: Windows problems
 library("glmmADMB")
 m1_full <- glmmadmb(distance~age*Sex,random=~age|Subject,
                family="gaussian",data=Orthodont,
@@ -72,3 +74,4 @@ unclass(vv)
 stopifnot(all.equal(vv0,unname(unclass(vv)[[1]]),tol=1e-4))
 
 
+}
