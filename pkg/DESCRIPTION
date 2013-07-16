@@ -34,6 +34,7 @@ Suggests:
     car
 License: BSD
 URL: http://glmmadmb.r-forge.r-project.org, http://admb-project.org
+BuildVignette: no
 Collate:
     'anova.glmm.admb.R'
     'getdata.R'

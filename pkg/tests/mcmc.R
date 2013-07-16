@@ -17,6 +17,7 @@ g1 <- glmmadmb(y~x+(1|f),family="poisson",data=d)
 coef(g1)
 VarCorr(g1)
 
+if (.Platform$OS.type=="unix") {
 g1M <- glmmadmb(y~x+(1|f),family="poisson",data=d,mcmc=TRUE,
                  mcmc.opts=mcmcControl(mcmc=100))
 
@@ -53,4 +54,5 @@ if (FALSE) {
                          mcmc=TRUE,mcmc.opts=mcmcControl(mcmc=100),
                          extra.args="-ndi 60000",
                          verbose=TRUE)
+}
 }

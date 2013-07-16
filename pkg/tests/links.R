@@ -89,6 +89,7 @@ if (FALSE) {
 }
 
 ## POISSON/identity link
+if (.Platform$OS.type=="unix") {
 dd <- data.frame(y=rpois(20,lambda=10),f=factor(rep(1:5,each=4)))
 g5 <- glmmadmb(y~1,data=dd,
          start=list(fixed=10),
@@ -113,3 +114,4 @@ g4C <- glmmadmb(y0~x,data=d,family="gaussian")
 stopifnot(all.equal(coef(g4),coef(g4B),coef(g4C)))
 stopifnot(all.equal(c(logLik(g4)),c(logLik(g4B)),c(logLik(g4C)),tol=1e-4))
 
+}

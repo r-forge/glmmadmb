@@ -14,12 +14,10 @@ eta <- model.matrix(~x,data=d) %*% beta + u[as.numeric(d$f)]
 d$y <- rpois(N,exp(eta))
 ##g1 <- glmm.admb(y~x,random=~1,group="f",family="poisson",data=d)
 g1 <- glmmadmb(y~x+(1|f),family="poisson",data=d)
-## identical 
-coef(g1)
-g1$stdbeta
-logLik(g1)
-g1$S
-g1$sd_S
+stopifnot(all.equal(unname(coef(g1)),c(1.020501,1.900118), tol=1e-6))
+stopifnot(all.equal(c(logLik(g1)),-260.508,tol=1e-6))
+stopifnot(all.equal(unname(unlist(g1$S)),0.88148,tol=1e-6))
+stopifnot(all.equal(unname(unlist(g1$sd_S)),0.40254,tol=1e-6))
 summary(g1$U[[1]])
 
 ## try with data in global workspace, not data=argument
