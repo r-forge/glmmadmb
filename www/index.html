@@ -46,45 +46,15 @@ although it may still contain useful information</em>):
 <h2>Installation</h2>
 <ol>
 <li>First try 
-<pre>install.packages("glmmADMB", repos="http://r-forge.r-project.org")
+<pre>install.packages("glmmADMB", repos="http://r-forge.r-project.org",
+                      type="source")
 </pre>
 </li>
 <li>If this fails (because you don't have the very latest version of R, or because R-forge is having a bad day), try
 <pre>
-install.packages("glmmADMB", repos="http://r-forge.r-project.org",type="source")</pre>
-</li>
-<li>If this fails, you may have an internet connection problem.  Go to the <a href="https://r-forge.r-project.org/R/?group_id=847">R-forge packages page for the glmmADMB project</a> and download the source package (search for the link labeled "Package source (.tar.gz)") to your computer. Put this file (which will be called <code>glmmADMB_xxxx.tar.gz</code>, where <code>xxxx</code> is the version number) in your R working directory and try
-<pre>
-install.packages("glmmADMB_xxxx.tar.gz",repos=NULL, type="source")
-</pre>
-</li>
-<li>If the most recent build of glmmADMB is messed up (usually the maintainers' fault), you may be able to find/install a fairly recent version via
-<pre>
 install.packages("glmmADMB", 
-    repos=c("http://glmmadmb.r-forge.r-project.org",getOption("repos")))
-</pre>
-or by <a href="repos">going directly to the repository</a>, downloading the appropriate file, and following step #3 above.
-</li>
-<li>You can use the following helper function
-to see which versions of glmmADMB are available at a given repository:
-<pre>
-favail <- function(repos="r-forge.r-project.org",
-                   pkg="glmmADMB",
-                   ...) {
-    hdr <- "http://"
-    if (!substr(repos,1,8)==hdr) repos <- paste(hdr,repos,sep="")
-    a <- available.packages(contriburl=contrib.url(repos),...)
-    if (length(grep(pkg,rownames(a)))==0)
-        stop(sprintf("%s unavailable at repos %s",pkg,repos))
-    a[pkg,"Version"]
-}
-</pre>
-You can use <code>type="source"</code> if you want to check for source packages rather than for the binaries for your OS.
-For example:
-<pre>
-favail()              ## r-forge, automatic build (default)
-favail(type="source") ## r-forge, source (the same, for Linux)
-favail("glmmadmb.r-forge.r-project.org/repos")  ## r-forge, alternative location
+   repos=c("http://glmmadmb.r-forge.r-project.org/repos",
+           getOptions("repos")),type="source")
 </pre>
 </li>
 <li>
