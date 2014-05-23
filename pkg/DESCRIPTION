@@ -26,7 +26,7 @@ Suggests:
     lme4,
     coda,
     mlmRev,
-    scapeMCMC,
+    plotMCMC,
     ggplot2,
     bbmle,
     pscl,
