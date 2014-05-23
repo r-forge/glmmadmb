@@ -46,7 +46,7 @@ mcmcControl(mcmc = 1000, mcmc2=0, mcsave, mcnoscale = FALSE, mcgrope = FALSE, mc
   Some options (\code{mcmc2}, etc.) that can be used in AD Model Builder
   and ADMB-RE may not be available
 }
-\note{The functions in the \code{coda} and \code{scapeMCMC} packages
+\note{The functions in the \code{coda} and \code{plotMCMC} packages
   are useful for diagnosing convergence and other problems, summarizing,
   and displaying the results of MCMC runs.
   

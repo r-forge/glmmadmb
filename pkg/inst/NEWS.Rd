@@ -4,6 +4,12 @@
 \title{glmmADMB News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.8.0 (23-05-2014)}{
+  \itemize{
+    \item changed suggested package 'scapeMCMC' to 'plotMCMC'
+  }
+}
+
 \section{Changes in version 0.7.6 (21-05-2013)}{
   \itemize{
     \item added Poisson-zeroprob hack to TPL (only in Linux binary so far)

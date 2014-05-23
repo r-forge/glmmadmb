@@ -1,6 +1,6 @@
 % \VignetteIndexEntry{basic examples of glmmADMB usage}
 % \VignettePackage{glmmADMB}
-% \VignetteDepends{scapeMCMC}
+% \VignetteDepends{plotMCMC}
 % \VignetteDepends{ggplot2}
 % \VignetteDepends{grid}
 % \VignetteDepends{coefplot2}
@@ -118,7 +118,7 @@ This document was
 generated using \Sexpr{R.version$version.string} and package versions:
 <<pkgversions,echo=FALSE>>=
 usedpkgs <- sort(c(##"coefplot2",
-                 "ggplot2","glmmADMB","lme4","coda","scapeMCMC",
+                 "ggplot2","glmmADMB","lme4","coda","plotMCMC",
                    "bbmle","MASS"))
 i1 <- installed.packages()
 usedpkgs <- usedpkgs[usedpkgs %in% rownames(i1)]
@@ -470,7 +470,7 @@ tm <- tm[,!grepl("^u\\.",colnames(m))]
 @ 
 
 <<mcmcplot1>>=
-library("scapeMCMC")
+library("plotMCMC")
 plotTrace(tm)
 @ 
 
@@ -517,7 +517,7 @@ t(apply(tm,2,quantile,c(0.025,0.975)))
 
 You can also look at density plots or pairwise scatterplots
 (``splom'' in \code{lattice} and
-\code{scapeMCMC}, for \textbf{S}catter\textbf{plo}t \textbf{m}atrices)
+\code{plotMCMC}, for \textbf{S}catter\textbf{plo}t \textbf{m}atrices)
 (not shown):
 <<eval=FALSE>>=
 plotDens(tm)
