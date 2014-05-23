@@ -1,7 +1,6 @@
 Package: glmmADMB
-Version: 0.7.7
-Revision: $Revision$
-Date: $Date$
+Version: 0.8.0
+Date: 2014-05-23
 Title: Generalized Linear Mixed Models using AD Model Builder
 Author: Hans Skaug <Hans.Skaug@mi.uib.no>, Dave Fournier
     <otter@otter-rsch.com>, Anders Nielsen <andersn@hawaii.edu>, Arni Magnusson
@@ -20,7 +19,6 @@ Depends:
     R (>= 2.13),
     methods,
     MASS,
-    R2admb
 Suggests:
     lattice,
     lme4,
@@ -32,7 +30,7 @@ Suggests:
     pscl,
     knitr,
     car
-License: BSD
+License: BSD_2_clause
 URL: http://glmmadmb.r-forge.r-project.org, http://admb-project.org
 BuildVignette: no
 Collate:
