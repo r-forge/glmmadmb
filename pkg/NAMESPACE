@@ -1,5 +1,6 @@
 export(glmmadmb,glmm.admb,admbControl,mcmcControl,get_bin_version,getdata)
 
+import(MASS,methods)
 importFrom(nlme,ranef,fixef,VarCorr)
 importFrom(R2admb,dat_write,stdEr)
 importFrom(stats,nobs,extractAIC)

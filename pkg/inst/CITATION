@@ -23,10 +23,11 @@ bibentry(bibtype = "Article",
 
 bibentry(bibtype="Manual",
          title = meta$Title,
-         author = personList(as.person("Hans Skaug"),
+         author = personList(
+         as.person("Hans Skaug"),
          as.person("Dave Fournier"),
-         as.person("Anders Nielsen"),
+         as.person("Ben Bolker"),
          as.person("Arni Magnusson"),
-         as.person("Ben Bolker")),
+         as.person("Anders Nielsen")),
          year = year,
          note = vers)
