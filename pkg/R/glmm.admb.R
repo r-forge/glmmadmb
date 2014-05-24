@@ -711,7 +711,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
 
   ## FIXME: figure out names of parameters (other than fixed)
   if (mcmc) {
-      out$mcmc <- as.matrix(R2admb:::read_psv(file_name))
+      out$mcmc <- as.matrix(R2admb::read_psv(file_name))
       colnames(out$mcmc) <- R2admb:::rep_pars(tmpindex)[1:ncol(out$mcmc)]
       out$mcmc <- mcmc_transform(out$mcmc,out$phi,fnames=names(out$b))
   }
