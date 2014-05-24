@@ -1,121 +1,111 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
-<head>
 <title>The glmmADMB package</title>
-<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
 <style type="text/css">
   <!--
   body {background-color:#cda;font-family:sans-serif;margin-left:20%;margin-right:20%;margin-top:10ex}
   li   {padding-bottom:1ex}
-  pre  {margin-left:2em}
   -->
 </style>
-</head>
 <body>
 
 <h1>glmmADMB</h1>
 
-<p>The <code>glmmADMB</code> package, built on the open-source
-<a href="http://admb-project.org">AD Model Builder</a> platform, is
-an <a href="http://www.r-project.org">R</a> package for fitting
-generalized linear mixed models (GLMMs).</p>
+<p>The <code>glmmADMB</code> package, built on the open-source <a href="http://admb-project.org">AD Model Builder</a>
+platform, is an <a href="http://www.r-project.org">R</a> package for fitting generalized linear mixed models (GLMMs).
+
 <p>Its capabilities include:
-<ul>
-<li>a wide range of families (response distributions), including non-exponential families such as negative binomial (type 1 and 2), Beta, logistic, and truncated Poisson and negative binomial distributions as well as the standard exponential families (binomial, Poisson, Gamma, Gaussian).
-</li>
-<li>a wide range of link functions: log, logit, probit, complementary log-log, identity, inverse.
-</li>
-<li>Zero-inflation (currently only as a single constant term across all groups)</li>
-<li>Single or multiple random effects, including both nested and crossed effects</li>
-<li>Markov chain Monte Carlo (MCMC) summaries of uncertainty</li>
-</ul>
-</p>
-<p>
-In order to use glmmADMB effectively you should already be reasonably familiar with GLMMs, which in turn requires familiarity with (i) generalized linear models (e.g. the special cases of logistic, binomial, and Poisson regression) and (ii) 'modern' mixed models (those working via maximization of the marginal likelihood rather than by manipulating sums of squares). 
-</p>
-<p>Please visit the following webpages for more information about the <tt>glmmADMB</tt> package 
-(<em>please note the latter is somewhat out of date,
-although it may still contain useful information</em>):
 
 <ul>
-  <li><a href="http://r-forge.r-project.org/projects/glmmadmb/">R-Forge</a> (current development)</li>
-  <li><a href="http://admb-project.org/examples/r-stuff/glmmadmb">ADMB Project</a> (recent homepage)</li>
+  <li>a wide range of families (response distributions), including non-exponential families such as negative binomial
+    (type 1 and 2), Beta, logistic, and truncated Poisson and negative binomial distributions as well as the standard
+    exponential families (binomial, Poisson, Gamma, Gaussian).
+  <li>a wide range of link functions: log, logit, probit, complementary log-log, identity, inverse.
+  <li>Zero-inflation (currently only as a single constant term across all groups)
+  <li>Single or multiple random effects, including both nested and crossed effects
+  <li>Markov chain Monte Carlo (MCMC) summaries of uncertainty
 </ul>
-</p>
+
+<p>In order to use glmmADMB effectively you should already be reasonably familiar with GLMMs, which in turn requires
+familiarity with (i) generalized linear models (e.g. the special cases of logistic, binomial, and Poisson regression)
+and (ii) 'modern' mixed models (those working via maximization of the marginal likelihood rather than by manipulating
+sums of squares).
+
+<p>Please visit the following webpages for more information about the <tt>glmmADMB</tt> package (<em>please note the
+latter is somewhat out of date, although it may still contain useful information</em>):
+
+<ul>
+  <li><a href="http://r-forge.r-project.org/projects/glmmadmb/">R-Forge</a> (current development)
+  <li><a href="http://admb-project.org/examples/r-stuff/glmmadmb">ADMB Project</a> (recent homepage)
+</ul>
 
 <h2>Installation</h2>
+
 <ol>
-<li>First try 
-<pre>install.packages("glmmADMB", repos="http://r-forge.r-project.org",
-                      type="source")
-</pre>
-</li>
-<li>If this fails (because you don't have the very latest version of R, or because R-forge is having a bad day), try
-<pre>
-install.packages("glmmADMB", 
-   repos=c("http://glmmadmb.r-forge.r-project.org/repos",
-           getOption("repos")),type="source")
-</pre>
-</li>
-<lili>Arni Magnusson has uploaded glmmADMB 0.7.7 (16 July 2013) for R 3.0.x to a local repository:
-<pre>
-install.packages("glmmADMB", repos="http://www.hafro.is/~arnima/repos")
-</pre>
-</li>
-<li>
-If all else fails, contact the package maintainers.
-</li>
-<li>
-Note that recent versions of <code>glmmADMB</code> (>=0.7) require the <code>R2admb</code> package as well; under normal circumstances this should be installed automatically when you install <code>glmmADMB</code>, but if you run into trouble you should try solutions similar to those listed above.
-</li>
-<li>At present the binaries included in the <code>glmmADMB</code> will <strong>not</strong> run on MacOS 10.5 (Leopard) or earlier. 
-If you encounter this problem, your choices are:
-<ul>
-<li>Upgrade your system to a more recent version of MacOS (if possible);</li>
-<li>Build <code>glmmadmb</code> from its TPL file on your machine.  This will be a bit tricky if you are not reasonably experienced
-<ul><li>Download the full AD Model Builder  source code
-from the <a href="http://admb-project.org/downloads/">AD Model Builder download page</a> and follow the <a href="http://admb-project.org/documentation/faq#build">directions</a> for building AD Model Builder from source; you may need to install Xcode, and you may need to ask for help at <code>users@admb-project.org</code>.  (Googling "admb macos 10.5" will be helpful as well, although it's possible that you will need the most recent version of the ADMB source code to compile <code>glmmadmb.tpl</code> properly ...)</li>
-<li>find the <code>glmmadmb.tpl</code> file in the <code>glmmADMB</code> package directories and use ADMB to compile it to a binary</li>
-<li>copy the resulting binary to the <code>bin/macos32</code> or <code>bin/macos64</code> directory as appropriate.
-</ul>
-<li>Contact the maintainers to appeal for help and find out if
-there any new developments in support for MacOS versions less than 10.6.
-</li>
-<li>A similar process may work for other unsupported 
-operating systems such as
-Solaris, but in that case it's also probably a good idea to
-contact the maintainers.</li>
-</ul>
+  <li>First try<br>
+    <code>install.packages("glmmADMB", repos="http://r-forge.r-project.org", type="source")</code>
+  <li>If this fails (because you don't have the very latest version of R, or because R-forge is having a bad day),
+    try<br>
+    <code>install.packages("glmmADMB", repos=c("http://glmmadmb.r-forge.r-project.org/repos",
+    getOption("repos")),type="source")</code>
+  <li>Arni Magnusson has uploaded glmmADMB 0.8.0 (24 May 2014) for Linux (any recent version) and Windows (R 3.1.x) to a
+    local repository:<br>
+    <code>install.packages("glmmADMB", repos="http://www.hafro.is/~arnima/repos")</code>
+  <li>If all else fails, contact the package maintainers.
+  <li>Note that recent versions of <code>glmmADMB</code> (>=0.7) require the <code>R2admb</code> package as well; under
+    normal circumstances this should be installed automatically when you install <code>glmmADMB</code>, but if you run
+    into trouble you should try solutions similar to those listed above.
+  <li>At present the binaries included in the <code>glmmADMB</code> will <strong>not</strong> run on MacOS 10.5
+    (Leopard) or earlier. If you encounter this problem, your choices are:
+    <ul>
+      <li>Upgrade your system to a more recent version of MacOS (if possible).
+      <li>Build <code>glmmadmb</code> from its TPL file on your machine.  This will be a bit tricky if you are not
+        reasonably experienced.
+        <ul>
+          <li>Download the full AD Model Builder  source code from the <a href="http://admb-project.org/downloads/">AD
+            Model Builder download page</a> and follow the
+            <a href="http://admb-project.org/documentation/faq#build">directions</a> for building AD Model Builder from
+            source; you may need to install Xcode, and you may need to ask for help at
+            <code>users@admb-project.org</code>. (Googling "admb macos 10.5" will be helpful as well, although it's
+            possible that you will need the most recent version of the ADMB source code to compile
+            <code>glmmadmb.tpl</code> properly ...)
+          <li>find the <code>glmmadmb.tpl</code> file in the <code>glmmADMB</code> package directories and use ADMB to
+            compile it to a binary
+          <li>copy the resulting binary to the <code>bin/macos32</code> or <code>bin/macos64</code> directory as
+            appropriate.
+        </ul>
+      <li>Contact the maintainers to appeal for help and find out if there any new developments in support for MacOS
+        versions less than 10.6.
+      <li>A similar process may work for other unsupported operating systems such as Solaris, but in that case it's also
+        probably a good idea to contact the maintainers.
+    </ul>
 </ol>
-</p>
+
 <h2>Additional documentation</h2>
-<p>
+
 <ul>
-<li>We recommend the R mixed models list at <code>r-sig-mixed-models@r-project.org</code> for <code>glmmADMB</code> questions, although if you feel that your question is more AD Model Builder-oriented than R-oriented you may also want to try the AD Model Builder user's list.
-</li>
-<li>Current (fairly minimal) documentation/example for ADMB:
-<a href="glmmADMB.html">HTML</a>, <a href="glmmADMB.pdf">PDF</a>:
-this is also accessible from within R (once <code>glmmADMB</code> is installed) via <code>vignette("glmmADMB",package="glmmADMB")</code>
-</li>
-<li>The <a href="http://glmm.wikidot.com/faq">GLMM FAQ</a> page gives general advice about GLMMs, although its content is slightly more oriented toward the <code>lme4</code> package.
+  <li>We recommend the R mixed models list at <code>r-sig-mixed-models@r-project.org</code> for <code>glmmADMB</code>
+  questions, although if you feel that your question is more AD Model Builder-oriented than R-oriented you may also want
+  to try the AD Model Builder user's list.
+  <li>Current (fairly minimal) documentation/example for ADMB: <a href="glmmADMB.html">HTML</a>,
+    <a href="glmmADMB.pdf">PDF</a>. This is also accessible from within R (once <code>glmmADMB</code> is installed) via
+    <code>vignette("glmmADMB",package="glmmADMB")</code>
+  <li>The <a href="http://glmm.wikidot.com/faq">GLMM FAQ</a> page gives general advice about GLMMs, although its content
+  is slightly more oriented toward the <code>lme4</code> package.
 </ul>
-</p>
 
-<h2>Note on new versions</h2>
-<p>
-</pre>
-New versions of <tt>glmmADMB</tt> (>0.6.4) have the following major changes:
+<h2>Newer versions</h2>
+
+<p>Newer versions of <tt>glmmADMB</tt> (>0.6.4) have the following major changes:
+
 <ul>
-<li>new formula format, similar to that of the <tt>lme4</tt> package, where random and fixed effects are specified as part of a single formula (<tt>random</tt> can also be specified separately, as in <tt>lme</tt>)</li>
-<li>multiple grouping variables (random effects) are allowed</li>
-<li>wider range of distributions and link functions supported (e.g. binomial with <em>N</em>&gt; 1)</li>
+  <li>new formula format, similar to that of the <tt>lme4</tt> package, where random and fixed effects are specified as
+    part of a single formula (<tt>random</tt> can also be specified separately, as in <tt>lme</tt>).
+  <li>multiple grouping variables (random effects) are allowed.
+  <li>wider range of distributions and link functions supported (e.g. binomial with <em>N</em>&gt; 1).
 </ul>
-The new release is somewhat slower (for the time being) than older (pre-0.5.2) versions: if you 
-have a desperate need for a copy of an old version, you can 
-<a href="http://www.math.mcmaster.ca/bolker/R/src/contrib/glmmADMB_0.5.2.tar.gz">download a source version</a> and follow alternative #3 from the installation instructions above.
-</p>
 
-</body>
-</html>
-
-
+<p>The new release is somewhat slower (for the time being) than older (pre-0.5.2) versions: if you have a desperate need
+for a copy of an old version, you can
+<a href="http://www.math.mcmaster.ca/bolker/R/src/contrib/glmmADMB_0.5.2.tar.gz">download a source version</a> and
+follow alternative #3 from the installation instructions above.
