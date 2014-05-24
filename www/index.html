@@ -50,7 +50,7 @@ latter is somewhat out of date, although it may still contain useful information
     getOption("repos")),type="source")</code>
   <li>Arni Magnusson has uploaded glmmADMB 0.8.0 (24 May 2014) for Linux and Windows (R 3.1.x) to a local
     repository:<br>
-    <code>install.packages("glmmADMB", repos="http://www.hafro.is/~arnima/repos")</code>
+    <code>install.packages("glmmADMB", repos=c("http://www.hafro.is/~arnima/repos", getOption("repos")))</code>
   <li>If all else fails, contact the package maintainers.
   <li>Note that recent versions of <code>glmmADMB</code> (>=0.7) require the <code>R2admb</code> package as well; under
     normal circumstances this should be installed automatically when you install <code>glmmADMB</code>, but if you run
