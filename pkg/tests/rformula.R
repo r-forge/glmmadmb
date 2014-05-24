@@ -49,9 +49,9 @@ write_randformula <- function(x,name) {
     name
   } else paste(name,".dat",sep="")
   cat("### design matrices for random effects:\n",file=fn)
-  dat_write(name,x$mmat,append=TRUE)
+  R2admb::dat_write(name,x$mmat,append=TRUE)
   cat("### indices for random effects:\n",file=fn,append=TRUE)
-  dat_write(name,x$codes,append=TRUE)
+  R2admb::dat_write(name,x$codes,append=TRUE)
 }
 
 set.seed(1001)
