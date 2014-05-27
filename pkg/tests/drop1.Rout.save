@@ -1,6 +1,6 @@
 
-R Under development (unstable) (2013-04-25 r62670) -- "Unsuffered Consequences"
-Copyright (C) 2013 The R Foundation for Statistical Computing
+R Under development (unstable) (2014-02-16 r65012) -- "Unsuffered Consequences"
+Copyright (C) 2014 The R Foundation for Statistical Computing
 Platform: i686-pc-linux-gnu (32-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -33,6 +33,7 @@ The following object is masked from ‘package:stats’:
 
 > ## source("glmmadmb.R")
 > 
+> options(digits=3)
 > set.seed(1002)
 > nblock <- 10
 > nperblock <- 20
@@ -45,15 +46,14 @@ The following object is masked from ‘package:stats’:
 > d$y <- rpois(ntot,lambda=d$mu)
 > 
 > g1 <- glmmadmb(y~x+(1|f),family="poisson",data=d)
-> 
 > drop1(g1,test="Chisq")
 Single term deletions
 
 Model:
 y ~ x + (1 | f)
-       Df    AIC  LRT Pr(>Chi)  
-<none>    596.75                
-x       1 599.50 4.75   0.0293 *
+       Df AIC  LRT Pr(>Chi)  
+<none>    597                
+x       1 600 4.75    0.029 *
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 Warning messages:
@@ -64,4 +64,4 @@ Warning messages:
 > 
 > proc.time()
    user  system elapsed 
-  5.352   2.564   7.830 
+   9.01    2.97   26.37 

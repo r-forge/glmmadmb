@@ -1,6 +1,7 @@
 library(glmmADMB)
 ## source("glmmadmb.R")
 
+options(digits=3)
 set.seed(1002)
 nblock <- 10
 nperblock <- 20
@@ -13,5 +14,4 @@ d$mu <- exp(d$eta)
 d$y <- rpois(ntot,lambda=d$mu)
 
 g1 <- glmmadmb(y~x+(1|f),family="poisson",data=d)
-
 drop1(g1,test="Chisq")

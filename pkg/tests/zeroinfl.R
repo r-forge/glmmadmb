@@ -49,6 +49,8 @@ ae <- function(x,y,tolerance=1e-2) {
   all.equal(x,y,check.attr=FALSE,tolerance=tolerance)
 }
 
-stopifnot(ae(exp(coef(g4)),coef(m4)["mu"]),
-          ae(g4$alpha,coef(m4)["size"]),
-          ae(g4$pz,coef(m4)["zprob"],tol=3e-2))
+if (.Platform$OS.type=="unix") {
+    stopifnot(ae(unname(exp(coef(g4))),unname(coef(m4)["mu"])),
+              ae(g4$alpha,unname(coef(m4)["size"])),
+              ae(g4$pz,unname(coef(m4)["zprob"]),tol=3e-2))
+}

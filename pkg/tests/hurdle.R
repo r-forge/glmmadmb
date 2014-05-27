@@ -48,14 +48,17 @@ g2 <- glmmadmb(nz~fem+mar+kid5+phd+ment,
                family="binomial",data=bioChemists)
 cp2 <-  psclcoef[grep("zero_",names(psclcoef))]
 cg2 <- coef(g2)
-## stopifnot(abs(cp2-cg2)<2e-5) ## FIXME: Windows problem
+if (.Platform$OS.type !="windows") {
+    stopifnot(abs(cp2-cg2)<2e-5) ## FIXME: Windows problem
+}
 
 ## negative binomial version:
 g3 <- glmmadmb(art~fem+mar+kid5+phd+ment,
                family="truncnbinom",link="log",data=bb)
 cp3 <- psclcoef2[grep("count_",names(psclcoef2))]
 cg3 <- coef(g3)
-## reltolchk(cp3,cg3,1e-4)  ## Windows problem
-## stopifnot(abs(cp3-cg3)<6e-6)
+if (.Platform$OS.type != "windows") {
+    reltolchk(cp3,cg3,1e-4)  ## FIXME: Windows problem
+}
 
 ## binomial part should be identical ...
