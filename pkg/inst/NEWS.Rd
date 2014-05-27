@@ -9,7 +9,6 @@
     \item changed suggested package 'scapeMCMC' to 'plotMCMC'
   }
 }
-
 \section{Changes in version 0.7.6 (21-05-2013)}{
   \itemize{
     \item added Poisson-zeroprob hack to TPL (only in Linux binary so far)
@@ -47,7 +46,6 @@
 \item fixed bug in fitted/residuals calculation (failed to scale random effects)
 }
 }
-
 \section{Changes in version 0.7.2.12}{
 \itemize{
   \item added citation info
