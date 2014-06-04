@@ -67,3 +67,8 @@ save_fun("zi_owls",
               data=Owls,
               zeroInflation=TRUE,
               family="poisson"))
+
+epil2$subject <- factor(epil2$subject)
+save_fun("epil2",
+         list(y~Base*trt+Age+Visit+(Visit|subject),
+              data=epil2, family="nbinom"))
