@@ -185,8 +185,8 @@ G0 <- ggplot(Owls,aes(x=reorder(Nest,NegPerChick),
 G0+stat_sum(aes(size=..n..),alpha=0.5)+zmargin+
       scale_size_continuous(name="# obs",
                             breaks=seq(1,9,by=2))+
-    theme(axis.title.x=theme_text(hjust=0.5,size=12),
-         axis.text.y=theme_text(size=7))
+    theme(axis.title.x=element_text(hjust=0.5,size=12),
+         axis.text.y=element_text(size=7))
 @ 
 
 <<owlplot2,echo=FALSE,fig.cap="Basic view of owl data \\#2 (nest identity not shown)",fig.ref="fig:owl2">>=

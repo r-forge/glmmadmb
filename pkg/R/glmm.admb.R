@@ -512,7 +512,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   if (!file.exists(std_file)) {
     if (run) {
         if (file.exists(par_file)) {
-            message("Parameters were estimated, but not standard errors were not: ",
+            message("Parameters were estimated, but standard errors were not: ",
                     "the most likely problem is that the curvature at MLE was zero or negative")
             ##
             ## would like to read parameter files, but not exactly in standard format ...
