@@ -177,7 +177,7 @@ Owls <- transform(Owls,
 with \code{summary(Owls)} to see what columns are there
 and what their characteristics are.)
 
-<<owlplot1,echo=FALSE,warning=FALSE,fig.cap="Basic view of owl data (arrival time not shown). (FIXME: clip at zero?)",fig.ref="fig:owl1">>=
+<<owlplot1,echo=FALSE,message=FALSE,warning=FALSE,fig.cap="Basic view of owl data (arrival time not shown). (FIXME: clip at zero?)",fig.ref="fig:owl1">>=
 G0 <- ggplot(Owls,aes(x=reorder(Nest,NegPerChick),
                       y=NegPerChick))+
   xlab("Nest")+ylab("Negotiations per chick")+coord_flip()+
