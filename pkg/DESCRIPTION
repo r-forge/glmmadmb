@@ -49,3 +49,4 @@ Collate:
     'print.glmm.admb.R'
     'rformula.R'
     'summary.glmm.admb.R'
+    'utilities.R'
