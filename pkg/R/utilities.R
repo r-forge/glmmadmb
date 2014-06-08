@@ -3,10 +3,9 @@ glibc_version <- function() {
         return(NA)
     ss <- system("ldd --version",intern=TRUE)
     lnum <- as.package_version(gsub("^.* ([0-9.]+)$","\\1",ss[1]))
-    llist <- list(lnum)
-    class(llist) <- c("package_version","numeric_version")
-    llist
+    class(lnum) <- c("package_version","numeric_version")
+    lnum
 }
 
 check_rforge <- function()
-    !is.na(gg <- glibc_version()) && gg < as.package_version("2.14")
+    !is.na(gg <- glibc_version()) && gg < "2.14"
