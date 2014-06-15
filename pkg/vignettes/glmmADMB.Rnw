@@ -17,8 +17,8 @@
 \usepackage[american]{babel}
 \newcommand{\R}{{\sf R}}
 \newcommand{\Splus}{{\sf S-PLUS}}
-%\newcommand{\fixme}[1]{\textbf{FIXME: #1}}
-\newcommand{\fixme}[1]{\color{red} #1 \color{black}}
+\newcommand{\fixme}[1]{\textbf{FIXME: #1}}
+% \newcommand{\fixme}[1]{\color{red} #1 \color{black}}
 \usepackage{url}
 \usepackage{hyperref}
 \usepackage{alltt}
