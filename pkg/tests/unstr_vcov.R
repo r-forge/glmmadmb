@@ -37,6 +37,7 @@ mv_diag <- structure(c(2.416804256, 0, 0, 0.007746916),
 if (.Platform$OS=="unix") {
     ## FIXME: Windows problems
 library("glmmADMB")
+if (!check_rforge()) {
 m1_full <- glmmadmb(distance~age*Sex,random=~age|Subject,
                family="gaussian",data=Orthodont,
                corStruct="full")
@@ -74,4 +75,6 @@ unclass(vv)
 stopifnot(all.equal(vv0,unname(unclass(vv)[[1]]),tol=1e-4))
 
 
+
+}
 }

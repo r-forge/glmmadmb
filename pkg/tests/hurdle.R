@@ -31,6 +31,7 @@ psclcoef2 <- structure(c(0.355124753990917, -0.244671930706915, 0.10341722278189
 
 bb <- subset(bioChemists,art>0)
 library(glmmADMB)
+if (!check_rforge()) {
 g1 <- glmmadmb(art~fem+mar+kid5+phd+ment,
                family="truncpoiss",link="log",data=bb)
 cp1 <- psclcoef[grep("count_",names(psclcoef))]
@@ -60,5 +61,5 @@ cg3 <- coef(g3)
 if (.Platform$OS.type != "windows") {
     reltolchk(cp3,cg3,1e-4)  ## FIXME: Windows problem
 }
-
+}
 ## binomial part should be identical ...

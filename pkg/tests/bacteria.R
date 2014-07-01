@@ -10,6 +10,7 @@ if (FALSE) {
 }
 
 library(glmmADMB)
+if (!check_rforge()) {
 bfit <-  glmmadmb(present ~ trt + I(week > 2), random = ~ 1 | ID,
                      family = "binomial", data = bacteria)
 if (!is.null(bfit$phi)) {
@@ -17,7 +18,7 @@ stopifnot(all.equal(bfit$phi,
                     glmmADMB:::make_phi(model.matrix(~trt+I(week>2),data=bacteria)),
                                         tol=1e-4))
 }
-
+}
 
 if (FALSE) {
     gsd <- attr(lme4::VarCorr(gfit)[[1]],"stddev")

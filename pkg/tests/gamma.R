@@ -12,6 +12,8 @@ d$eta <- with(d,0.2+0.5*x+r[f])
 d$mu <- exp(d$eta)
 d$y <- rgamma(ntot,shape=gshape,scale=d$mu/gshape)
 
+if (!check_rforge()) {
+
 g1 <- glmmadmb(y~x+(1|f),data=d,family="gamma")
 g1L <- glmmPQL(y~x,random=~1|f,data=d,family=Gamma(link="log"))
 
@@ -29,3 +31,4 @@ g0 <- glmmadmb(y~x,data=d2,family="gamma")
 g0L <- glm(y~x,data=d2,family=Gamma(link="log"))
 coef(g0)
 coef(g0L)
+}
