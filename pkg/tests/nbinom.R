@@ -15,6 +15,7 @@ set.seed(1002)
 y1 <- rnbinom1(500,mu=3,size=2)
 c(mean(y1),var(y1)) ## approx. 6?
 
+if (!check_rforge()) {
 g0 <- glmmadmb(y1~1,family="nbinom")
 g1 <- glmmadmb(y1~1,family="nbinom1")
 g0$alpha
@@ -31,3 +32,4 @@ y3 <- rnbinom(500,mu=exp(1+x),size=2)
 g4 <- glmmadmb(y3~x,family="nbinom")
 g5 <- glmmadmb(y3~x,family="nbinom1")
 AIC(g4)-AIC(g5) ## <0; nbinom is better
+}

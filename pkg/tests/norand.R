@@ -23,6 +23,7 @@ if (FALSE) {
                      aes(group=treatment))
 }
 
+if (!check_rforge()) {
 g2 <- glmmadmb(counts~outcome+treatment,family="poisson",data=d,
                extra.args="-crit 1.e-6")
 
@@ -30,3 +31,4 @@ g2 <- glmmadmb(counts~outcome+treatment,family="poisson",data=d,
 coef(glm.D93)
 coef(g2)
 
+}

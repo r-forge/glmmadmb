@@ -10,6 +10,7 @@ d.AD <- data.frame(counts=c(18,17,15,20,10,20,25,13,12),
                    treatment=gl(3,3))
 glm.D93 <- glm(counts ~ outcome + treatment, family=poisson,
                data=d.AD)
+if (!check_rforge()) {
 glm.D93.admb <- glmmadmb(counts~outcome+treatment, family="poisson",
           data=d.AD, extra.args="-crit 1.e-6")
 r1P <- residuals(glm.D93,type="pearson")
@@ -60,3 +61,4 @@ r_admb <- residuals(OwlModel_poiss.admb)
 
 ## plot(r_glmer,r_admb)                       
 
+}

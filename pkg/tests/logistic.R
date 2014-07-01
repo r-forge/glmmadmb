@@ -16,9 +16,11 @@ m1 <- mle2(y~dlogis(m,exp(logs)),
 ##   start=list(x=0,logs=0))
 coef(m1)
 
+if (!check_rforge()) {
 m2 <- glmmadmb(y~x,data=d,family="logistic")
 coef(m2)
 
+}
 ## glmmadmb FIXME: bogus printout in number of observations
 ##  should return sigma/log-sigma info
 

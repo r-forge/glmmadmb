@@ -16,6 +16,7 @@ set.seed(1001)
 y0 <- rnbinom(500,mu=2,size=0.5)
 y <- rzinbinom(500,mu=2,size=0.5,zprob=0.5)
 
+if (!check_rforge()) {
 g0 <- glmmadmb(y0~1,family="nbinom")
 logLik(g0)
 sum(dnbinom(y0,mu=exp(coef(g0)),size=g0$alpha,log=TRUE))
@@ -53,4 +54,5 @@ if (.Platform$OS.type=="unix") {
     stopifnot(ae(unname(exp(coef(g4))),unname(coef(m4)["mu"])),
               ae(g4$alpha,unname(coef(m4)["size"])),
               ae(g4$pz,unname(coef(m4)["zprob"]),tol=3e-2))
+}
 }

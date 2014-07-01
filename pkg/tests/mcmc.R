@@ -13,6 +13,7 @@ d$eta <- with(d,0.2+0.5*x+r[f])
 d$mu <- exp(d$eta)
 d$y <- rpois(ntot,lambda=d$mu)
 
+if (!check_rforge()) {
 g1 <- glmmadmb(y~x+(1|f),family="poisson",data=d)
 coef(g1)
 VarCorr(g1)
@@ -54,5 +55,6 @@ if (FALSE) {
                          mcmc=TRUE,mcmc.opts=mcmcControl(mcmc=100),
                          extra.args="-ndi 60000",
                          verbose=TRUE)
+}
 }
 }

@@ -12,6 +12,7 @@ u <- rnorm(nblock,sd=1)
 beta <- c(1,2)
 eta <- model.matrix(~x,data=d) %*% beta + u[as.numeric(d$f)]
 d$y <- rpois(N,exp(eta))
+if (!check_rforge()) {
 ##g1 <- glmm.admb(y~x,random=~1,group="f",family="poisson",data=d)
 g1 <- glmmadmb(y~x+(1|f),family="poisson",data=d)
 tol <- 1e-4  ## loosen tolerance (was 1e-6) to try to pass Windows tests?
@@ -72,3 +73,4 @@ if (FALSE) {
 }
 
 g2D <- glmmadmb(y~x+(x|f),family="poisson",data=d2)
+}

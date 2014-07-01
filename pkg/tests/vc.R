@@ -11,6 +11,7 @@ d <- transform(d,f12=interaction(f1,f2),y=rnorm(nrow(d)),x=rnorm(nrow(d)),x2=rno
 ## lme(y~1, random=~1|f1/f2,data=d))
 ## lme(y~1, random=~1|f1/f12,data=d))
 
+if (!check_rforge()) {
 t1 <- system.time(g1 <- glmmadmb(y~1+(1|f1/f2),family="gaussian",data=d))
 t2 <- system.time(g2 <- glmmadmb(y~1+(1|f1/f12),family="gaussian",data=d))
 VarCorr(g1)
@@ -51,3 +52,4 @@ if (FALSE) {
 ##  f1/f2  20  34.193 1.000000     0.432    2.200     26.337     4.848
 
 ## }
+}

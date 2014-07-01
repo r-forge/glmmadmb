@@ -26,6 +26,7 @@ d$mu <- cc$linkinv(d$eta)
 d$y0 <- rbinom(ntot,prob=d$mu0,size=1)
 d$y <- rbinom(ntot,prob=d$mu,size=1)
 
+if (!check_rforge()) {
 ## A. no random effects (vs glm)
 g0 <- glmmadmb(y0~x+offset(offset),data=d,
                family="binomial",link="cloglog")
@@ -96,4 +97,5 @@ g4C <- glmmadmb(y0~x,data=d,family="gaussian")
 stopifnot(all.equal(coef(g4),coef(g4B),coef(g4C)))
 stopifnot(all.equal(c(logLik(g4)),c(logLik(g4B)),c(logLik(g4C)),tol=1e-4))
 
+}
 }
