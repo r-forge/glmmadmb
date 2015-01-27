@@ -27,7 +27,6 @@ Depends:
 Suggests:
     lattice,
     lme4,
-    coda,
     mlmRev,
     plotMCMC,
     ggplot2,
