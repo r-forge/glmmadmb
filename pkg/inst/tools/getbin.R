@@ -69,31 +69,45 @@ get_allbin <- function(release) {
 
 bburl <- "http://admb-project.org/buildbot/glmmadmb/"
 
-get_bbot_versions <- function(os="all",rev="latest",bits="all") {
-  require(plyr)
-  z <- readLines(url(bburl))
-  desc <- z[grep("glmmadmb",z)]
-  sizes <- z[grep("[0-9][BKM]",z)]
-  desc <- desc[-1]  ## header line
-  desc <- gsub(".+\"(([a-z0-9.]|-)+).*","\\1",desc)
-  ## assume 0B = 0 -- everything else will be in M
-  sizes <- as.numeric(gsub(".+>([0-9.]+).*","\\1",sizes))
-  d <- data.frame(desc,sizes)
-  d <- subset(d,sizes>0)
-  if (os!="all") d <- d[grep(os,d$desc),]
-  if (bits!="all") d <- d[grep(paste(d$bits,"bit",sep="")),]
-  if (rev=="latest") {
-      ## d$type <- gsub("-r[0-9]+.*$","",d$desc)
-      d$type <- gsub("\\.bin$","",gsub("glmmadmb-r[0-9]+-","",d$desc))
-      d$ver <- as.numeric(gsub(".*-r([0-9]+).*$","\\1",d$desc))
-      d <- droplevels(ddply(d, .(type), function(x) x[which.max(x$ver),]))
-  } else if (ver!="all") {
-      d <- d[d$ver==ver,]
-  }
-  d <- transform(d,desc=as.character(desc),type=as.character(type))
-  d
+get_bbot_versions <- function(os="all",rev="latest",bits="all",
+                              bburl="http://admb-project.org/buildbot/glmmadmb/") {
+    require("plyr")
+    require("stringr")
+    OSvals <- c("fedora","macos","ubuntu","windows")
+    z <- suppressWarnings(readLines(url(bburl)))
+    desc <- z[grep("glmmadmb",z)]
+    sizes <- z[grep("[0-9][BKM]",z)]
+    desc <- desc[-1]  ## header line
+    desc <- gsub(".+\"(([a-z0-9.]|-)+).*","\\1",desc)
+    ## assume 0B = 0 -- everything else will be in M
+    sizes <- as.numeric(gsub(".+>([0-9.]+).*","\\1",sizes))
+    d <- data.frame(desc,sizes)
+    d <- subset(d,sizes>0)
+    if (os!="all") d <- d[grep(os,d$desc),]
+    if (bits!="all") d <- d[grep(paste(d$bits,"bit",sep="")),]
+    if (rev=="latest") {
+        ## d$type <- gsub("-r[0-9]+.*$","",d$desc)
+        d$type <- gsub("\\.bin$","",gsub("(glmmadmb-|r[0-9]+-)","",d$desc))
+        d$ver <- as.numeric(gsub(".*-r([0-9]+).*$","\\1",d$desc))
+        d <- droplevels(ddply(d, .(type), function(x) x[which.max(x$ver),]))
+    } else if (ver!="all") {
+        d <- d[d$ver==ver,]
+    }
+    OSopts <- paste(OSvals,collapse="|")
+    d <- mutate(d,
+                desc=as.character(desc),
+                type=as.character(type),
+                sdesc=gsub("(glmmadmb|r[0-9]+|\\.bin|\\.exe)","",desc),
+                glmmadmbver=as.numeric(gsub("[-r]","",
+                str_extract(desc,"-r[0-9]+-"))),
+                fullOS=str_extract(sdesc,paste0("(",OSopts,")[.0-9]+")),
+                OSver=str_extract(fullOS,"[0-9.]+"),
+                OSstr=str_extract(fullOS,"[[:alpha:]]+"))
+    d <- mutate(d,sdesc=gsub("^-+","",gsub("--","-",sdesc)))
+    return(d)
 }
 
+gg <- get_bbot_versions()
 download_bin <- function(x,quiet=FALSE) {
   download.file(paste(bburl,x,sep=""),x)
 }
@@ -121,3 +135,42 @@ test_allbin <- function(...) {
 
 ## test_allbin()
 ## get_allbin()
+
+if (FALSE) {
+    ## add to get_bbot_versions(); add latest.only
+    gg <- get_bbot_versions()
+    gg$sdesc <- gsub("(glmmadmb|-r[0-9]+|\\.bin|\\.exe)","",gg$desc)
+    gg$sdesc <- gsub("^-","",gg$sdesc)
+    table(gg$sdesc)
+    library("stringr")
+    glmmadmbver <- as.numeric(gsub("[-r]","",str_extract(gg$desc,"-r[0-9]+-")))
+    fullOS <- str_extract(gg$sdesc,"(fedora|macos|ubuntu|macos|windows)[.0-9]+")
+    OSver <- str_extract(fullOS,"[0-9.]+")
+    OSstr <- str_extract(fullOS,"[[:alpha:]]+")
+    gg2 <- with(gg,data.frame(OSstr,OSver,bits,ADMBver=ver))
+}
+## ISSUES
+## Johnoel: adopt consistent naming format?  (maybe we can just be clever about parsing ...)
+## back-compatibility; add MacOS < 10.9 builds?
+## should we change the system to allow downloads of different binaries?  (maybe there's
+##  a default binary but you can download a different one?)  If we have to include binaries
+## for all OS versions/compilers the package is going to get really really big ...
+
+
+## INSTRUCTIONS for manual replacement of binaries:
+## 1. go to http://admb-project.org/buildbot/glmmadmb/
+## 2. find the latest version (or the version you want) that's compatible with your OS
+## 3. download it somewhere
+## 4. from within R, glmmADMB:::get_bin_loc()
+## 
+
+if (FALSE){
+    library("glmmADMB"
+    bb <- glmmADMB:::get_bin_loc()[["bin_loc"]]
+    bpath <- gsub("glmmadmb$","",bb)
+    file.copy(bb,paste0(bpath,"glmmadmb.bak"))
+    bburl <- "http://admb-project.org/buildbot/glmmadmb/"
+    download.file(paste0(bburl,"glmmadmb-mingw64-r2885-windows8-mingw64.exe"),
+                  dest=bb)
+}
+

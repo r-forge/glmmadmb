@@ -1,6 +1,9 @@
 export(glmmadmb,glmm.admb,admbControl,mcmcControl,get_bin_version,getdata,check_rforge)
 
+importFrom(stringr,str_extract)
+importFrom(plyr,mutate,ddply)
 import(MASS,methods)
+importFrom(coda,mcmc)
 importFrom(nlme,ranef,fixef,VarCorr)
 importFrom(R2admb,dat_write,stdEr)
 importFrom(stats,nobs,extractAIC)
