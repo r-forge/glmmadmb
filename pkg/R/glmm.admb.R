@@ -50,9 +50,7 @@ mcmc_transform <- function(m,phi,fnames) {
         t_re <- re
     }
     m2 <- cbind(t_pz,t_fixed,t_theta,t_corr,t_alpha,t_re) 
-    if (require(coda)) {
-        m2 <- mcmc(m2)
-    }
+    m2 <- mcmc(m2)
     ## FIXME: set start, end, thin explicitly?
     m2
 }
