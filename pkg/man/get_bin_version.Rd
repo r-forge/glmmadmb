@@ -34,6 +34,8 @@ Ben Bolker
   si <- sessionInfo()
   sig <- si$otherPkgs$glmmADMB
   sig$Version       ## glmmADMB version
-  get_bin_version() ## ADMB binary version 
+  if (!check_rforge()) {
+        get_bin_version() ## ADMB binary version
+      }
 }
 \keyword{misc}

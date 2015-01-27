@@ -21,6 +21,8 @@ get_bbot_versions <- function(os="all",rev="latest",bits="all",
         d <- d[d$ver==ver,]
     }
     OSopts <- paste(OSvals,collapse="|")
+    ## suppress false-positive R CMD check warnings
+    type <- ver <- sdesc <- . <- fullOS <- NULL
     d <- mutate(d,
                 desc=as.character(desc),
                 type=as.character(type),
