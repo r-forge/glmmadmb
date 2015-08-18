@@ -17,6 +17,15 @@ export(step,stepAIC) ## STUBS to try to intercept ...
 ## export(dat_write) ## now use R2admb version
 ## export(nobs)
 
+## from base packages
+importFrom("graphics", "plot")
+importFrom("stats", "AIC", "as.formula", "cov2cor", "formula",
+             "logLik", "model.matrix", "model.offset", "model.response",
+             "pchisq", "plogis", "pnorm", "printCoefmat", "qlogis",
+             "qnorm", "terms", "update.formula", "vcov")
+importFrom("utils", "download.file", "file_test", "read.table",
+             "write.table")
+
 S3method(anova,glmmadmb)
 S3method(coef,glmmadmb)
 S3method(df.residual,glmmadmb)

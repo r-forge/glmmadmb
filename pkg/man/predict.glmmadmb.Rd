@@ -9,7 +9,9 @@
 }
 \usage{
 \S3method{predict}{glmmadmb}(object,
- newdata = NULL, type = c("link", "response"), se.fit = FALSE, interval = c("none", "confidence"), random = ~0, level = 0.95, \dots)
+ newdata = NULL, type = c("link", "response"),
+  se.fit = FALSE, interval = c("none", "confidence"),
+  random = ~0, level = 0.95, \dots)
 }
 \arguments{
   \item{object}{
