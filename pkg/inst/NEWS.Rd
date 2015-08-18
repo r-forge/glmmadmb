@@ -4,6 +4,12 @@
 \title{glmmADMB News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.8.2 (18-08-2015)}{
+  \itemize{
+    \item update binaries (at least for Windows, MacOS) to version
+    r2862
+  }
+}
 \section{Changes in version 0.8.0 (23-05-2014)}{
   \itemize{
     \item changed suggested package 'scapeMCMC' to 'plotMCMC'
