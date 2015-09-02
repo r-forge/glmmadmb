@@ -1,9 +1,10 @@
 Package: glmmADMB
-Version: 0.8.0
-Depends: R (>= 2.13), methods, MASS,
-Imports: stats, Matrix, nlme, R2admb
-Suggests: lattice, lme4, coda, mlmRev, plotMCMC, ggplot2, bbmle, pscl, knitr, car
+Version: 0.8.2
+Depends: R (>= 2.13), methods, MASS
+Imports: stats, Matrix, nlme, R2admb, stringr, plyr, coda
+Suggests: lattice, lme4, mlmRev, plotMCMC, ggplot2, bbmle, pscl, knitr,
+        car
 License: BSD_2_clause + file LICENSE
-MD5sum: c990bdc6ebd6e0162a54932067dcd737
+MD5sum: 200b1dd475f315790668e7902566fe51
 NeedsCompilation: no
 
