@@ -41,44 +41,62 @@ latter is somewhat out of date, although it may still contain useful information
 
 <h2>Installation</h2>
 
+Your best bet is 
+<pre>
+install.packages("R2admb")
+install.packages("glmmADMB", 
+    repos=c("http://glmmadmb.r-forge.r-project.org/repos",
+            getOption("repos")),
+    type="source")
+</pre>
+
+<hr>
+If you have trouble with the binary provided with your version of
+glmmADMB, here are the instructions for replacing it with a newer/different
+version:
 <ol>
-  <li>First try<br>
-    <code>install.packages("glmmADMB", repos="http://r-forge.r-project.org", type="source")</code>
-  <li>If this fails (because you don't have the very latest version of R, or because R-forge is having a bad day),
-    try<br>
-    <code>install.packages("glmmADMB", repos=c("http://glmmadmb.r-forge.r-project.org/repos",
-    getOption("repos")),type="source")</code><br>
-    ... with or without the <code>type="source".
-  <li>Arni Magnusson has uploaded glmmADMB 0.8.0 (24 May 2014) for Linux and Windows (R 3.x) to a local repository:<br>
-    <code>install.packages("glmmADMB", repos=c("http://www.hafro.is/~arnima/repos", getOption("repos")))</code>
-  <li>If all else fails, contact the package maintainers.
-  <li>Note that recent versions of <code>glmmADMB</code> (>=0.7) require the <code>R2admb</code> package as well; under
-    normal circumstances this should be installed automatically when you install <code>glmmADMB</code>, but if you run
-    into trouble you should try solutions similar to those listed above.
-  <li>At present the binaries included in the <code>glmmADMB</code> will <strong>not</strong> run on MacOS 10.5
-    (Leopard) or earlier. If you encounter this problem, your choices are:
-    <ul>
-      <li>Upgrade your system to a more recent version of MacOS (if possible).
-      <li>Build <code>glmmadmb</code> from its TPL file on your machine.  This will be a bit tricky if you are not
+<li>look at the output of <code>glmmADMB:::get_bin_loc()</code> 
+to determine where R will look for the compiled code for glmmADMB.</li>
+<li>Go to the <a href="http://www.admb-project.org/buildbot/glmmadmb/">Buildbot page</a> and retrieve a binary that is compatible with your OS.  In general, the file name format is something like <code>glmmadmb-r[version]-[OS]-[compiler]-[nbit]bit.(bin|exe)</code>, although the file names do change from time to time. In general you want to look for the highest numbered version compatible with your system (go to the bottom of the list and scroll up, except that the Windows versions are named differently and ended up at the top of the list).  For example, as of today (7 Oct 2015) I would choose from among the following:
+<pre>
+glmmadmb-mingw64-r2928-windows8-mingw32.exe
+glmmadmb-mingw64-r2928-windows8-mingw64.exe
+glmmadmb-r2924-macos10-xcode7-32bit.bin
+glmmadmb-r2924-macos10-xcode7-64bit.bin
+glmmadmb-r2928-ubuntu14-64bit.bin
+glmmadmb-r2928-fedora22-gcc5.1-32bit.bin
+glmmadmb-r2928-fedora22-gcc5.1-64bit.bin
+</pre>
+(it looks like you may be stuck if you want to run on 32-bit Ubuntu).
+Once you've found the binary you want, copy it to the location you determined in step #1 (you might want to make a backup of the old version).
+</li>
+<li>Try your code again and see if that helped.</li>
+<li>If you can't find an appropriate binary on the system, you may have to buildthe  <code>glmmadmb</code> binary from its TPL (<code>system.file("tpl","glmmadmb.tpl",package="glmmADMB")</code>) on your system (or find someone with a compatible system who can do it for you) and copy it to the appropriate location.</li>
+</ol>
+<hr>
+The binaries included in the <code>glmmADMB</code> will <strong>not</strong> run on MacOS 10.5 (Leopard) or earlier, and may have trouble with very old versions of Linux as well. If you encounter this problem, your choices are:
+<ul>
+  <li>Upgrade your system to a more recent version of MacOS (if possible).
+  <li>Build <code>glmmadmb</code> from its TPL file on your machine.  This will be a bit tricky if you are not
         reasonably experienced.
-        <ul>
-          <li>Download the full AD Model Builder  source code from the <a href="http://admb-project.org/downloads/">AD
-            Model Builder download page</a> and follow the
-            <a href="http://admb-project.org/documentation/faq#build">directions</a> for building AD Model Builder from
-            source; you may need to install Xcode, and you may need to ask for help at
-            <code>users@admb-project.org</code>. (Googling "admb macos 10.5" will be helpful as well, although it's
-            possible that you will need the most recent version of the ADMB source code to compile
-            <code>glmmadmb.tpl</code> properly ...)
-          <li>find the <code>glmmadmb.tpl</code> file in the <code>glmmADMB</code> package directories and use ADMB to
-            compile it to a binary
-          <li>copy the resulting binary to the <code>bin/macos32</code> or <code>bin/macos64</code> directory as
-            appropriate.
-        </ul>
-      <li>Contact the maintainers to appeal for help and find out if there any new developments in support for MacOS
-        versions less than 10.6.
-      <li>A similar process may work for other unsupported operating systems such as Solaris, but in that case it's also
-        probably a good idea to contact the maintainers.
+    <ul>
+      <li>Download the full AD Model Builder  source code from the <a href="http://admb-project.org/downloads/">AD
+          Model Builder download page</a> and follow the
+        <a href="http://admb-project.org/documentation/faq#build">directions</a> for building AD Model Builder from
+        source; you may need to install Xcode, and you may need to ask for help at
+        <code>users@admb-project.org</code>. (Googling "admb macos 10.5" will be helpful as well, although it's
+        possible that you will need the most recent version of the ADMB source code to compile
+        <code>glmmadmb.tpl</code> properly ...)
+      <li>find the <code>glmmadmb.tpl</code> file in the <code>glmmADMB</code> package directories and use ADMB to
+        compile it to a binary
+      <li>copy the resulting binary to the <code>bin/macos32</code> or <code>bin/macos64</code> directory as
+        appropriate.
     </ul>
+  <li>Contact the maintainers to appeal for help and find out if there any new developments in support for MacOS
+    versions less than 10.6.
+  <li>A similar process may work for other unsupported operating systems such as Solaris, but in that case it's also
+    probably a good idea to contact the maintainers.
+</ul>
 </ol>
 
 <h2>Additional documentation</h2>
