@@ -128,7 +128,9 @@ get_bin_loc <- function(file_name="glmmadmb",debug=FALSE) {
    list(bin_loc=bin_loc,platform=platform)
  }
 
-  run_bin <- function(platform,bin_loc,file_name,cmdoptions,run=TRUE,rm_binary=TRUE,debug=FALSE,verbose=FALSE) {
+run_bin <- function(platform,bin_loc,file_name,
+                    cmdoptions,run=TRUE,rm_binary=TRUE,
+                    debug=FALSE,verbose=FALSE) {
     ## copy executable even if not running code (i.e. make complete copy needed
     ##   to run ADMB outside of R)
     ## FIXME: for what platforms do we really need to copy the binary?
@@ -192,6 +194,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
       }
     }
   }
+  if (debug) cat("saving files into directory",save.dir,"\n")
   if (newdir <- !file_test("-d",save.dir)) {
     if (debug) cat("creating temp directory\n")
     dir.create(save.dir)
@@ -200,7 +203,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   if (debug) cat("changed working directory to",getwd(),"\n")
   on.exit({
     setwd(owd)
-    if (debug) cat("changed working directory to",getwd(),"\n")
+    if (debug) cat("restored working directory to",getwd(),"\n")
   })
   if (use_tmp_dir) {
     on.exit({
@@ -422,7 +425,9 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
 
   
   cmdoptions <- paste("-maxfn",maxfn)
-  if (!is.null(admb.opts$maxph) && !is.na(admb.opts$maxph)) cmdoptions <- paste(cmdoptions,"-maxph",admb.opts$maxph)
+  if (!is.null(admb.opts$maxph) && !is.na(admb.opts$maxph)) {
+      cmdoptions <- paste(cmdoptions,"-maxph",admb.opts$maxph)
+  }
   if (admb.opts$noinit) cmdoptions <- paste(cmdoptions,"-noinit")
   if (admb.opts$shess) cmdoptions <- paste(cmdoptions,"-shess")
   if (has_rand && impSamp>0) cmdoptions <- paste(cmdoptions,"-is",impSamp)
@@ -497,6 +502,11 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
       }
   }
 
+  if (debug) {
+      cat("writing .dat and .pin files\n")
+      cat("working directory:",getwd(),"\n")
+  }
+
   dat_write(file_name, dat_list)
   pin_write(file_name, pin_list)
   par_file <- paste0(file_name, ".par")
@@ -517,9 +527,11 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
             ## cat("Parameter file:\n")
             ## file.show(par_file)
         }
-        stop("The function maximizer failed (couldn't find STD file)",
+        if (debug) cat("run failed:",sys.result,"\n")
+        stop("The function maximizer failed (couldn't find parameter file)",
              " Troubleshooting steps include (1) run with 'save.dir' set ",
-             "and inspect output files; (2) change run parameters: see '?admbControl'")
+             "and inspect output files; (2) change run parameters: see '?admbControl';",
+             "(3) re-run with debug=TRUE for more information on failure mode")
     }
     message("'run=FALSE' specified, STD file not found: stopping")
     return(NULL)
