@@ -130,20 +130,26 @@ get_bin_loc <- function(file_name="glmmadmb",debug=FALSE) {
 
 run_bin <- function(platform,bin_loc,file_name,
                     cmdoptions,run=TRUE,rm_binary=TRUE,
-                    debug=FALSE,verbose=FALSE) {
+                    debug=FALSE,verbose=FALSE,copy.exec=NULL) {
     ## copy executable even if not running code (i.e. make complete copy needed
     ##   to run ADMB outside of R)
     ## FIXME: for what platforms do we really need to copy the binary?
-    ##  can't we just run it in place?  Or does it do something silly and produce
-  ##  output in the directory in which the binary lives rather than the
-  ##  current working directory (feel like I struggled with this earlier
-  ##  but have now forgotten -- ADMB mailing list archives??)
-  if (platform=="windows") {
-    cmd <- paste("\"",bin_loc, "\"", " ", cmdoptions, sep="")
+    ##  can't we just run it in place?
+    ## Or does it do something silly and produce
+    ##  output in the directory in which the binary lives rather than the
+    ##  current working directory (feel like I struggled with this earlier
+    ##  but have now forgotten -- ADMB mailing list archives??)
+    if (is.null(copy.exec)) {
+        copy.exec <- (platform!="windows")
+    }
+  if (!copy.exec) {
+      cmd <- paste("\"",bin_loc, "\"", " ", cmdoptions, sep="")
   } else {
-    cmd <- paste("./", file_name, " ", cmdoptions, sep="")
-    file.copy(bin_loc,".")
-    Sys.chmod(file_name,mode="0755") ## file.copy strips executable permissions????
+      pref <- if (platform!="windows") "./" else ""
+      cmd <- paste0(pref, file_name, " ", cmdoptions)
+      file.copy(bin_loc,".")
+      ## file.copy seems to strip executable permissions ...
+      Sys.chmod(file_name,mode="0755") 
   }
   if (debug) cat("Command line:",cmd,"\n")
   if (run) {
@@ -167,6 +173,7 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
                      save.dir, verbose=FALSE,
                      extra.args="",
                      bin_loc=NULL,
+                     copy.exec=TRUE,
                      debug=FALSE)
 {
 
@@ -515,7 +522,8 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
   ## file.remove(std_file)
 
   sys.result <- run_bin(platform,bin_loc,file_name,cmdoptions,run,
-                        rm_binary=!use_tmp_dir,debug=debug,verbose=verbose)
+                        rm_binary=!use_tmp_dir,debug=debug,
+                        copy.exec=copy.exec,verbose=verbose)
   
   if (!file.exists(std_file)) {
     if (run) {
