@@ -68,7 +68,7 @@ if (FALSE) {
     ## FIXME: test fails on windows with current versions (r1696 lme4, r211 glmmADMB)
     library(lme4)
     g2B <- glmer(y~x+(1|f)+(0+x|f),family="poisson",data=d2)
-    stopifnot(all.equal(fixef(g2B),coef(g2),tol=3e-5))
+    stopifnot(all.equal(fixef(g2B),coef(g2),tol=2e-4))
     stopifnot(all.equal(unname(unlist(VarCorr(g2B))),unname(diag(g2$S[[1]])),tol=3e-3))
 }
 
