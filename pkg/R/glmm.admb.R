@@ -689,8 +689,10 @@ glmmadmb <- function(formula, data, family="poisson", link,start,
                                 nbinom=sqrt(lambda*(1+lambda/alpha)),
                                 nbinom1=sqrt(lambda*alpha),
                                 betabinom=, binom=sqrt(fitted*(1-fitted)/nyobs),
-                                beta=sqrt(fitted*(1-fitted)/(1+alpha)),
-                                rep(NA,length(lambda))))
+                                beta=sqrt(lambda*(1-lambda)/(1+alpha)),
+                                ## gamma: parameterized as scale, mean (=shape*scale)
+                                gamma=sqrt(lambda*alpha),
+                                    {warning("sd.est not defined for this family"); rep(NA,length(lambda))}))
   ##  stop("sd.est not defined for family",family))
 
   if (family %in% c("binom","betabinom") && p_y>1) {
