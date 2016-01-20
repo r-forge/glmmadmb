@@ -4,6 +4,9 @@
 \title{glmmADMB News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.8.3 (18-08-2015)}{
+  \item fix gamma std dev
+}
 \section{Changes in version 0.8.2 (18-08-2015)}{
   \itemize{
     \item update binaries (at least for Windows, MacOS) to version
