@@ -14,7 +14,7 @@ glmmadmb(formula, data, family="poisson", link,start,
           admb.opts=admbControl(),
           mcmc=FALSE,mcmc.opts=mcmcControl(),save.dir,
           verbose=FALSE,extra.args="",
-          bin_loc=NULL,debug=FALSE)
+          bin_loc=NULL,copy.exec=TRUE,debug=FALSE)
 glmm.admb(\dots)  ## deprecated
 }
 \arguments{
@@ -90,12 +90,13 @@ glmm.admb(\dots)  ## deprecated
     files are saved. If \code{save.dir} is not specified, a temporary
     directory is created (with \code{\link{tempfile}}) and all ADMB input
     and output files are deleted after the ADMB run finishes and the results are read into R.}
-  \item{verbose}{(logical) Print interim output from AD Model Builder
+  \item{verbose}{(logical) print interim output from AD Model Builder
     run?}
   \item{extra.args}{(character) extra arguments to AD Model Builder (see
     ADMB manual)}
   \item{bin_loc}{location of \code{glmmadmb} binary file (normally determined automatically by
               \code{glmmADMB:::get_bin_loc})}
+  \item{copy.exec}{(logical) copy model executable from \code{bin_loc}}
   \item{debug}{(logical) print debugging statements?}
   \item{\dots}{arguments to pass through to \code{glmmadmb}}
 }

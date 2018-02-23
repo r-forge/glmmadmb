@@ -1,16 +1,18 @@
 Package: glmmADMB
-Version: 0.8.3.3
+Version: 0.8.3.4
 Revision: $Revision$
-Date: 2016-01-19
+Date: 2018-02-23
 Title: Generalized Linear Mixed Models using 'AD Model Builder'
-Author: Hans Skaug <Hans.Skaug@mi.uib.no>, Dave Fournier
-    <otter@otter-rsch.com>, Anders Nielsen <andersn@hawaii.edu>, Arni Magnusson
-    <arnima@hafro.is>, and Ben Bolker <bolker@mcmaster.ca>
+Author: Hans Skaug <hans.skaug@uib.no>,
+    Dave Fournier <otter@otter-rsch.com>,
+    Anders Nielsen <an@aqua.dtu.dk>
+    Arni Magnusson <arni.magnusson@ices.dk>, and
+    Ben Bolker <bolker@mcmaster.ca>
 Maintainer: Ben Bolker <bolker@mcmaster.ca>
 LazyData: yes
 BuildVignettes: no
 VignetteBuilder: knitr
-Description: Fits mixed-effects models using a variety of distributions.
+Description: Fit mixed-effects models using a variety of distributions.
 Imports:
     stats,
     Matrix,
