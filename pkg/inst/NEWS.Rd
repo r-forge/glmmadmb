@@ -4,8 +4,18 @@
 \title{glmmADMB News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.8.3.4 (23-02-2018)}{
+  \itemize{
+    \item fixed warning about NEWS.Rd syntax
+    \item fixed warning about check_rforge() help page
+    \item fixed warning about undocumented arg in glmmadmb()
+  }
+}
+
 \section{Changes in version 0.8.3 (18-08-2015)}{
-  \item fix gamma std dev
+  \itemize{
+    \item fix gamma std dev
+  }
 }
 \section{Changes in version 0.8.2 (18-08-2015)}{
   \itemize{
